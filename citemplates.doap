@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/"
+         xmlns:gnome="http://api.gnome.org/doap-extensions#"
+         xmlns="http://usefulinc.com/ns/doap#">
+
+  <name xml:lang="en">CITemplates</name>
+  <shortdesc xml:lang="en">CI templates for GNOME</shortdesc>
+  <description xml:lang="en">CI templates for GNOME</description>
+  <homepage rdf:resource="https://gitlab.gnome.org/GNOME/citemplates/" />
+  <mailing-list rdf:resource="https://mail.gnome.org/mailman/listinfo/citemplates" />
+  <download-page rdf:resource="https://download.gnome.org/sources/citemplates/" />
+  <bug-database rdf:resource="https://gitlab.gnome.org/GNOME/citemplates/issues" />
+
+  <category rdf:resource="http://api.gnome.org/doap-extensions#core" />
+  <programming-language>YAML</programming-language>
+
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Carlos Soriano Sanchez</foaf:name>
+      <foaf:mbox rdf:resource="mailto:csoriano@gnome.org" />
+      <gnome:userid>csoriano</gnome:userid>
+    </foaf:Person>
+  </maintainer>
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Jordan Petridis</foaf:name>
+      <foaf:mbox rdf:resource="mailto:jpetridis@gnome.org" />
+      <gnome:userid>jpetridis</gnome:userid>
+    </foaf:Person>
+  </maintainer>
+</Project>
