@@ -1,0 +1,81 @@
+.flatpak:
+  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
+  stage: 'test'
+  script:
+    - flatpak-builder --stop-at=${FLATPAK_MODULE} app ${MANIFEST_PATH}
+    # Make sure to keep this in sync with the Flatpak manifest, all arguments
+    # are passed except the config-args because we build it ourselves
+    - flatpak build app meson --prefix=/app ${CONFIGURE_ARGS} _build
+    - flatpak build app ninja -C _build install
+    - flatpak-builder --finish-only --repo=repo app ${MANIFEST_PATH}
+    # Run automatic tests inside the Flatpak env
+    - >
+      xvfb-run -a -s "-screen 0 1024x768x24"
+      dbus-run-session
+      flatpak build
+      --env=LANG=C.UTF-8
+      --env=NO_AT_BRIDGE=1
+      app
+      meson test -C _build --no-stdsplit --print-errorlogs
+    # Generate a Flatpak bundle
+    - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${DBUS_ID}
+  artifacts:
+    when: 'always'
+    paths:
+      - "${BUNDLE}"
+      - '_build/meson-logs/meson-log.txt'
+      - '_build/meson-logs/testlog.txt'
+    expire_in: 2 days
+  cache:
+    key: "$CI_JOB_NAME"
+    paths:
+      - '.flatpak-builder/downloads'
+      - '.flatpak-builder/git'
+  except:
+    refs:
+      - 'master'
+    variables:
+      # Don't run for translation commits
+      - $CI_COMMIT_TITLE =~ /^Update.*translation$/
+
+.review:
+  stage: 'deploy'
+  script:
+    - echo "Generating flatpak deployment"
+  artifacts:
+    paths:
+      - "${BUNDLE}"
+    expire_in: 30 days
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://gitlab.gnome.org/$CI_PROJECT_PATH/-/jobs/$CI_JOB_ID/artifacts/raw/${BUNDLE}
+    on_stop: stop_review
+  except:
+    refs:
+      - 'tags'
+      # No need to run on the upstream master branch either
+      - 'master'
+      # don't run on stable branches
+      - /^gnome-\d-\d\d$/
+    variables:
+      # Don't run for translation commits
+      - $CI_COMMIT_TITLE =~ /^Update.*translation$/
+
+.stop_review:
+  stage: 'deploy'
+  script:
+    - echo "Stopping flatpak deployment"
+  when: 'manual'
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    action: 'stop'
+  except:
+    refs:
+      - 'tags'
+      # No need to run on the upstream master branch either
+      - 'master'
+      # don't run on stable branches
+      - /^gnome-\d-\d\d$/
+    variables:
+      # Don't run for translation commits
+      - $CI_COMMIT_TITLE =~ /^Update.*translation$/
