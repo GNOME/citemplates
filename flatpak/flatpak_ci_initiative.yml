@@ -11,11 +11,11 @@
     # Run automatic tests inside the Flatpak env
     - >
       xvfb-run -a -s "-screen 0 1024x768x24"
-      dbus-run-session
       flatpak build
       --env=LANG=C.UTF-8
       --env=NO_AT_BRIDGE=1
       app
+      dbus-run-session
       meson test -C _build --no-stdsplit --print-errorlogs
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${DBUS_ID}
