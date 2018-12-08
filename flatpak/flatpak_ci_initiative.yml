@@ -18,7 +18,7 @@
       dbus-run-session
       meson test -C _build --no-stdsplit --print-errorlogs
     # Generate a Flatpak bundle
-    - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${DBUS_ID}
+    - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${APP_ID}
   artifacts:
     when: 'always'
     paths:
