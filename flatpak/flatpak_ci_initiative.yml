@@ -33,8 +33,6 @@
       - '.flatpak-builder/downloads'
       - '.flatpak-builder/git'
   except:
-    refs:
-      - 'master'
     variables:
       # Don't run for translation commits
       - $CI_COMMIT_TITLE =~ /^Update.*translation$/
