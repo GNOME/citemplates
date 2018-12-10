@@ -14,7 +14,6 @@
       flatpak build
       --env=LANG=C.UTF-8
       --env=NO_AT_BRIDGE=1
-      --env=G_DEBUG=fatal-warnings
       app
       dbus-run-session
       meson test -C _build --no-stdsplit --print-errorlogs
