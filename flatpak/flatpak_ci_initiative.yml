@@ -35,7 +35,6 @@
     variables:
       # Don't run for translation commits
       - $CI_COMMIT_TITLE =~ /^Update.*translation$/
-    - pages
 
 .review:
   stage: 'deploy'
