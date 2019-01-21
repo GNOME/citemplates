@@ -14,6 +14,7 @@
       flatpak build
       --env=LANG=C.UTF-8
       --env=NO_AT_BRIDGE=1
+      --socket=x11
       app
       dbus-run-session
       meson test -C _build --no-stdsplit --print-errorlogs
