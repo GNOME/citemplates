@@ -31,10 +31,6 @@
     paths:
       - '.flatpak-builder/downloads'
       - '.flatpak-builder/git'
-  except:
-    variables:
-      # Don't run for translation commits
-      - $CI_COMMIT_TITLE =~ /^Update.*translation$/
 
 .review:
   stage: 'deploy'
@@ -55,9 +51,6 @@
       - 'master'
       # don't run on stable branches
       - /^gnome-\d-\d\d$/
-    variables:
-      # Don't run for translation commits
-      - $CI_COMMIT_TITLE =~ /^Update.*translation$/
 
 .stop_review:
   stage: 'deploy'
@@ -74,6 +67,3 @@
       - 'master'
       # don't run on stable branches
       - /^gnome-\d-\d\d$/
-    variables:
-      # Don't run for translation commits
-      - $CI_COMMIT_TITLE =~ /^Update.*translation$/
