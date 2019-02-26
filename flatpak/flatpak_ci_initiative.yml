@@ -14,9 +14,11 @@
       flatpak build
       --env=LANG=C.UTF-8
       --env=NO_AT_BRIDGE=1
+      ${TEST_BUILD_ARGS}
       app
       dbus-run-session
-      meson test -C _build --no-stdsplit --print-errorlogs
+      meson test -C _build --no-stdsplit --print-errorlogs ${TEST_RUN_ARGS}
+
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${APP_ID}
   artifacts:
