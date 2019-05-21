@@ -2,12 +2,12 @@
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
   stage: 'test'
   script:
-    - flatpak-builder --stop-at=${FLATPAK_MODULE} app ${MANIFEST_PATH}
+    - flatpak-builder --stop-at=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH}
     # Make sure to keep this in sync with the Flatpak manifest, all arguments
     # are passed except the config-args because we build it ourselves
-    - flatpak build app meson --prefix=/app ${MESON_ARGS} _build
-    - flatpak build app ninja -C _build install
-    - flatpak-builder --finish-only --repo=repo ${BRANCH:+--default-branch=$BRANCH} app ${MANIFEST_PATH}
+    - flatpak build flatpak_app meson --prefix=/app ${MESON_ARGS} _build
+    - flatpak build flatpak_app ninja -C _build install
+    - flatpak-builder --finish-only --repo=repo ${BRANCH:+--default-branch=$BRANCH} flatpak_app ${MANIFEST_PATH}
     # Run automatic tests inside the Flatpak env
     - >
       xvfb-run -a -s "-screen 0 1024x768x24"
@@ -15,7 +15,7 @@
       --env=LANG=C.UTF-8
       --env=NO_AT_BRIDGE=1
       ${TEST_BUILD_ARGS}
-      app
+      flatpak_app
       dbus-run-session
       meson test -C _build --no-stdsplit --print-errorlogs ${TEST_RUN_ARGS}
 
