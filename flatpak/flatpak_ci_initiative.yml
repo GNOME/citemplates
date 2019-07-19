@@ -69,3 +69,25 @@
       - 'master'
       # don't run on stable branches
       - /^gnome-\d-\d\d$/
+
+.publish_nightly:
+  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
+  stage: 'deploy'
+  script:
+    - |
+      for BUNDLE in ${BUNDLES}; do
+          flatpak build-import-bundle repo ${BUNDLE}
+      done
+
+    - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
+    - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/ || result=$?
+    - flat-manager-client purge ${BUILD_ID}
+    - exit $result
+  variables:
+    FLAT_MANAGER_URL: https://gbm.gnome.org/
+    FLATPAK_REPO: nightly
+  only:
+    refs:
+      - master
+    variables:
+      - $REPO_TOKEN
