@@ -84,7 +84,5 @@
     - flat-manager-client purge ${BUILD_ID}
     - exit $result
   only:
-    refs:
-      - master
     variables:
       - $REPO_TOKEN
