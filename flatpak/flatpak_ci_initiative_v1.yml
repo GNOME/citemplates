@@ -19,12 +19,10 @@
       dbus-run-session
       meson test -C _build --no-stdsplit --print-errorlogs ${TEST_RUN_ARGS}
 
-    # Generate a Flatpak bundle
-    - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
   artifacts:
     when: 'always'
     paths:
-      - "${BUNDLE}"
+      - 'repo/'
       - '_build/meson-logs/meson-log.txt'
       - '_build/meson-logs/testlog.txt'
     expire_in: 2 days
@@ -35,9 +33,11 @@
       - '.flatpak-builder/git'
 
 .review:
+  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/base'
   stage: 'deploy'
   script:
-    - echo "Generating flatpak deployment"
+    # Generate a Flatpak bundle
+    - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
   artifacts:
     paths:
       - "${BUNDLE}"
@@ -74,12 +74,6 @@
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
   stage: 'deploy'
   script:
-    - ostree init --repo repo --mode archive
-    - |
-      for BUNDLE in ${BUNDLES}; do
-          flatpak build-import-bundle repo ${BUNDLE}
-      done
-
     - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
     - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/ || result=$?
     - flat-manager-client purge ${BUILD_ID}
