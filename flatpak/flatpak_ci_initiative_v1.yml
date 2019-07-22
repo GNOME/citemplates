@@ -7,6 +7,15 @@
     # are passed except the config-args because we build it ourselves
     - flatpak build flatpak_app meson --prefix=/app ${MESON_ARGS} _build
     - flatpak build flatpak_app ninja -C _build install
+    - |
+      flatpak build flatpak_app bash -c \
+      'for lang in $(ls /app/share/locale/); do \
+        ll=$(echo ${lang} | egrep -o '^[a-z]+'); \
+        test ${ll} == en && continue; \
+        mkdir -p /app/share/runtime/locale/${ll}/share; \
+        mv /app/share/locale/${lang} /app/share/runtime/locale/${ll}/share/; \
+        ln -s ../../share/runtime/locale/${ll}/share/${lang} /app/share/locale; \
+      done'
     - flatpak-builder --finish-only --repo=repo ${BRANCH:+--default-branch=$BRANCH} flatpak_app ${MANIFEST_PATH}
     # Run automatic tests inside the Flatpak env
     - >
