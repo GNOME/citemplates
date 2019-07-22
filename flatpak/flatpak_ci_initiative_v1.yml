@@ -129,7 +129,5 @@
     FLAT_MANAGER_URL: https://gbm.gnome.org/
     FLATPAK_REPO: nightly
   only:
-    refs:
-      - master
     variables:
       - $REPO_TOKEN
