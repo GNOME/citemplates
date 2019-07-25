@@ -12,6 +12,7 @@
       'for lang in $(ls /app/share/locale/); do \
         ll=$(echo ${lang} | egrep -o '^[a-z]+'); \
         test ${ll} == en && continue; \
+        test -L /app/share/locale/${lang} && continue; \
         mkdir -p /app/share/runtime/locale/${ll}/share; \
         mv /app/share/locale/${lang} /app/share/runtime/locale/${ll}/share/; \
         ln -s ../../share/runtime/locale/${ll}/share/${lang} /app/share/locale; \
