@@ -46,7 +46,6 @@
       sort -zu < source-files | while read -r -d \$'\\0' source; do \
         dst=/app/lib/debug/source/${FLATPAK_MODULE}/\${source}; \
         src=\${source}; \
-        echo \${src} \${dst}; \
         if [ -d \${src} ]; then \
           install -m0755 -d \${dst}; \
           continue; \
