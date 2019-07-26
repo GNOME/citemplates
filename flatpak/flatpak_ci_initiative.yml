@@ -21,7 +21,7 @@
       flatpak build flatpak_app bash -c \
       "find /app -type f '(' -perm -111 -o -name '*.so*' ')' -print0 | while read -r -d $'\\0' file; do \
         read -n4 hdr < \${file} || continue; \
-        if [ \$hdr != \$(printf \\\\x7fELF) ]; then \
+        if [ \"\$hdr\" != \$(printf \\\\x7fELF) ]; then \
           continue; \
         fi; \
         if objdump -j .gnu_debuglink -s \${file} &> /dev/null; then \
@@ -46,7 +46,6 @@
       sort -zu < source-files | while read -r -d \$'\\0' source; do \
         dst=/app/lib/debug/source/${FLATPAK_MODULE}/\${source}; \
         src=\${source}; \
-        echo \${src} \${dst}; \
         if [ -d \${src} ]; then \
           install -m0755 -d \${dst}; \
           continue; \
