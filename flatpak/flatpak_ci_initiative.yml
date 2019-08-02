@@ -127,7 +127,7 @@
     - flat-manager-client purge ${BUILD_ID}
     - exit $result
   variables:
-    FLAT_MANAGER_URL: https://gbm.gnome.org/
+    FLAT_MANAGER_URL: https://nightly.gnome.org/
     FLATPAK_REPO: nightly
   only:
     refs:
