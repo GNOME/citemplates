@@ -5,10 +5,10 @@
     - flatpak-builder --stop-at=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH}
     # Make sure to keep this in sync with the Flatpak manifest, all arguments
     # are passed except the config-args because we build it ourselves
-    - flatpak build flatpak_app meson --prefix=/app ${MESON_ARGS} _build
-    - flatpak build flatpak_app ninja -C _build install
+    - flatpak-builder --run flatpak_app ${MANIFEST_PATH} meson --prefix=/app ${MESON_ARGS} _build
+    - flatpak-builder --run flatpak_app ${MANIFEST_PATH} ninja -C _build install
     - |
-      flatpak build flatpak_app bash -c \
+      flatpak-builder --run flatpak_app ${MANIFEST_PATH} bash -c \
       'for lang in $(ls /app/share/locale/); do \
         ll=$(echo ${lang} | egrep -o '^[a-z]+'); \
         test ${ll} == en && continue; \
@@ -18,7 +18,7 @@
         ln -s ../../share/runtime/locale/${ll}/share/${lang} /app/share/locale; \
       done'
     - |
-      flatpak build flatpak_app bash -c \
+      flatpak-builder --run flatpak_app ${MANIFEST_PATH} bash -c \
       "find /app -type f '(' -perm -111 -o -name '*.so*' ')' -print0 | while read -r -d $'\\0' file; do \
         read -n4 hdr < \${file} || continue; \
         if [ \"\$hdr\" != \$(printf \\\\x7fELF) ]; then \
@@ -58,11 +58,12 @@
     # Run automatic tests inside the Flatpak env
     - >
       xvfb-run -a -s "-screen 0 1024x768x24"
-      flatpak build
+      flatpak-builder --run
       --env=LANG=C.UTF-8
       --env=NO_AT_BRIDGE=1
       ${TEST_BUILD_ARGS}
       flatpak_app
+      ${MANIFEST_PATH}
       dbus-run-session
       meson test -C _build --no-stdsplit --print-errorlogs ${TEST_RUN_ARGS}
 
