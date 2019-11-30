@@ -69,13 +69,15 @@
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
   artifacts:
+    name: 'Flatpak artifacts'
+    expose_as: 'Get Flatpak bundle here'
     when: 'always'
     paths:
       - "${BUNDLE}"
       - 'repo/'
       - '_build/meson-logs/meson-log.txt'
       - '_build/meson-logs/testlog.txt'
-    expire_in: 2 days
+    expire_in: 14 days
   cache:
     key: "$CI_JOB_NAME"
     paths:
@@ -85,38 +87,22 @@
 .review:
   stage: 'deploy'
   script:
-    - echo "Generating flatpak deployment"
-  artifacts:
-    paths:
-      - "${BUNDLE}"
-    expire_in: 30 days
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    url: https://gitlab.gnome.org/$CI_PROJECT_PATH/-/jobs/$CI_JOB_ID/artifacts/raw/${BUNDLE}
-    on_stop: stop_review
+    - echo "This job has been deprecated and is no longer needed!"
   except:
     refs:
       - 'tags'
-      # No need to run on the upstream master branch either
       - 'master'
-      # don't run on stable branches
-      - /^gnome-\d-\d\d$/
+      - 'branches'
 
 .stop_review:
   stage: 'deploy'
   script:
-    - echo "Stopping flatpak deployment"
-  when: 'manual'
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    action: 'stop'
+    - echo "This job has been deprecated and is no longer needed!"
   except:
     refs:
       - 'tags'
-      # No need to run on the upstream master branch either
       - 'master'
-      # don't run on stable branches
-      - /^gnome-\d-\d\d$/
+      - 'branches'
 
 .publish_nightly:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
