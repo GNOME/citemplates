@@ -1,6 +1,6 @@
 .flatpak:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
-  stage: 'test'
+  stage: '.pre'
   script:
     - flatpak-builder --stop-at=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH}
     # Make sure to keep this in sync with the Flatpak manifest, all arguments
@@ -85,7 +85,7 @@
       - '.flatpak-builder/git'
 
 .review:
-  stage: 'deploy'
+  stage: '.post'
   script:
     - echo "This job has been deprecated and is no longer needed!"
   except:
@@ -95,7 +95,7 @@
       - 'branches'
 
 .stop_review:
-  stage: 'deploy'
+  stage: '.post'
   script:
     - echo "This job has been deprecated and is no longer needed!"
   except:
@@ -106,7 +106,7 @@
 
 .publish_nightly:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
-  stage: 'deploy'
+  stage: '.post'
   script:
     - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
     - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/ || result=$?
