@@ -2,7 +2,7 @@
 # extension. Use `flatpak_ci_initiative.yml` for everything else.
 .flatpak:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
-  stage: 'test'
+  stage: '.pre'
   script:
     - flatpak-builder --stop-at=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH}
     # Make sure to keep this in sync with the Flatpak manifest, all arguments
@@ -72,13 +72,15 @@
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
   artifacts:
+    name: 'Flatpak artifacts'
+    expose_as: 'Get Flatpak bundle here'
     when: 'always'
     paths:
       - "${BUNDLE}"
       - 'repo/'
       - '_build/meson-logs/meson-log.txt'
       - '_build/meson-logs/testlog.txt'
-    expire_in: 2 days
+    expire_in: 14 days
   cache:
     key: "$CI_JOB_NAME"
     paths:
@@ -86,44 +88,28 @@
       - '.flatpak-builder/git'
 
 .review:
-  stage: 'deploy'
+  stage: '.post'
   script:
-    - echo "Generating flatpak deployment"
-  artifacts:
-    paths:
-      - "${BUNDLE}"
-    expire_in: 30 days
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    url: https://gitlab.gnome.org/$CI_PROJECT_PATH/-/jobs/$CI_JOB_ID/artifacts/raw/${BUNDLE}
-    on_stop: stop_review
+    - echo "This job has been deprecated and is no longer needed!"
   except:
     refs:
       - 'tags'
-      # No need to run on the upstream master branch either
       - 'master'
-      # don't run on stable branches
-      - /^gnome-\d-\d\d$/
+      - 'branches'
 
 .stop_review:
-  stage: 'deploy'
+  stage: '.post'
   script:
-    - echo "Stopping flatpak deployment"
-  when: 'manual'
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    action: 'stop'
+    - echo "This job has been deprecated and is no longer needed!"
   except:
     refs:
       - 'tags'
-      # No need to run on the upstream master branch either
       - 'master'
-      # don't run on stable branches
-      - /^gnome-\d-\d\d$/
+      - 'branches'
 
 .publish_nightly:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
-  stage: 'deploy'
+  stage: '.post'
   script:
     - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
     - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/ || result=$?
