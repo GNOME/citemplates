@@ -26,13 +26,14 @@
 
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
+    - tar cf repo.tar repo/
   artifacts:
     name: 'Flatpak artifacts'
     expose_as: 'Get Flatpak bundle here'
     when: 'always'
     paths:
       - "${BUNDLE}"
-      - 'repo/'
+      - 'repo.tar'
       - '_build/meson-logs/meson-log.txt'
       - '_build/meson-logs/testlog.txt'
     expire_in: 14 days
@@ -66,6 +67,7 @@
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
   stage: '.post'
   script:
+    - tar xf repo.tar
     - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
     - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/ || result=$?
     - flat-manager-client purge ${BUILD_ID}
