@@ -3,17 +3,19 @@
 .flatpak:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
   stage: '.pre'
+  tags:
+    - flatpak
   script:
-    - flatpak-builder --stop-at=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH}
+    - flatpak-builder --user --disable-rofiles-fuse --stop-at=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH}
     # Make sure to keep this in sync with the Flatpak manifest, all arguments
     # are passed except the config-args because we build it ourselves
-    - flatpak-builder --run flatpak_app ${MANIFEST_PATH} meson --prefix=/app ${MESON_ARGS} _build
-    - flatpak-builder --run flatpak_app ${MANIFEST_PATH} ninja -C _build install
-    - flatpak-builder --finish-only --repo=repo ${BRANCH:+--default-branch=$BRANCH} flatpak_app ${MANIFEST_PATH}
+    - flatpak-builder --run --disable-rofiles-fuse flatpak_app ${MANIFEST_PATH} meson --prefix=/app ${MESON_ARGS} _build
+    - flatpak-builder --run --disable-rofiles-fuse flatpak_app ${MANIFEST_PATH} ninja -C _build install
+    - flatpak-builder --disable-rofiles-fuse --finish-only --repo=repo ${BRANCH:+--default-branch=$BRANCH} flatpak_app ${MANIFEST_PATH}
     # Run automatic tests inside the Flatpak env
     - >
       xvfb-run -a -s "-screen 0 1024x768x24"
-      flatpak-builder --run
+      flatpak-builder --run --disable-rofiles-fuse
       --env=LANG=C.UTF-8
       --env=NO_AT_BRIDGE=1
       ${TEST_BUILD_ARGS}
