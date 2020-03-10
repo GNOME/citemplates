@@ -1,6 +1,6 @@
 .flatpak:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
-  stage: '.pre'
+  stage: 'test'
   tags:
     - flatpak
   script:
@@ -88,7 +88,7 @@
       - '.flatpak-builder/git'
 
 .review:
-  stage: '.post'
+  stage: 'deploy'
   script:
     - echo "This job has been deprecated and is no longer needed!"
   except:
@@ -98,7 +98,7 @@
       - 'branches'
 
 .stop_review:
-  stage: '.post'
+  stage: 'deploy'
   script:
     - echo "This job has been deprecated and is no longer needed!"
   except:
@@ -109,7 +109,7 @@
 
 .publish_nightly:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
-  stage: '.post'
+  stage: 'deploy'
   script:
     - tar xf repo.tar
     - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
