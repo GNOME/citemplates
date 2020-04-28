@@ -16,7 +16,7 @@
     # we need to recreate the build directory because cleanup would have deleted build dependencies
     - rm -rf flatpak_app
     - flatpak-builder --user --disable-rofiles-fuse --build-only flatpak_app ${MANIFEST_PATH}
-    - flatpak build-finish --socket=x11 flatpak_app
+    - flatpak build-finish --socket=x11 --share=network flatpak_app
     - >
       xvfb-run -a -s "-screen 0 1024x768x24"
       flatpak-builder --user --disable-rofiles-fuse --build-shell=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH} <<END
