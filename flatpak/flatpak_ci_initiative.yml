@@ -71,9 +71,9 @@
     - tar xf repo.tar
     - flatpak build-update-repo --generate-static-deltas repo/
     - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
-    - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/
-  after_script:
+    - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/ || result=$?
     - flat-manager-client purge ${BUILD_ID}
+    - exit $result
   variables:
     FLAT_MANAGER_URL: https://nightly.gnome.org/
     FLATPAK_REPO: nightly
