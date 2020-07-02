@@ -79,6 +79,8 @@
     FLATPAK_REPO: nightly
   only:
     refs:
-      - master
+      - 'master'
+      - 'main'
+      - 'mainline'
     variables:
       - $REPO_TOKEN
