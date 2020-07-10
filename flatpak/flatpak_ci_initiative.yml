@@ -2,6 +2,8 @@
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
   stage: 'test'
   interruptible: true
+  variables:
+    GIT_DEPTH: '1'
   tags:
     - flatpak
   script:
@@ -45,6 +47,8 @@
 
 .review:
   stage: 'deploy'
+  variables:
+    GIT_STRATEGY: 'none'
   script:
     - echo "This job has been deprecated and is no longer needed!"
   except:
@@ -55,6 +59,8 @@
 
 .stop_review:
   stage: 'deploy'
+  variables:
+    GIT_STRATEGY: 'none'
   script:
     - echo "This job has been deprecated and is no longer needed!"
   except:
@@ -67,6 +73,12 @@
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
   stage: 'deploy'
   timeout: '100m'
+  variables:
+    # FIXME: this should have been none, but its possible that doing so
+    # will break pipelines that don't add an explicit `needs/depencency`
+    # key to the nightly job :/
+    # GIT_STRATEGY: 'none'
+    GIT_DEPTH: '1'
   script:
     - tar xf repo.tar
     - flatpak build-update-repo --generate-static-deltas repo/
