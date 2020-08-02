@@ -43,26 +43,6 @@
       - '.flatpak-builder/downloads'
       - '.flatpak-builder/git'
 
-.review:
-  stage: 'deploy'
-  script:
-    - echo "This job has been deprecated and is no longer needed!"
-  except:
-    refs:
-      - 'tags'
-      - 'master'
-      - 'branches'
-
-.stop_review:
-  stage: 'deploy'
-  script:
-    - echo "This job has been deprecated and is no longer needed!"
-  except:
-    refs:
-      - 'tags'
-      - 'master'
-      - 'branches'
-
 .publish_nightly:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
   stage: 'deploy'
