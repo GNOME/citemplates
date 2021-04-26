@@ -62,5 +62,6 @@
       - 'master'
       - 'main'
       - 'mainline'
+      - $CI_DEFAULT_BRANCH
     variables:
       - $REPO_TOKEN
