@@ -78,3 +78,43 @@
       - $CI_DEFAULT_BRANCH
     variables:
       - $REPO_TOKEN
+
+# This is not meant to be used as part of every CI pipeline, but
+# instead on special occasions like when tagging a beta release.
+#
+# Ideally there are special requirements for pushing to flathub-beta
+# that you need to make sure you follow if you want to use this.
+# Whats needed is the following:
+#
+# * Ask a sysadmin to add a FLATHUB_BETA_TOKEN to your project and
+#   make sure your branch is protected
+# * Make sure you application depends on a runtime found in Flathub
+#   or Flathub beta. You shouldn't use this with the Nightly runtime.
+# * Make sure your 'branch' in the Flatpak manifest is beta,
+#   if you haven't specified a branch in the manifest you can use $BRANCH
+#   variable in the .flatpak template to change the --default-branch
+# * Change only: and when: yaml keys to fit your needs
+.publish_beta:
+  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
+  stage: 'deploy'
+  timeout: '100m'
+  script:
+    - tar xf repo.tar
+    - export REPO_TOKEN=$FLATHUB_BETA_TOKEN
+    - flatpak build-update-repo --generate-static-deltas repo/
+    - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
+    - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/ || result=$?
+    - flat-manager-client purge ${BUILD_ID}
+    - exit $result
+  when: 'manual'
+  variables:
+    FLAT_MANAGER_URL: 'https://hub.flathub.org'
+    FLATPAK_REPO: 'beta'
+  only:
+    refs:
+      - 'master'
+      - 'main'
+      - 'mainline'
+      - $CI_DEFAULT_BRANCH
+    variables:
+      - $FLATHUB_BETA_TOKEN
