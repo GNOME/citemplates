@@ -2,7 +2,11 @@
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
   stage: 'test'
   interruptible: true
+  # Till now this was the template job used for everything,
+  # so assume its default tags are x86 to avoid breaking backwards
+  # compatibility.
   tags:
+    - x86_64
     - flatpak
   script:
     # Report the installed versions of the runtime
@@ -46,6 +50,17 @@
     reports:
       junit: '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-logs/testlog.junit.xml'
     expire_in: 14 days
+
+.flatpak@x86_64:
+  extends: '.flatpak'
+  tags:
+    - x86_64
+    - flatpak
+
+.flatpak@aarch64:
+  extends: '.flatpak'
+  tags:
+    - flatpak-aarch64
 
 .publish_nightly:
   image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
