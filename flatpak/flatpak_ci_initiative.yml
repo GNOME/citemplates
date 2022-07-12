@@ -40,10 +40,9 @@
 
   artifacts:
     name: 'Flatpak artifacts'
-    expose_as: 'Get Flatpak bundle here'
     when: 'always'
     paths:
-      - "${BUNDLE}"
+      - $BUNDLE
       - 'repo.tar'
       - '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-logs/meson-log.txt'
       - '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-logs/testlog.txt'
