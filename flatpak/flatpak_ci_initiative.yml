@@ -1,5 +1,5 @@
 .flatpak:
-  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
+  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
   stage: 'test'
   interruptible: true
   # Till now this was the template job used for everything,
@@ -60,7 +60,7 @@
     - flatpak-aarch64
 
 .publish_nightly:
-  image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/flat-manager-client'
+  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:flat-manager-client'
   stage: 'deploy'
   timeout: '100m'
   script:
