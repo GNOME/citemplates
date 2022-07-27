@@ -6,7 +6,6 @@
   # so assume its default tags are x86 to avoid breaking backwards
   # compatibility.
   tags:
-    - x86_64
     - flatpak
   script:
     # Report the installed versions of the runtime
@@ -53,7 +52,6 @@
 .flatpak@x86_64:
   extends: '.flatpak'
   tags:
-    - x86_64
     - flatpak
 
 .flatpak@aarch64:
