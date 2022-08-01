@@ -60,7 +60,7 @@
     - flatpak-aarch64
 
 .publish_nightly:
-  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:flat-manager-client'
+  image: 'registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images:543571583e6271ede4c706aff60d389cf26a13e9'
   stage: 'deploy'
   timeout: '100m'
   script:
