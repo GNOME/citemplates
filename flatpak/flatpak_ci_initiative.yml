@@ -60,7 +60,7 @@
     - flatpak-aarch64
 
 .publish_nightly:
-  image: 'registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst16:3bee7d7876bc776cdf8379ab0713fcd405ac5002'
+  image: 'registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst16:2e5978e92d15e501923042d5d56d7da72eb26564'
   stage: 'deploy'
   timeout: '100m'
   script:
