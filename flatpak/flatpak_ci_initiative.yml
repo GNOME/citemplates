@@ -8,6 +8,7 @@
   tags:
     - flatpak
   script:
+    - flatpak --version
     # Report the installed versions of the runtime
     - flatpak info org.gnome.Platform
     - flatpak info org.gnome.Sdk
