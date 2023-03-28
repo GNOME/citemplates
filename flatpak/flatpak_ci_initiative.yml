@@ -2,6 +2,9 @@
   image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
   stage: 'test'
   interruptible: true
+  variables:
+    # Set to anything else to skip tests
+    RUN_TESTS: "1"
   # Till now this was the template job used for everything,
   # so assume its default tags are x86 to avoid breaking backwards
   # compatibility.
@@ -21,6 +24,11 @@
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
     - tar cf repo.tar repo/
+
+    - |
+      if [[ $RUN_TESTS != "1" ]]; then
+        exit 0
+      fi
 
     # Run automatic tests inside the Flatpak env
     # we need to recreate the build directory because cleanup would have deleted build dependencies
