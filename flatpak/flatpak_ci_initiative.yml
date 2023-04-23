@@ -21,32 +21,20 @@
     # Print the date, since appstream depends on local timezone
     - date && date -u
 
-    - rewrite-flatpak-manifest ${MANIFEST_PATH} ${FLATPAK_MODULE} ${CONFIG_OPTS}
-    - flatpak-builder --user --disable-rofiles-fuse flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
+    - |
+      export REWRITE_RUN_TESTS="--run-tests"
+      if [[ $RUN_TESTS != "1" ]]; then
+        export REWRITE_RUN_TESTS="--no-run-tests"
+      fi
+      rewrite-flatpak-manifest ${MANIFEST_PATH} ${FLATPAK_MODULE} ${REWRITE_RUN_TESTS} ${CONFIG_OPTS}
+
+    - >
+      xvfb-run -a -s "-screen 0 1024x768x24"
+      flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
+
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} ${EXPORT_RUNTIME} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
     - tar cf repo.tar repo/
-
-    - |
-      if [[ $RUN_TESTS != "1" ]]; then
-        exit 0
-      fi
-
-    # Run automatic tests inside the Flatpak env
-    # we need to recreate the build directory because cleanup would have deleted build dependencies
-    - rm -rf flatpak_app
-    - flatpak-builder --user --disable-rofiles-fuse --build-only flatpak_app ${MANIFEST_PATH}
-    - flatpak build-finish --socket=x11 --share=network flatpak_app
-    - >
-      xvfb-run -a -s "-screen 0 1024x768x24"
-      flatpak-builder --user --disable-rofiles-fuse --build-shell=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH} <<END
-
-      LANG=C.UTF-8
-      NO_AT_BRIDGE=1
-      dbus-run-session
-      meson test --no-stdsplit --print-errorlogs ${TEST_RUN_ARGS}
-
-      END
 
   artifacts:
     name: 'Flatpak artifacts'
