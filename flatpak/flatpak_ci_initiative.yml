@@ -26,7 +26,7 @@
       if [[ $RUN_TESTS != "1" ]]; then
         export REWRITE_RUN_TESTS="--no-run-tests"
       fi
-      rewrite-flatpak-manifest ${MANIFEST_PATH} ${FLATPAK_MODULE} ${REWRITE_RUN_TESTS} ${CONFIG_OPTS}
+      rewrite-flatpak-manifest ${REWRITE_RUN_TESTS} ${MANIFEST_PATH} ${FLATPAK_MODULE} -- ${CONFIG_OPTS}
 
     - >
       xvfb-run -a -s "-screen 0 1024x768x24"
