@@ -74,11 +74,5 @@
   variables:
     FLAT_MANAGER_URL: https://flat-manager.gnome.org/
     FLATPAK_REPO: nightly
-  only:
-    refs:
-      - 'master'
-      - 'main'
-      - 'mainline'
-      - $CI_DEFAULT_BRANCH
-    variables:
-      - $REPO_TOKEN
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "main") && $REPO_TOKEN
