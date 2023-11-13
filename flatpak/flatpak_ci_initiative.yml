@@ -1,3 +1,7 @@
+# This is a Gitlab CI "YAML include" file.
+#
+# See the gnome/citemplates README for details on how to use.
+
 .flatpak:
   image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
   stage: 'test'
