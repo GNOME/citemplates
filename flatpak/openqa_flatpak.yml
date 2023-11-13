@@ -1,0 +1,89 @@
+# This is a Gitlab CI "YAML include" file.
+#
+# See the gnome/citemplates README for details on how to use.
+
+.flatpak_openqa:
+  image:
+    # FIXME: mirror this into the GNOME openqa-tests container registry.
+    # See: https://gitlab.gnome.org/GNOME/openqa-tests/-/issues/63
+    name: registry.opensuse.org/devel/openqa/containers15.5/openqa_worker:latest
+    entrypoint: ["/bin/bash", "-c"]
+  variables:
+    # CI needs to be set so OPENQA_TEST_TIMEOUT_SCALE_CI has an effect.
+    CI: 1
+    OPENQA_TEST_TIMEOUT_SCALE_CI: 4
+    OPENQA_HOST: https://openqa.gnome.org
+    OPENQA_TESTS_GIT: https://gitlab.gnome.org/gnome/openqa-tests
+    OPENQA_TESTS_BRANCH: master
+    OPENQA_NEEDLES_GIT: https://gitlab.gnome.org/gnome/openqa-needles
+    OPENQA_NEEDLES_BRANCH: master
+    TESTS_SUBDIR:
+  stage: test
+  before_script:
+  # Fetch openqa-tests repo - it contains helper scripts which we need.
+  - |
+    git clone "$OPENQA_TESTS_GIT" --branch "$OPENQA_TESTS_BRANCH" ./_openqa
+    echo "Checked out $OPENQA_TESTS_GIT commit $(git -C ./_openqa rev-parse HEAD)"
+  # Fetch 'stable' version of GNOME OS disk image
+  - |
+    echo "Fetching GNOME OS media"
+    _openqa/utils/fetch_test_media.sh https://os.gnome.org/download/latest/gnome_os_disk.img.xz /data/factory/hdd/disk.img.xz
+    unxz /data/factory/hdd/disk.img.xz
+  - |
+    echo "Calculating checksums of GNOME OS media"
+    sha256sum /data/factory/hdd/disk.img
+  - |
+    _openqa/utils/expand_disk.sh /data/factory/hdd/disk.img 12 GB
+  # Make Flatpak bundle available to openQA test runner.
+  - |
+    mkdir -p /data/factory/other/ && mv ${BUNDLE} /data/factory/other/
+    ls -l /data/factory/other
+  - ls -l /var/lib/openqa/share/factory/
+  - find /var/lib/openqa/share/factory/
+  script:
+  # Configure openQA worker to run inside the container
+  - |
+    rm /etc/openqa/*
+    cat >/etc/openqa/client.conf <<EOF
+    [openqa.gnome.org]
+    key = $OPENQA_API_KEY
+    secret = $OPENQA_API_SECRET
+    EOF
+  # Start openQA worker
+  - |
+    worker_class=qemu_x86_64-${CI_JOB_ID}
+    _openqa/utils/setup_worker.sh ${worker_class}
+    /run_openqa_worker.sh &> worker.log &
+  # Submit a job to the controller, which will run in the container.
+  - |
+    version="master"
+    casedir="$(pwd)/${TESTS_SUBDIR}"
+    echo "casedir is: $casedir"
+    _openqa/utils/start_all_jobs.sh "${worker_class}" "${version}" "${casedir}" > /tmp/job_ids
+  - |
+    echo "Test jobs have been started. To see progress, visit:"
+    for job_id in $(cat /tmp/job_ids); do
+      echo "  * $OPENQA_HOST/tests/$job_id"
+    done
+  # Wait for completion and report success or failure.
+  - _openqa/utils/wait_for_job.sh $(cat /tmp/job_ids) > /tmp/exit_code
+  - exit $(cat /tmp/exit_code)
+  after_script:
+  - |
+    if [ ! -e /tmp/exit_code ]; then
+        echo "Job creation failed, log below."
+        cat openqa.log
+    fi
+  - |
+    ./_openqa/utils/openqa_junit_report.py $(cat /tmp/job_ids) > ./junit.xml
+  artifacts:
+    when: always
+    paths:
+    - junit.xml
+    - openqa.log
+    - worker.log
+    reports:
+      junit: junit.xml
+    expire_in: '1 week'
+  tags:
+  - kvm
