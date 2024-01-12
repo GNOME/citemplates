@@ -32,7 +32,7 @@
     - >-
       xvfb-run -a -s "-screen 0 1024x768x24" --
       dbus-run-session
-      flatpak-builder --keep-build-dirs --user --disable-rofiles-fuse flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
+      flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
 
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} ${EXPORT_RUNTIME} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
