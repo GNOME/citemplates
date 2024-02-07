@@ -14,6 +14,8 @@
   tags:
     - flatpak
   script:
+    - cat /etc/os-release
+
     - flatpak --version
     # Report the installed versions of the runtime
     - flatpak info org.gnome.Platform
