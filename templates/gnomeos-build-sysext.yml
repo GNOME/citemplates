@@ -1,0 +1,33 @@
+spec:
+  inputs:
+    job-name:
+      default: build-sysext
+      description: "Name for the job"
+    job-stage:
+      default: build
+      description: "Stage to run the job"
+    extension-contents:
+      default: $CI_PROJECT_DIR/extension
+      description: "Path to a directory for the extension contents"
+    meson-options:
+      default: ""
+      description: "List of options to setup the meson project"
+---
+"$[[ inputs.job-name ]]":
+  image: quay.io/gnome_infrastructure/gnome-build-meta:core-nightly
+  stage: $[[ inputs.job-stage ]]
+  script:
+    - mkdir -p $[[ inputs.extension-contents ]]
+    - meson setup build --prefix=/usr --libdir="lib/$(gcc -print-multiarch)" $[[ inputs.meson-options ]]
+    - meson compile -C build
+    - meson install -C build --destdir $[[ inputs.extension-contents ]]
+    - sysext-build extension $[[ inputs.extension-contents ]] --ignore-release --verbose
+    - |
+      echo -e "Try this extension in GNOME OS with:"
+      echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/extension.sysext.raw"
+      echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
+  artifacts:
+    expose_as: 'Download extension image'
+    expire_in: 1 day
+    paths:
+      - extension.sysext.raw
