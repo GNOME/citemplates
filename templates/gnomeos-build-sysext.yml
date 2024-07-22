@@ -6,6 +6,9 @@ spec:
     job-stage:
       default: build
       description: "Stage to run the job"
+    branch:
+      default: nightly
+      description: "Branch of GNOME OS to use"
     extension-contents:
       default: $CI_PROJECT_DIR/extension
       description: "Path to a directory for the extension contents"
@@ -14,7 +17,7 @@ spec:
       description: "List of options to setup the meson project"
 ---
 "$[[ inputs.job-name ]]":
-  image: quay.io/gnome_infrastructure/gnome-build-meta:core-nightly
+  image: quay.io/gnome_infrastructure/gnome-build-meta:core-$[[ inputs.branch ]]
   stage: $[[ inputs.job-stage ]]
   script:
     - mkdir -p $[[ inputs.extension-contents ]]

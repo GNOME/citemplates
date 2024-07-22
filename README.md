@@ -19,6 +19,7 @@ include:
 | -------------------- | ---------------------------- | ------------------------------------------------------------------- |
 | `job-name`           |  `build-sysext`              | Name for the job                                                    |
 | `job-stage`          |  `build`                     | Stage to run the job                                                |
+| `branch`             |  `nightly`                   | Branch of GNOME OS to use                                           |
 | `extension-contents` |  `$CI_PROJECT_DIR/extension` | Path to a directory for the extension contents                      |
 | `meson-options`      |  `""`                        | List of options to setup the meson project                          |
 
