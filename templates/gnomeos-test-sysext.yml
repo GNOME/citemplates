@@ -22,18 +22,18 @@ spec:
     CI: 1
     OPENQA_TEST_TIMEOUT_SCALE_CI: 4
     OPENQA_HOST: https://openqa.gnome.org
-    OPENQA_TESTS_GIT: https://gitlab.gnome.org/gnome/openqa-tests
-    OPENQA_TESTS_BRANCH: gnome-46
+    OPENQA_UTILS_GIT: https://gitlab.gnome.org/gnome/openqa-utils
+    OPENQA_UTILS_BRANCH: v1
     OPENQA_NEEDLES_GIT: https://gitlab.gnome.org/gnome/openqa-needles
     OPENQA_NEEDLES_BRANCH: master
   stage: $[[ inputs.job-stage ]]
   needs: [ "$[[ inputs.job-required ]]" ]
   dependencies: [ "$[[ inputs.job-required ]]" ]
   before_script:
-  # Fetch openqa-tests repo - it contains helper scripts which we need.
+  # Fetch openqa-utils repo - it contains helper scripts which we need.
   - |
-    git clone "$OPENQA_TESTS_GIT" --branch "$OPENQA_TESTS_BRANCH" ./_openqa
-    echo "Checked out $OPENQA_TESTS_GIT commit $(git -C ./_openqa rev-parse HEAD)"
+    git clone --depth 1 --branch "$OPENQA_UTILS_BRANCH" "$OPENQA_UTILS_GIT" ./_openqa
+    echo "Checked out $OPENQA_UTILS_GIT commit $(git -C ./_openqa rev-parse HEAD)"
   # Fetch 'stable' version of GNOME OS disk image
   - |
     echo "Fetching GNOME OS media"
