@@ -34,10 +34,16 @@ spec:
   - |
     git clone --depth 1 --branch "$OPENQA_UTILS_BRANCH" "$OPENQA_UTILS_GIT" ./_openqa
     echo "Checked out $OPENQA_UTILS_GIT commit $(git -C ./_openqa rev-parse HEAD)"
-  # Fetch 'stable' version of GNOME OS disk image
+  # Fetch the correspondent version of GNOME OS disk image
   - |
     echo "Fetching GNOME OS media"
-    _openqa/utils/fetch_test_media.sh https://os.gnome.org/download/latest/disk_sysupdate_x86_64.img.xz /data/factory/hdd/disk.img.xz
+    if [ "$GNOMEOS_BUILD_SYSEXT_BRANCH" = "nightly" ]; then
+      url=$(_openqa/utils/test_media_url.py --kind disk --variant sysupdate --pipeline $GNOMEOS_BUILD_SYSEXT_PIPELINE)
+    else
+      url=$(_openqa/utils/test_media_url.py --kind disk --variant sysupdate --stable-branch $GNOMEOS_BUILD_SYSEXT_BRANCH)
+    fi
+    echo "Fetching $url"
+    _openqa/utils/fetch_test_media.sh $url /data/factory/hdd/disk.img.xz
     unxz /data/factory/hdd/disk.img.xz
   - |
     echo "Calculating checksums of GNOME OS media"

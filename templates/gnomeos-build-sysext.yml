@@ -29,8 +29,13 @@ spec:
       echo -e "Try this extension in GNOME OS with:"
       echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/extension.sysext.raw"
       echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
+    - |
+      echo "GNOMEOS_BUILD_SYSEXT_BRANCH=$[[ inputs.branch ]]" > build.env
+      echo "GNOMEOS_BUILD_SYSEXT_PIPELINE=$(cat /etc/os-release | grep IMAGE_VERSION | sed -E s/.*\\.//)" >> build.env
   artifacts:
     expose_as: 'Download extension image'
     expire_in: 1 day
     paths:
       - extension.sysext.raw
+    reports:
+      dotenv: build.env
