@@ -29,6 +29,8 @@ spec:
   stage: $[[ inputs.job-stage ]]
   needs: [ "$[[ inputs.job-required ]]" ]
   dependencies: [ "$[[ inputs.job-required ]]" ]
+  rules:
+    - if: '$OPENQA_API_KEY && $OPENQA_API_SECRET'
   before_script:
   # Fetch openqa-utils repo - it contains helper scripts which we need.
   - |
