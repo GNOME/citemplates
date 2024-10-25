@@ -65,4 +65,4 @@ machines:
 
 ### Flatpak
 
-This is a legacy template for building Flatpak bundles. Visit the [wiki](https://gitlab.gnome.org/GNOME/Initiatives/-/wikis/DevOps-with-Flatpak) for more details.
+Gitlab CI template for building Flatpak bundles. Visit the [wiki](https://gitlab.gnome.org/GNOME/Initiatives/-/wikis/DevOps-with-Flatpak) for more details. The template uses [legacy YAML format](https://docs.gitlab.com/ee/development/cicd/templates.html).
