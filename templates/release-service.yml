@@ -1,0 +1,35 @@
+spec:
+  inputs:
+    job-name:
+      default: "release-service"
+      description: "Name for the job"
+    job-stage:
+      default: "build"
+      description: "Stage to run the job"
+    dist-job-name:
+      description: "The name of the job that produced the dist tarball in your pipeline"
+    tarball-artifact-path:
+      description: "The path of the exported tarball"
+---
+"$[[ inputs.job-name ]]":
+  image: "alpine:latest"
+  stage: $[[ inputs.job-stage ]]
+  needs:
+    - job: $[[ inputs.dist-job-name ]]
+      artifacts: true
+  variables:
+    GNOME_RELEASE_SERVICE_API_URL: "https://gnome-release-route-gnome-release-service.apps.openshift.gnome.org"
+    GNOME_RELEASE_SERVICE_API_INSTALL_MODULE_RELEASE_ENDPOINT: "$GNOME_RELEASE_SERVICE_API_URL/install-module-release"
+  id_tokens:
+    JWT_TOKEN:
+      aud: gnome-release-service
+  script:
+    - apk add --no-cache curl
+    - ls -al "$[[ inputs.tarball-artifact-path ]]"
+
+    - >-
+      curl --fail-with-body -X POST "$GNOME_RELEASE_SERVICE_API_INSTALL_MODULE_RELEASE_ENDPOINT"
+      -H "Authorization: Bearer $JWT_TOKEN"
+      -F "tarball=@$[[ inputs.tarball-artifact-path ]]"
+  rules:
+    - if: $CI_COMMIT_TAG
