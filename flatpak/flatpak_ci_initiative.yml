@@ -36,6 +36,18 @@
       dbus-run-session
       flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
 
+
+    # rewrite-flatpak-manifest will make our checkout dirty and meson will complain
+    # FIXME: we need to copy the manifest rather than modify it in place to avoid making the checkout dirty
+    # Meson dist is still fine for now however, as meson will use the last commit rather than the current state of the repository
+    - >-
+      flatpak-builder --user --disable-rofiles-fuse --build-shell=${FLATPAK_MODULE} flatpak_app ${MANIFEST_PATH} <<END
+
+      LANG=C.UTF-8
+      meson dist --no-tests --include-subprojects --allow-dirty
+
+      END
+
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} ${EXPORT_RUNTIME} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
     - tar cf repo.tar repo/
@@ -48,6 +60,7 @@
       - 'repo.tar'
       - '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-logs/meson-log.txt'
       - '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-logs/testlog.txt'
+      - '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/*.tar.xz'
     reports:
       junit: '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-logs/testlog.junit.xml'
     expire_in: 14 days
