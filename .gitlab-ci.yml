@@ -5,4 +5,4 @@ create-release:
     - if: $CI_COMMIT_TAG
   release:
     tag_name: $CI_COMMIT_TAG
-    description: "Release $CI_COMMIT_TAG of components repository $CI_PROJECT_PATH"
+    description: "$CI_COMMIT_TAG_MESSAGE"
