@@ -4,7 +4,7 @@ spec:
       default: "release-service"
       description: "Name for the job"
     job-stage:
-      default: "build"
+      default: "deploy"
       description: "Stage to run the job"
     dist-job-name:
       description: "The name of the job that produced the dist tarball in your pipeline"
