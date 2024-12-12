@@ -46,10 +46,10 @@
     paths:
       - $BUNDLE
       - 'repo.tar'
-      - '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-logs/meson-log.txt'
-      - '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-logs/testlog.txt'
+      - '.flatpak-builder/build/*/_flatpak_build/meson-logs/'
+      - '.flatpak-builder/build/*/_flatpak_build/meson-dist/'
     reports:
-      junit: '.flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-logs/testlog.junit.xml'
+      junit: '.flatpak-builder/build/${FLATPAK_MODULE}*/_flatpak_build/meson-logs/testlog*.junit.xml'
     expire_in: 14 days
 
 .flatpak@x86_64:
