@@ -34,7 +34,24 @@
     - >-
       xvfb-run -a -s "-screen 0 1024x768x24" --
       dbus-run-session
-      flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
+      flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse --build-only flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
+
+    # rewrite-flatpak-manifest will make our checkout dirty and meson will complain
+    # FIXME: we need to copy the manifest rather than modify it in place to avoid making the checkout dirty
+    # Meson dist is still fine for now however, as meson will use the last commit rather than the current state of the repository
+    # FIXME: We end up creating 2 "build" sandboxes and its this one that ends up with the dist apparently
+    # our release service will be relying on the hardcoded path of
+    # build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.xz"
+    # to contain the tarball. This needs to never change.
+    # build/${FLATPAK_MODULE}/ is a symlink to -2 atm thankfully as well.
+    - >-
+      flatpak-builder --user --keep-build-dirs --disable-rofiles-fuse --build-shell=${FLATPAK_MODULE} --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH} <<END
+
+      LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
+
+      END
+
+    - flatpak-builder ${CI_FB_ARGS} --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
 
     # Generate a Flatpak bundle
     - flatpak build-bundle repo ${BUNDLE} ${EXPORT_RUNTIME} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
