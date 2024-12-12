@@ -21,7 +21,7 @@ spec:
     - job: $[[ inputs.dist-job-name ]]
       artifacts: true
   variables:
-    GNOME_RELEASE_SERVICE_API_URL: "https://gnome-release-route-gnome-release-service.apps.openshift.gnome.org"
+    GNOME_RELEASE_SERVICE_API_URL: "https://gnome-release-route-sandbox-gnome-release-service.apps.openshift.gnome.org"
     GNOME_RELEASE_SERVICE_API_INSTALL_MODULE_RELEASE_ENDPOINT: "$GNOME_RELEASE_SERVICE_API_URL/install-module-release"
   id_tokens:
     JWT_TOKEN:
