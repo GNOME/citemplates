@@ -14,6 +14,7 @@ spec:
 "$[[ inputs.job-name ]]":
   image: "registry.gitlab.com/gitlab-org/release-cli:latest"
   stage: $[[ inputs.job-stage ]]
+  tags: gnome-release-service
   needs:
     - job: $[[ inputs.dist-job-name ]]
       artifacts: true
