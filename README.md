@@ -6,13 +6,34 @@ This project provides reusable CI/CD components and legacy templates for jobs ac
 
 ## Components
 
+### gnomeos-basic-ci
+
+This component will try to build and run the tests of your project against the gnomeos image. It's ideal for projects that are not actively maintained or
+have unique/complex requirements for running their test suite.
+
+```yaml
+include:
+  - component: gitlab.gnome.org/GNOME/citemplates/gnomeos-basic-ci@master
+  - project: "gnome/citemplates"
+    file: "templates/default-rules.yml"
+```
+
+| Input                | Default value                | Description                                                         |
+| -------------------- | ---------------------------- | ------------------------------------------------------------------- |
+| `job-name`           |  `gnomeos-build`             | Name for the job                                                    |
+| `job-stage`          |  `build`                     | Stage to run the job                                                |
+| `branch`             |  `nightly`                   | Branch of GNOME OS to use                                           |
+| `meson-options`      |  `""` (Empty String)         | List of options to setup the meson project                          |
+| `run-tests`          |  `"yes"`                     | Whether to execute the testsuite pass empty value to skip           |
+
+
 ### gnomeos-build-sysext
 
 The sysext component facilitates the creation of system extension images for GNOME OS.
 
 ```yaml
 include:
-  - component: gitlab.gnome.org/GNOME/citemplates/gnomeos-build-sysext@0.1.0
+  - component: gitlab.gnome.org/GNOME/citemplates/gnomeos-build-sysext@master
 ```
 
 | Input                | Default value                | Description                                                         |
@@ -29,7 +50,7 @@ This component runs the specified openQA tests in GNOME OS with the system exten
 
 ```yaml
 include:
-  - component: gitlab.gnome.org/GNOME/citemplates/gnomeos-test-sysext@0.1.0
+  - component: gitlab.gnome.org/GNOME/citemplates/gnomeos-test-sysext@master
 ```
 
 | Input          | Default value                | Description                              |

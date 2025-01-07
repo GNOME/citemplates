@@ -1,0 +1,50 @@
+spec:
+  inputs:
+    job-name:
+      default: "build-gnomeos"
+      description: "Name for the job"
+    job-stage:
+      default: "build"
+      description: "Stage to run the job"
+    image-ref:
+      default: "quay.io/gnome_infrastructure/gnome-build-meta:core-nightly"
+      description: "Specify the OCI image to use"
+    meson-options:
+      default: ""
+      description: "List of options to setup the meson project"
+    run-tests:
+      default: "yes"
+      # Some test-suites have unique environment requirements
+      description: "Whether to execute the testsuite pass empty value to skip"
+---
+"$[[ inputs.job-name ]]":
+  image: $[[ inputs.image-ref ]]
+  stage: $[[ inputs.job-stage ]]
+  variables:
+    _DESTDIR: "$CI_PROJECT_DIR/destdir/"
+    # Adding CI_PROJECT_DIR in front is buggy when used with the artifacts paths
+    _BUILDDIR: "_builddir"
+  script:
+    - meson setup ${_BUILDDIR} --prefix=/usr --libdir=lib/$(gcc -print-multiarch) $[[ inputs.meson-options ]]
+    - meson compile -C ${_BUILDDIR}
+
+    - >-
+      if [[ -n "$[[ inputs.run-tests ]]" ]]; then
+        meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild
+      fi
+
+    - meson dist -C ${_BUILDDIR} --no-tests
+
+    - mkdir -p ${_DESTDIR}
+    - meson install -C ${_BUILDDIR} --no-rebuild --destdir=${_DESTDIR}
+  after_script:
+    # Cleanup the destdir and thus container volume once we are done
+    - rm -rvf ${_DESTDIR}
+  artifacts:
+    expire_in: "2 days"
+    when: "always"
+    paths:
+      - "${_BUILDDIR}/meson-logs/"
+      - "${_BUILDDIR}/meson-dist/"
+    reports:
+      junit: "${_BUILDDIR}/meson-logs/testlog.junit.xml"
