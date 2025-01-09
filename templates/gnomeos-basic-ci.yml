@@ -19,6 +19,8 @@ spec:
 ---
 "$[[ inputs.job-name ]]":
   image: $[[ inputs.image-ref ]]
+  tags:
+    - "x86_64_v3"
   stage: $[[ inputs.job-stage ]]
   variables:
     _DESTDIR: "$CI_PROJECT_DIR/destdir/"
