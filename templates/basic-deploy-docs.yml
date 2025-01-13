@@ -1,0 +1,39 @@
+spec:
+  inputs:
+    job-name:
+      default: "pages"
+      description: "Name for the job"
+    job-stage:
+      default: "deploy"
+      description: "Stage to run the job"
+    docs-job-name:
+      default: "build-gnomeos"
+      description: "The job that produces the documentation artifact"
+    docs-artifact-name:
+      default: "${CI_PROJECT_NAME}-docs.tar.gz"
+      description: "The documentation artifact name, must be a tar archive"
+---
+"$[[ inputs.job-name ]]":
+  stage: $[[ inputs.job-stage ]]
+  needs:
+    - job: $[[ inputs.docs-job-name ]]
+      artifacts: true
+  script:
+    - mkdir -p public/
+    - tar --extract --auto-compress --verbose --file "$[[ inputs.docs-artifact-name ]]" --directory public/
+
+    # List how many/what namespaces we deployed
+    - ls -alh public/
+    - echo "Pages accessible through ${CI_PAGES_URL}"
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH == "alatiera/docs-test"
+  # We could have parallel deployments
+  # But it's a Enterprise Edition / Premium/Ultimate feature
+  # https://docs.gitlab.com/ee/ci/yaml/index.html#pagespagespath_prefix
+  # pages:
+    # path_prefix: "$CI_COMMIT_BRANCH"
+    # expire_in: "never"

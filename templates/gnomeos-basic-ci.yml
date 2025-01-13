@@ -39,6 +39,12 @@ spec:
 
     - mkdir -p ${_DESTDIR}
     - meson install -C ${_BUILDDIR} --no-rebuild --destdir=${_DESTDIR}
+
+    # Export the documentation if it exist
+    - >-
+      if [[ -d "${_DESTDIR}/usr/share/doc/" ]]; then
+        tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory ${_DESTDIR}/usr/share/doc/ .
+      fi
   after_script:
     # Cleanup the destdir and thus container volume once we are done
     - rm -rvf ${_DESTDIR}
@@ -48,5 +54,6 @@ spec:
     paths:
       - "${_BUILDDIR}/meson-logs/"
       - "${_BUILDDIR}/meson-dist/"
+      - "${CI_PROJECT_NAME}-docs.tar.gz"
     reports:
       junit: "${_BUILDDIR}/meson-logs/testlog.junit.xml"
