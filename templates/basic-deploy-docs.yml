@@ -30,7 +30,6 @@ spec:
       - public
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_BRANCH == "alatiera/docs-test"
   # We could have parallel deployments
   # But it's a Enterprise Edition / Premium/Ultimate feature
   # https://docs.gitlab.com/ee/ci/yaml/index.html#pagespagespath_prefix
