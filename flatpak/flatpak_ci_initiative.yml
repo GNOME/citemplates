@@ -8,6 +8,7 @@
     RUN_TESTS: "1"
     # Pass "--runtime" in order to build a runtime or extension
     EXPORT_RUNTIME: ""
+    NIGHTLY_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
   # Till now this was the template job used for everything,
   # so assume its default tags are x86 to avoid breaking backwards
   # compatibility.
@@ -24,17 +25,19 @@
     # Print the date, since appstream depends on local timezone
     - date && date -u
 
-    - |
-      export REWRITE_RUN_TESTS="--run-tests"
-      if [[ $RUN_TESTS != "1" ]]; then
+    - export REWRITE_RUN_TESTS="--run-tests"
+    - |-
+      if [[ "${RUN_TESTS}" != "1" ]]; then
         export REWRITE_RUN_TESTS="--no-run-tests"
       fi
-      rewrite-flatpak-manifest ${REWRITE_RUN_TESTS} ${MANIFEST_PATH} ${FLATPAK_MODULE} -- ${CONFIG_OPTS}
+    - echo "${REWRITE_RUN_TESTS}"
+
+    - rewrite-flatpak-manifest "${REWRITE_RUN_TESTS}" "${MANIFEST_PATH}" "${FLATPAK_MODULE}" -- ${CONFIG_OPTS}
 
     - >-
       xvfb-run -a -s "-screen 0 1024x768x24" --
       dbus-run-session
-      flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse --build-only flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
+      flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse --build-only flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
 
     # rewrite-flatpak-manifest will make our checkout dirty and meson will complain
     # FIXME: we need to copy the manifest rather than modify it in place to avoid making the checkout dirty
@@ -45,16 +48,16 @@
     # to contain the tarball. This needs to never change.
     # build/${FLATPAK_MODULE}/ is a symlink to -2 atm thankfully as well.
     - >-
-      flatpak-builder --user --keep-build-dirs --disable-rofiles-fuse --build-shell=${FLATPAK_MODULE} --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH} <<END
+      flatpak-builder --user --keep-build-dirs --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}" <<END
 
       LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
 
       END
 
-    - flatpak-builder ${CI_FB_ARGS} --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} ${MANIFEST_PATH}
+    - flatpak-builder ${CI_FB_ARGS} --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
 
     # Generate a Flatpak bundle
-    - flatpak build-bundle repo ${BUNDLE} ${EXPORT_RUNTIME} --runtime-repo=${RUNTIME_REPO} ${APP_ID} ${BRANCH}
+    - flatpak build-bundle repo "${BUNDLE}" ${EXPORT_RUNTIME} --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" ${BRANCH:+--default-branch=$BRANCH}
     - tar cf repo.tar repo/
 
   artifacts:
@@ -66,7 +69,7 @@
       - '.flatpak-builder/build/*/_flatpak_build/meson-logs/'
       - '.flatpak-builder/build/*/_flatpak_build/meson-dist/'
     reports:
-      junit: '.flatpak-builder/build/${FLATPAK_MODULE}*/_flatpak_build/meson-logs/testlog*.junit.xml'
+      junit: ".flatpak-builder/build/${FLATPAK_MODULE}*/_flatpak_build/meson-logs/testlog*.junit.xml"
     expire_in: 14 days
 
 .flatpak@x86_64:
@@ -86,9 +89,9 @@
   script:
     - tar xf repo.tar
     - flatpak build-update-repo --generate-static-deltas repo/
-    - BUILD_ID=$(flat-manager-client create ${FLAT_MANAGER_URL} ${FLATPAK_REPO})
-    - flat-manager-client push --commit --publish --wait ${BUILD_ID} repo/ || result=$?
-    - flat-manager-client purge ${BUILD_ID}
+    - BUILD_ID=$(flat-manager-client create "${FLAT_MANAGER_URL}" "${FLATPAK_REPO}")
+    - flat-manager-client push --commit --publish --wait "${BUILD_ID}" repo/ || result=$?
+    - flat-manager-client purge "${BUILD_ID}"
     - exit $result
   variables:
     FLAT_MANAGER_URL: https://flat-manager.gnome.org/
