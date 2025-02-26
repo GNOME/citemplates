@@ -1,8 +1,5 @@
 .flatpak:
-  image: 
-    name: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
-    docker:
-      user: "build"
+  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
   stage: 'test'
   interruptible: true
   variables:
