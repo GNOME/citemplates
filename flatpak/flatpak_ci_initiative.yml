@@ -1,5 +1,8 @@
 .flatpak:
-  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
+  image: 
+    name: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
+    docker:
+      user: "build"
   stage: 'test'
   interruptible: true
   variables:
@@ -16,6 +19,8 @@
     - flatpak
   script:
     - cat /etc/os-release
+
+    - whoami && id -u && id -g
 
     - flatpak --version
     # Report the installed versions of the runtime
