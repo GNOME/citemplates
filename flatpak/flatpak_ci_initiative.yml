@@ -6,6 +6,9 @@
     LANG: "C.UTF-8"
     # Set to anything else to skip tests
     RUN_TESTS: "1"
+    # vala is still using autotools, otherwise there is no reason
+    # to skip dist
+    MESON_DIST: "1"
     # Pass "--runtime" in order to build a runtime or extension
     EXPORT_RUNTIME: ""
     NIGHTLY_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
@@ -49,12 +52,14 @@
     # build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.xz"
     # to contain the tarball. This needs to never change.
     # build/${FLATPAK_MODULE}/ is a symlink to -2 atm thankfully as well.
-    - >-
-      flatpak-builder --user --keep-build-dirs --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}" <<END
+    - |-
+      if [[ "${MESON_DIST}" == "1" ]]; then
+        flatpak-builder --user --keep-build-dirs --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}" <<END
 
-      LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
+        LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
 
       END
+      fi
 
     - flatpak-builder ${CI_FB_ARGS} --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
 
