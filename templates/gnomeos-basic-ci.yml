@@ -32,7 +32,8 @@ spec:
 
     - >-
       if [[ -n "$[[ inputs.run-tests ]]" ]]; then
-        meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild
+        export XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
+        G_MESSAGES_DEBUG=all xvfb-run -a -s "-screen 0 1024x768x24" meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild
       fi
 
     - meson dist -C ${_BUILDDIR} --no-tests
