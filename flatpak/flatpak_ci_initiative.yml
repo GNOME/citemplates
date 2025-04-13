@@ -30,8 +30,6 @@
     # Print the date, since appstream depends on local timezone
     - date && date -u
 
-    - set -x
-
     - export REWRITE_RUN_TESTS="--run-tests"
     - |-
       if [[ "${RUN_TESTS}" != "1" ]]; then
@@ -55,14 +53,24 @@
     # to contain the tarball. This needs to never change.
     # build/${FLATPAK_MODULE}/ is a symlink to -2 atm thankfully as well.
     - |-
+      cat > dist.sh <<'EOF'
+      #! /bin/bash
+      set -ex
       if [[ "${MESON_DIST}" == "1" ]]; then
-        flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}" <<END
-
-        LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
-
+          flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}" <<'END'
+            LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
       END
 
+          # The path doesn't always exit, and won't work in some cases
+          # This is a partial workaround for:
+          # https://gitlab.gnome.org/GNOME/citemplates/-/issues/32
+          dist_path=".flatpak-builder/build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/"
+          if [[ -d "$dist_path" ]]; then
+              cp --recursive --preserve=all "$dist_path" "$CI_PROJECT_DIR/public-dist/"
+          fi
       fi
+      EOF
+    - bash ./dist.sh
 
     - flatpak-builder ${CI_FB_ARGS} --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
 
@@ -78,6 +86,7 @@
       - 'repo.tar'
       - '.flatpak-builder/build/**/_flatpak_build/meson-logs/'
       - '.flatpak-builder/build/**/_flatpak_build/meson-dist/'
+      - 'public-dist'
     reports:
       junit: ".flatpak-builder/build/${FLATPAK_MODULE}*/_flatpak_build/meson-logs/testlog*.junit.xml"
     expire_in: 14 days
