@@ -53,11 +53,14 @@
     # to contain the tarball. This needs to never change.
     # build/${FLATPAK_MODULE}/ is a symlink to -2 atm thankfully as well.
     - |-
+      set -x
       if [[ "${MESON_DIST}" == "1" ]]; then
         flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}" <<END
 
         LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
+
       END
+
       cp -r .flatpak-builder/build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/ public-dist/
       fi
 
