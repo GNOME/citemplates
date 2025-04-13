@@ -30,6 +30,8 @@
     # Print the date, since appstream depends on local timezone
     - date && date -u
 
+    - set -x
+
     - export REWRITE_RUN_TESTS="--run-tests"
     - |-
       if [[ "${RUN_TESTS}" != "1" ]]; then
