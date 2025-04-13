@@ -77,8 +77,8 @@
     paths:
       - $BUNDLE
       - 'repo.tar'
-      - '.flatpak-builder/build/*/_flatpak_build/meson-logs/'
-      - '.flatpak-builder/build/*/_flatpak_build/meson-dist/'
+      - '.flatpak-builder/build/**/_flatpak_build/meson-logs/'
+      - '.flatpak-builder/build/**/_flatpak_build/meson-dist/'
       - 'public-dist'
     reports:
       junit: ".flatpak-builder/build/${FLATPAK_MODULE}*/_flatpak_build/meson-logs/testlog*.junit.xml"
