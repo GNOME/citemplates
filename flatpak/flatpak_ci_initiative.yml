@@ -62,7 +62,6 @@
 
       END
 
-      cp -r .flatpak-builder/build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/ public-dist/
       fi
 
     - flatpak-builder ${CI_FB_ARGS} --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
@@ -79,7 +78,6 @@
       - 'repo.tar'
       - '.flatpak-builder/build/**/_flatpak_build/meson-logs/'
       - '.flatpak-builder/build/**/_flatpak_build/meson-dist/'
-      - 'public-dist'
     reports:
       junit: ".flatpak-builder/build/${FLATPAK_MODULE}*/_flatpak_build/meson-logs/testlog*.junit.xml"
     expire_in: 14 days
