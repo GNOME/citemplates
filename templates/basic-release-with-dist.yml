@@ -22,10 +22,11 @@ spec:
     - echo "Fixing up release tag message for gitlab"
     - a=$(git tag -l $CI_COMMIT_TAG --format='%(contents)')
     - tag_msg=$(printf '%s\n' "${a%%-----BEGIN*}")
+    - echo "$tag_msg"
 
     - echo "running release_job"
     - glab auth login --hostname $CI_SERVER_HOST --job-token $CI_JOB_TOKEN
-    - glab release create "$CI_COMMIT_TAG" --notes $tag_msg --tag-message $tag_msg
+    - glab release create "$CI_COMMIT_TAG" --notes "$tag_msg" --tag-message "$tag_msg"
 
     - |
       cat > upload.sh <<'EOF'
