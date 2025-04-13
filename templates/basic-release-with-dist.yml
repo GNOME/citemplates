@@ -9,20 +9,15 @@ spec:
     dist-job-name:
       description: "The name of the job that produced the dist tarball in your pipeline"
 ---
-variables:
-  INPUT_TARBALL_ARTIFACT_PATH: $[[ inputs.tarball-artifact-path ]]
-
 "$[[ inputs.job-name ]]":
   stage: $[[ inputs.job-stage ]]
   image: "registry.gitlab.com/gitlab-org/cli:latest"
-  needs:
-    - job: $[[ inputs.dist-job-name ]]
-      artifacts: true
   rules:
     - if: $CI_COMMIT_TAG
   before_script: []
   after_script: []
   script:
+    - echo "running release_job"
     # https://gitlab.com/gitlab-org/gitlab/-/issues/382536
     - echo "Fixing up release tag message for gitlab"
     - a=$(git tag -l $CI_COMMIT_TAG --format='%(contents)')
@@ -32,4 +27,28 @@ variables:
     - glab auth login --hostname $CI_SERVER_HOST --job-token $CI_JOB_TOKEN
     - glab release create "$CI_COMMIT_TAG" --notes $tag_msg --tag-message $tag_msg
 
-    - glab release upload "$CI_COMMIT_TAG" $INPUT_TARBALL_ARTIFACT_PATH $INPUT_TARBALL_ARTIFACT_PATH.sha256sum
+    - |
+      cat > upload.sh <<'EOF'
+      #! /bin/bash
+      set -eu
+
+      upload_from_public_dist () {
+          for _file in public-dist/*.tar.{xz,gz}; do
+              if [[ -f "$_file" && -f "$_file.sha256sum" ]]; then
+                  echo "Uploading dist: $_file"
+                  glab release upload "$CI_COMMIT_TAG" "$_file" "$_file.sha256sum"
+                  return 0
+              fi
+          done
+
+          echo "Failed to find any files to upload"
+          return 1
+      }
+
+      upload_from_public_dist
+      EOF
+
+    # Add bash cause god has forsaken the heavens and clouds
+    # and everyone is using alpine with busybox and ash instead
+    - apk add --no-cache bash
+    - bash ./upload.sh
