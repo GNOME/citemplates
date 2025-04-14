@@ -4,7 +4,7 @@ include:
   - local: "templates/basic-release.yml"
 
   # Testing the local templates
-  - local: "flatpak/test-the-template.yml"
+  - local: "test-the-templates/flatpak.yml"
   - local: "test-the-templates/gnomeos-basic-ci.yml"
 
 stages:
