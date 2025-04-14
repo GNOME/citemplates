@@ -1,2 +1,11 @@
 include:
+  # used in the pipeline
+  - local: "templates/default-rules.yml"
   - local: "templates/basic-release.yml"
+
+  # Testing the local templates
+  - local: "flatpak/test-the-template.yml"
+
+stages:
+  - "Flatpak app"
+  - "deploy"

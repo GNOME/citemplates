@@ -1,0 +1,56 @@
+include:
+  # Testing the local templates
+  - local: "flatpak/flatpak_ci_initiative.yml"
+
+# FIXME: font-viewer compiles very fast, however:
+#   - We are missing tests for manifests with modules
+#     - Since we treat the last module differently, we need to
+#       test both with and without added modules in the manifest
+#     - It doesn't use any SDK extensions
+# FIXME 2: It's also possible to build runtime extensions using the
+# template, see vala-nightly
+.flatpak-test-setup:
+  stage: "Flatpak app"
+  variables:
+    # This is different than the Upstream yaml, as it has the gnome-font-viewer subdir added in the path
+    MANIFEST_PATH: "gnome-font-viewer/build-aux/flatpak/org.gnome.font-viewerDevel.json"
+  before_script:
+    - git clone https://gitlab.gnome.org/gnome/gnome-font-viewer/
+
+# Copy from the font-viewer ci yaml
+.flatpak-common:
+  extends: [".flatpak", ".flatpak-test-setup"]
+  variables:
+    FLATPAK_MODULE: "gnome-font-viewer"
+    RUNTIME_REPO: "https://sdk.gnome.org/gnome-nightly.flatpakrepo"
+    APP_ID: "org.gnome.font-viewerDevel"
+    BUNDLE: "org.gnome.font-viewerDevel.flatpak"
+
+flatpak-with-dist:
+  extends: [".flatpak-common"]
+  variables:
+    MESON_DIST: "1"
+
+# Manually clone and manually cd into the directory 
+# This is to make sure relative paths and all work
+# It's expected that artifacts will throw warnings and
+# not extract in this job, as they are in a subdirectory
+flatpak-from-root-kinda:
+  extends: [".flatpak-common"]
+  variables:
+    MESON_DIST: "1"
+    MANIFEST_PATH: "build-aux/flatpak/org.gnome.font-viewerDevel.json"
+  script:
+    - cd gnome-font-viewer
+    - !reference [".flatpak", "script"]
+
+flatpak-no-dist:
+  extends: [".flatpak-common"]
+  variables:
+    MESON_DIST: "0"
+
+flatpak-no-dist-no-tests:
+  extends: [".flatpak-common"]
+  variables:
+    MESON_DIST: "0"
+    RUN_TESTS: "0"
