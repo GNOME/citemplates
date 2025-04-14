@@ -5,7 +5,9 @@ include:
 
   # Testing the local templates
   - local: "flatpak/test-the-template.yml"
+  - local: "test-the-templates/gnomeos-basic-ci.yml"
 
 stages:
   - "Flatpak app"
+  - "GNOMEOS Basic CI"
   - "deploy"

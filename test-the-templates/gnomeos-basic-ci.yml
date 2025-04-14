@@ -1,0 +1,33 @@
+include:
+  # include the component located in the current project from the current SHA
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-default"
+      job-stage: "GNOMEOS Basic CI"
+      meson-sourcedir: "gnome-font-viewer"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-no-tests"
+      job-stage: "GNOMEOS Basic CI"
+      meson-sourcedir: "gnome-font-viewer"
+      run-tests: "no"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-with-meson-args"
+      job-stage: "GNOMEOS Basic CI"
+      meson-sourcedir: "gnome-font-viewer"
+      meson-options: "-Dprofile=development"
+
+.basic-ci-test-setup: &setup
+  before_script:
+    - git clone https://gitlab.gnome.org/gnome/gnome-font-viewer/
+
+# Override the jobs, gitlab should "merge" them so we can add our before_script
+basic-ci-default:
+  <<: *setup
+
+basic-ci-no-tests:
+  <<: *setup
+
+basic-ci-with-meson-args:
+  <<: *setup

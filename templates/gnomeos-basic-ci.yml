@@ -12,6 +12,9 @@ spec:
     meson-options:
       default: ""
       description: "List of options to setup the meson project"
+    meson-sourcedir:
+      default: "."
+      description: "Meson sourcedir path. Useful if the project is not in the root directory"
     run-tests:
       default: "yes"
       # Some test-suites have unique environment requirements
@@ -22,12 +25,15 @@ spec:
   tags:
     - "x86_64_v3"
   stage: $[[ inputs.job-stage ]]
+  needs: []
   variables:
     _DESTDIR: "$CI_PROJECT_DIR/destdir/"
     # Adding CI_PROJECT_DIR in front is buggy when used with the artifacts paths
-    _BUILDDIR: "_builddir"
+    # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/37204
+    _BUILDDIR: "$CI_PROJECT_DIR/_builddir"
+    _BUILDDIR_FOR_ARTIFACTS: "_builddir"
   script:
-    - meson setup ${_BUILDDIR} --prefix=/usr --libdir=lib/$(gcc -print-multiarch) $[[ inputs.meson-options ]]
+    - meson setup ${_BUILDDIR} $[[ inputs.meson-sourcedir]] --prefix=/usr --libdir=lib/$(gcc -print-multiarch) $[[ inputs.meson-options ]]
     - meson compile -C ${_BUILDDIR}
 
     - >-
@@ -38,7 +44,7 @@ spec:
 
     - meson dist -C ${_BUILDDIR} --no-tests
     - mkdir -p public-dist
-    - cp -r "${_BUILDDIR}/meson-dist/" public-dist/
+    - cp -r "${_BUILDDIR}/meson-dist/" "${CI_PROJECT_DIR}/public-dist/"
 
     - mkdir -p ${_DESTDIR}
     - meson install -C ${_BUILDDIR} --no-rebuild --destdir=${_DESTDIR}
@@ -55,9 +61,9 @@ spec:
     expire_in: "2 days"
     when: "always"
     paths:
-      - "${_BUILDDIR}/meson-logs/"
-      - "${_BUILDDIR}/meson-dist/"
+      - "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/"
+      - "${_BUILDDIR_FOR_ARTIFACTS}/meson-dist/"
       - "public-dist"
       - "${CI_PROJECT_NAME}-docs.tar.gz"
     reports:
-      junit: "${_BUILDDIR}/meson-logs/testlog.junit.xml"
+      junit: "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/testlog.junit.xml"
