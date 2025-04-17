@@ -12,6 +12,9 @@ spec:
     docs-artifact-name:
       default: "${CI_PROJECT_NAME}-docs.tar.gz"
       description: "The documentation artifact name, must be a tar archive"
+    docs-artifact-subdir:
+      default: ""
+      description: "Subdirectory to pull out of the tar archive"
 ---
 "$[[ inputs.job-name ]]":
   stage: $[[ inputs.job-stage ]]
@@ -19,8 +22,9 @@ spec:
     - job: $[[ inputs.docs-job-name ]]
       artifacts: true
   script:
-    - mkdir -p public/
-    - tar --extract --auto-compress --verbose --file "$[[ inputs.docs-artifact-name ]]" --directory public/
+    - mkdir -p tmp/
+    - tar --extract --auto-compress --verbose --file "$[[ inputs.docs-artifact-name ]]" --directory tmp/ "$[[ inputs.docs-artifact-subdir ]]"
+    - mv $(realpath "./tmp/$[[ inputs.docs-artifact-subdir ]]") public/
 
     # List how many/what namespaces we deployed
     - ls -alh public/

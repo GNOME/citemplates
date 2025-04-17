@@ -43,6 +43,7 @@ include:
 | `job-stage`            |  `deploy`                         | Stage to run the job                                                |
 | `docs-job-name`        |  `build-gnomeos`                  | The job that produces the tarball we publish as an artifact         |
 | `docs-artifact-name`   |  `${CI_PROJECT_NAME}-docs.tar.gz` | The filename of the artifact                                        |
+| `docs-artifact-subdir` |  `""` (Empty string)              | The subdirectory inside of the tarball to publish                   |
 
 ### gnomeos-build-sysext
 
