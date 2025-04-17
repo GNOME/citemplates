@@ -20,7 +20,7 @@ include:
 
 | Input                | Default value                | Description                                                         |
 | -------------------- | ---------------------------- | ------------------------------------------------------------------- |
-| `job-name`           |  `gnomeos-build`             | Name for the job                                                    |
+| `job-name`           |  `build-gnomeos`             | Name for the job                                                    |
 | `job-stage`          |  `build`                     | Stage to run the job                                                |
 | `branch`             |  `nightly`                   | Branch of GNOME OS to use                                           |
 | `meson-options`      |  `""` (Empty String)         | List of options to setup the meson project                          |
