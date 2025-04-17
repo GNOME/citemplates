@@ -26,6 +26,23 @@ include:
 | `meson-options`      |  `""` (Empty String)         | List of options to setup the meson project                          |
 | `run-tests`          |  `"yes"`                     | Whether to execute the testsuite pass empty value to skip           |
 
+### basic-deploy-docs
+
+This component will take a tarball produced by some other job, and deploy the tarball's contents onto GitLab pages.
+
+```yaml
+include:
+  - component: gitlab.gnome.org/GNOME/citemplates/basic-deploy-docs@master
+  - project: "gnome/citemplates"
+    file: "templates/default-rules.yml"
+```
+
+| Input                  | Default value                     | Description                                                         |
+| ---------------------- | --------------------------------- | ------------------------------------------------------------------- |
+| `job-name`             |  `pages`                          | Name for the job                                                    |
+| `job-stage`            |  `deploy`                         | Stage to run the job                                                |
+| `docs-job-name`        |  `build-gnomeos`                  | The job that produces the tarball we publish as an artifact         |
+| `docs-artifact-name`   |  `${CI_PROJECT_NAME}-docs.tar.gz` | The filename of the artifact                                        |
 
 ### gnomeos-build-sysext
 
