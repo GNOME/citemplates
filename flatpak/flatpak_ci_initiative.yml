@@ -4,6 +4,10 @@
   interruptible: true
   variables:
     LANG: "C.UTF-8"
+    # Force Software rendering for GL and Vulkan so the tests run locally
+    LIBGL_ALWAYS_SOFTWARE: true
+    # This the hardcoded value for llvmpipe
+    MESA_VK_DEVICE_SELECT: "10005:0"
     # Set to anything else to skip tests
     RUN_TESTS: "1"
     # vala is still using autotools, otherwise there is no reason
