@@ -1,0 +1,26 @@
+spec:
+  inputs:
+    job-name:
+      default: "lint-metainfo"
+      description: "Name for the job"
+    job-stage:
+      default: "test"
+      description: "Stage to run the job"
+    flatpak-job-name:
+      description: "Name of the Gitlab job that build the flatpak"
+---
+# Validate the metainfo with Flathub's tool.
+"$[[ inputs.job-name ]]":
+  stage: $[[ inputs.job-stage ]]
+  image:
+    name: "ghcr.io/flathub/flatpak-builder-lint:latest"
+    entrypoint: [""]
+  tags:
+    - "flatpak"
+  script:
+    # This tool has extra tests on top of appstreamcli and is required to pass for Flathub.
+    # It has a modified version of appstream, that's tailored to Flathub's needs
+    - flatpak-builder-lint appstream flatpak_app/files/share/metainfo/*.metainfo.xml
+    # Test also with the pedantic and strict flags.
+    - appstreamcli validate --pedantic --explain --strict flatpak_app/files/share/metainfo/*.metainfo.xml
+  needs: [ "$[[ inputs.flatpak-job-name ]]" ]

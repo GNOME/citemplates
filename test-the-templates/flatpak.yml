@@ -1,6 +1,10 @@
 include:
   # Testing the local templates
   - local: "flatpak/flatpak_ci_initiative.yml"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/flathub-checks@$CI_COMMIT_SHA
+    inputs:
+      job-stage: "Flatpak app"
+      flatpak-job-name: "flatpak-with-dist"
 
 # FIXME: font-viewer compiles very fast, however:
 #   - We are missing tests for manifests with modules

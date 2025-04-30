@@ -148,6 +148,7 @@ include:
       - "${CI_PROJECT_NAME}-docs.tar.gz"
       - '.flatpak-builder/build/**/_flatpak_build/meson-logs/'
       - '.flatpak-builder/build/**/_flatpak_build/meson-dist/'
+      - 'flatpak_app/files/share/metainfo/*.metainfo.xml'
       - 'public-dist'
     reports:
       junit: ".flatpak-builder/build/${FLATPAK_MODULE}*/_flatpak_build/meson-logs/testlog*.junit.xml"
