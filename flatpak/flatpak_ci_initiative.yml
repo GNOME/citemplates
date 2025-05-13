@@ -110,14 +110,17 @@
   stage: 'deploy'
   timeout: '100m'
   script:
+    # Make sure old/leftover variables don't affect us
+    - unset REPO_TOKEN
+
     - tar xf repo.tar
     - flatpak build-update-repo --generate-static-deltas repo/
-    - BUILD_ID=$(flat-manager-client create "${FLAT_MANAGER_URL}" "${FLATPAK_REPO}")
-    - flat-manager-client push --commit --publish --wait "${BUILD_ID}" repo/ || result=$?
-    - flat-manager-client purge "${BUILD_ID}"
+    - BUILD_ID=$(flat-manager-client --token-file "${REPO_TOKEN_FILE}" create "${FLAT_MANAGER_URL}" "${FLATPAK_REPO}")
+    - flat-manager-client --token-file "${REPO_TOKEN_FILE}" push --commit --publish --wait "${BUILD_ID}" repo/ || result=$?
+    - flat-manager-client --token-file "${REPO_TOKEN_FILE}" purge "${BUILD_ID}"
     - exit $result
   variables:
     FLAT_MANAGER_URL: https://flat-manager.gnome.org/
     FLATPAK_REPO: nightly
   rules:
-    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "main") && $REPO_TOKEN
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "main") && $REPO_TOKEN_FILE
