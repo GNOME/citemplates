@@ -34,8 +34,6 @@
     # Print the date, since appstream depends on local timezone
     - date && date -u
 
-    - export XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
-
     - export REWRITE_RUN_TESTS="--run-tests"
     - |-
       if [[ "${RUN_TESTS}" != "1" ]]; then
@@ -46,8 +44,8 @@
     - rewrite-flatpak-manifest "${REWRITE_RUN_TESTS}" "${MANIFEST_PATH}" "${FLATPAK_MODULE}" -- ${CONFIG_OPTS}
 
     - >-
-      dbus-run-session --
-      mutter --headless --wayland --no-x11 --virtual-monitor 1024x768 --
+      xvfb-run -a -s "-screen 0 1024x768x24" --
+      dbus-run-session
       flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse --build-only flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
 
     # rewrite-flatpak-manifest will make our checkout dirty and meson will complain
