@@ -9,6 +9,7 @@ include:
       asan-enabled: false
       tsan-enabled: false
       ubsan-enabled: false
+      grcov-c-enabled: false
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-default-calendar"
@@ -29,6 +30,7 @@ include:
       # only need one of them to test
       tsan-enabled: false
       ubsan-enabled: false
+      grcov-c-enabled: false
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-fedora"
@@ -38,6 +40,7 @@ include:
       asan-enabled: false
       tsan-enabled: false
       ubsan-enabled: false
+      grcov-c-enabled: false
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-ubuntu"
@@ -47,6 +50,7 @@ include:
       asan-enabled: false
       tsan-enabled: false
       ubsan-enabled: false
+      grcov-c-enabled: false
 
 .basic-ci-test-setup: &setup
   before_script:
@@ -112,4 +116,7 @@ basic-ci-default-calendar-tsan:
   <<: *setup-calendar
 
 basic-ci-default-calendar-ubsan:
+  <<: *setup-calendar
+
+basic-ci-default-calendar-grcov-c:
   <<: *setup-calendar

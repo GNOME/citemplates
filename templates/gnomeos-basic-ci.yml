@@ -43,6 +43,10 @@ spec:
       default: true
       type: "boolean"
       description: "Enable or Disable the ubsan build"
+    grcov-c-enabled:
+      default: true
+      type: "boolean"
+      description: "Enable or Disable the grcov build"
 ---
 ".$[[ inputs.job-name ]]-script-test": &test
   - export XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
@@ -157,3 +161,38 @@ spec:
     - *test
   rules:
     - if: '"$[[ inputs.ubsan-enabled ]]" == "true" && "$[[ inputs.run-tests ]]" == "yes"'
+
+"$[[ inputs.job-name ]]-grcov-c":
+  extends: ".$[[ inputs.job-name ]] common"
+  needs:
+    - job: "$[[ inputs.job-name ]]"
+      artifacts: false
+  variables:
+    _INTERNAL_MESON_ARGS: "--buildtype=debug"
+    CFLAGS: "-coverage -ftest-coverage -fprofile-arcs -fno-omit-frame-pointer -g"
+  script:
+    - *test
+
+    - mkdir -p public_grcov
+    - grcov ${_BUILDDIR} --source-dir $[[ inputs.meson-sourcedir]] --prefix-dir ../ --output-type cobertura --branch --ignore-not-existing -o public_grcov/coverage.xml
+    - grcov ${_BUILDDIR} --source-dir $[[ inputs.meson-sourcedir]] --prefix-dir ../ --output-type html --branch --ignore-not-existing -o public_grcov/coverage
+
+    # Print "Coverage: 42.42" so .gitlab-ci.yml will pick it up with a regex
+    #
+    # We scrape this from the HTML report, not the JSON summary, because coverage.json
+    # uses no decimal places, just something like "42%".
+    - grep -Eo 'abbr title.* %' public_grcov/coverage/index.html | head -n 1 | grep -Eo '[0-9.]+ %' | grep -Eo '[0-9.]+' | awk '{ print "Coverage:", $1 }'
+  coverage: '/Coverage: \d+\.\d+/'
+  artifacts:
+    name: "${CI_PROJECT_NAME}-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    expire_in: 2 days
+    when: "always"
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: public_grcov/coverage.xml
+    paths:
+      - "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/"
+      - "public_grcov"
+  rules:
+    - if: '"$[[ inputs.grcov-c-enabled ]]" == "true" && "$[[ inputs.run-tests ]]" == "yes"'
