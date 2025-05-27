@@ -9,6 +9,7 @@ spec:
     dist-job-name:
       description: "The name of the job that produced the dist tarball in your pipeline"
     tarball-artifact-path:
+      default: "public-dist"
       description: "The path of the exported tarball"
 ---
 "$[[ inputs.job-name ]]":
@@ -27,7 +28,9 @@ spec:
       aud: gnome-release-service
   before_script: []
   script:
-    - apk add --no-cache curl
+    # Add bash cause god has forsaken the heavens and clouds
+    # and everyone is using alpine with busybox and ash instead
+    - apk add --no-cache bash curl git
     - ls -al "$[[ inputs.tarball-artifact-path ]]"
 
     # https://gitlab.com/gitlab-org/gitlab/-/issues/382536
@@ -35,10 +38,47 @@ spec:
     - a=$(git tag -l $CI_COMMIT_TAG --format='%(contents)')
     - printf '%s\n' "${a%%-----BEGIN*}" > tag_msg.txt
 
-    - >-
-      curl --fail-with-body -X POST "$GNOME_RELEASE_SERVICE_API_INSTALL_MODULE_RELEASE_ENDPOINT"
-      -H "Authorization: Bearer $JWT_TOKEN"
-      -F "tarball=@$[[ inputs.tarball-artifact-path ]]"
+    - |-
+      cat > upload.sh <<'EOF'
+      #! /bin/bash
+      set -eu
+
+      _path="$1"
+
+      # Upload tarball and sum available in the public-dist directory
+      # Returns 0 if successful, non-zero otherwise
+      upload_from_public_dist () {
+          for _file in public-dist/*.tar.{xz,gz}; do
+              if [[ -f "$_file" && -f "$_file.sha256sum" ]]; then
+                  # echo "Uploading $_file.sha256sum"
+                  echo "Uploading $_file"
+                  curl --fail-with-body -X POST "$GNOME_RELEASE_SERVICE_API_INSTALL_MODULE_RELEASE_ENDPOINT" -H "Authorization: Bearer $JWT_TOKEN" -F "tarball=@$_file"
+                  return 0
+              fi
+          done
+
+          echo "Failed to find any files to upload"
+          return 1
+      }
+
+      upload_from_abs_path () {
+          # echo "Uploading $_path.sha256sum"
+          echo "Uploading $_path"
+          curl --fail-with-body -X POST "$GNOME_RELEASE_SERVICE_API_INSTALL_MODULE_RELEASE_ENDPOINT" -H "Authorization: Bearer $JWT_TOKEN" -F "tarball=@$_path"
+      }
+
+      # If the value is set to default "public-dist", use it as a clue to
+      # look for the tarballs in that exported directory.
+      # Otherwise fallback to the old behavior where the tarball is passed
+      # by absolute path through tarball-artifact-path
+      if [[ "$_path" == "public-dist" ]]; then
+          upload_from_public_dist
+      else
+          upload_from_abs_path
+      fi
+      EOF
+
+    - bash ./upload.sh "$[[ inputs.tarball-artifact-path ]]"
   after_script: []
   artifacts:
     when: 'always'
