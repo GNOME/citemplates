@@ -17,10 +17,22 @@ include:
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       meson-options: "-Dprofile=development"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-fedora"
+      job-stage: "GNOMEOS Basic CI"
+      meson-sourcedir: "gnome-font-viewer"
+      image-ref: "fedora:42"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-ubuntu"
+      job-stage: "GNOMEOS Basic CI"
+      meson-sourcedir: "gnome-font-viewer"
+      image-ref: "ubuntu:25.04"
 
 .basic-ci-test-setup: &setup
   before_script:
-    - git clone https://gitlab.gnome.org/gnome/gnome-font-viewer/
+    - git clone https://gitlab.gnome.org/gnome/gnome-font-viewer.git
 
 # Override the jobs, gitlab should "merge" them so we can add our before_script
 basic-ci-default:
@@ -31,3 +43,19 @@ basic-ci-no-tests:
 
 basic-ci-with-meson-args:
   <<: *setup
+
+basic-ci-fedora:
+  before_script:
+    - dnf builddep -y gnome-font-viewer 
+    - dnf install -y git xorg-x11-server-Xvfb
+    - git clone https://gitlab.gnome.org/gnome/gnome-font-viewer.git
+
+basic-ci-ubuntu:
+  # We often get 403s in the CI runner while trying to install things
+  # Error: Failed to fetch http://archive.ubuntu.com/ubuntu/pool/main/libx/libxcb/libxcb-shm0_1.17.0-2_amd64.deb  403  Forbidden [IP: 185.125.190.82 80]
+  allow_failure: true
+  before_script:
+    - "sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources"
+    - apt update -yq && apt build-dep -y gnome-font-viewer
+    - apt install -y git xvfb
+    - git clone https://gitlab.gnome.org/gnome/gnome-font-viewer.git
