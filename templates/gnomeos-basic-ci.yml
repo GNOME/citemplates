@@ -19,6 +19,9 @@ spec:
       default: "yes"
       # Some test-suites have unique environment requirements
       description: "Whether to execute the testsuite pass empty value to skip"
+    meson-test-options:
+      default: ""
+      description: "List of options passed to meson test. Example: --no-suite foo"
 ---
 "$[[ inputs.job-name ]]":
   image: $[[ inputs.image-ref ]]
@@ -49,7 +52,7 @@ spec:
     - >-
       if [[ "$[[ inputs.run-tests ]]" = "yes" || "$[[ inputs.run-tests ]]" = "1"  ]]; then
         export XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
-        G_MESSAGES_DEBUG=all xvfb-run -a -s "-screen 0 1024x768x24" meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild
+        G_MESSAGES_DEBUG=all xvfb-run -a -s "-screen 0 1024x768x24" meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild $[[ inputs.meson-test-options ]]
       fi
 
     - meson dist -C ${_BUILDDIR} --no-tests
