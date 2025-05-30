@@ -5,6 +5,15 @@ include:
       job-name: "basic-ci-default"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
+      # Doesn't have any tests other than validate appdata
+      asan-enabled: false
+      tsan-enabled: false
+      ubsan-enabled: false
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-default-calendar"
+      job-stage: "GNOMEOS Basic CI"
+      meson-sourcedir: "gnome-calendar"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-no-tests"
@@ -17,18 +26,27 @@ include:
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       meson-options: "-Dprofile=development"
+      # only need one of them to test
+      tsan-enabled: false
+      ubsan-enabled: false
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-fedora"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       image-ref: "fedora:42"
+      asan-enabled: false
+      tsan-enabled: false
+      ubsan-enabled: false
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-ubuntu"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       image-ref: "ubuntu:25.04"
+      asan-enabled: false
+      tsan-enabled: false
+      ubsan-enabled: false
 
 .basic-ci-test-setup: &setup
   before_script:
@@ -38,19 +56,34 @@ include:
 basic-ci-default:
   <<: *setup
 
+basic-ci-default-asan:
+  <<: *setup
+
+basic-ci-default-tsan:
+  <<: *setup
+
+basic-ci-default-ubsan:
+  <<: *setup
+
 basic-ci-no-tests:
   <<: *setup
 
 basic-ci-with-meson-args:
   <<: *setup
 
-basic-ci-fedora:
+basic-ci-with-meson-args-asan:
+  <<: *setup
+
+.basic-ci-test-setup-fedora: &setup-fedora
   before_script:
     - dnf builddep -y gnome-font-viewer 
-    - dnf install -y git xorg-x11-server-Xvfb
+    - dnf install -y git xorg-x11-server-Xvfb meson awk 
     - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
 
-basic-ci-ubuntu:
+basic-ci-fedora:
+  <<: *setup-fedora
+
+.basic-ci-test-setup-ubuntu: &setup-ubuntu
   # We often get 403s in the CI runner while trying to install things
   # Error: Failed to fetch http://archive.ubuntu.com/ubuntu/pool/main/libx/libxcb/libxcb-shm0_1.17.0-2_amd64.deb  403  Forbidden [IP: 185.125.190.82 80]
   allow_failure: true
@@ -59,3 +92,24 @@ basic-ci-ubuntu:
     - apt update -yq && apt build-dep -y gnome-font-viewer
     - apt install -y git xvfb
     - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
+
+basic-ci-ubuntu:
+  <<: *setup-ubuntu
+
+.basic-ci-test-setup-calendar: &setup-calendar
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-calendar.git
+
+basic-ci-default-calendar:
+  <<: *setup-calendar
+
+basic-ci-default-calendar-asan:
+  # The job itself fails as expected due to leaks
+  allow_failure: true
+  <<: *setup-calendar
+
+basic-ci-default-calendar-tsan:
+  <<: *setup-calendar
+
+basic-ci-default-calendar-ubsan:
+  <<: *setup-calendar
