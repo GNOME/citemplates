@@ -63,7 +63,7 @@ spec:
   - meson compile -C ${_BUILDDIR}
   - >-
     if [[ "$[[ inputs.run-tests ]]" = "yes" || "$[[ inputs.run-tests ]]" = "1"  ]]; then
-      xvfb-run -a -s "-screen 0 1024x768x24" meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild $[[ inputs.meson-test-options ]]
+      dbus-run-session -- mutter --headless --wayland --no-x11 --virtual-monitor 1024x768 -- meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild $[[ inputs.meson-test-options ]]
     fi
 
 ".$[[ inputs.job-name ]] common":

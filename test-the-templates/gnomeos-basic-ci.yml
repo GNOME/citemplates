@@ -76,8 +76,8 @@ basic-ci-with-meson-args-asan:
 
 .basic-ci-test-setup-fedora: &setup-fedora
   before_script:
-    - dnf builddep -y gnome-font-viewer 
-    - dnf install -y git xorg-x11-server-Xvfb meson awk 
+    - dnf builddep -y gnome-font-viewer
+    - dnf install -y git meson dbus-run-session mutter
     - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
 
 basic-ci-fedora:
