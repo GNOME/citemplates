@@ -1,3 +1,7 @@
+include:
+  - project: "GNOME/citemplates"
+    file: "templates/default-rules.yml"
+
 .flatpak:
   image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
   stage: 'test'
