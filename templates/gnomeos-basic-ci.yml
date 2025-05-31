@@ -53,7 +53,7 @@ spec:
 
     - >-
       if [[ "$[[ inputs.run-tests ]]" = "yes" || "$[[ inputs.run-tests ]]" = "1"  ]]; then
-        G_MESSAGES_DEBUG=all xvfb-run -a -s "-screen 0 1024x768x24" meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild $[[ inputs.meson-test-options ]]
+        xvfb-run -a -s "-screen 0 1024x768x24" meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild $[[ inputs.meson-test-options ]]
       fi
 
     - meson dist -C ${_BUILDDIR} --no-tests
