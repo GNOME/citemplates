@@ -36,6 +36,8 @@ spec:
     _BUILDDIR: "$CI_PROJECT_DIR/_builddir"
     _BUILDDIR_FOR_ARTIFACTS: "_builddir"
   script:
+    -  export XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
+
     # GNOMEOS needs the libdir to be manually specified as otherwise meson will
     # resolve it to /lib64
     # Even thought we prefixed the component with gnomeos-, there isn't anything special
@@ -51,7 +53,6 @@ spec:
 
     - >-
       if [[ "$[[ inputs.run-tests ]]" = "yes" || "$[[ inputs.run-tests ]]" = "1"  ]]; then
-        export XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
         G_MESSAGES_DEBUG=all xvfb-run -a -s "-screen 0 1024x768x24" meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild $[[ inputs.meson-test-options ]]
       fi
 
