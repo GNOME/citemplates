@@ -32,7 +32,7 @@ include:
 
 .basic-ci-test-setup: &setup
   before_script:
-    - git clone https://gitlab.gnome.org/gnome/gnome-font-viewer.git
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
 
 # Override the jobs, gitlab should "merge" them so we can add our before_script
 basic-ci-default:
@@ -48,7 +48,7 @@ basic-ci-fedora:
   before_script:
     - dnf builddep -y gnome-font-viewer 
     - dnf install -y git xorg-x11-server-Xvfb
-    - git clone https://gitlab.gnome.org/gnome/gnome-font-viewer.git
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
 
 basic-ci-ubuntu:
   # We often get 403s in the CI runner while trying to install things
@@ -58,4 +58,4 @@ basic-ci-ubuntu:
     - "sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources"
     - apt update -yq && apt build-dep -y gnome-font-viewer
     - apt install -y git xvfb
-    - git clone https://gitlab.gnome.org/gnome/gnome-font-viewer.git
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
