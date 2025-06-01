@@ -31,6 +31,7 @@ include:
       tsan-enabled: false
       ubsan-enabled: false
       grcov-c-enabled: false
+      scan-build-enabled: false
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-fedora"
@@ -41,6 +42,7 @@ include:
       tsan-enabled: false
       ubsan-enabled: false
       grcov-c-enabled: false
+      scan-build-enabled: false
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-ubuntu"
@@ -51,6 +53,7 @@ include:
       tsan-enabled: false
       ubsan-enabled: false
       grcov-c-enabled: false
+      scan-build-enabled: false
 
 .basic-ci-test-setup: &setup
   before_script:
@@ -69,7 +72,13 @@ basic-ci-default-tsan:
 basic-ci-default-ubsan:
   <<: *setup
 
+basic-ci-default-scan-build:
+  <<: *setup
+
 basic-ci-no-tests:
+  <<: *setup
+
+basic-ci-no-tests-scan-build:
   <<: *setup
 
 basic-ci-with-meson-args:
@@ -119,4 +128,7 @@ basic-ci-default-calendar-ubsan:
   <<: *setup-calendar
 
 basic-ci-default-calendar-grcov-c:
+  <<: *setup-calendar
+
+basic-ci-default-calendar-scan-build:
   <<: *setup-calendar

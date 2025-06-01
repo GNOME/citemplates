@@ -46,9 +46,13 @@ spec:
     grcov-c-enabled:
       default: true
       type: "boolean"
-      description: "Enable or Disable the grcov build"
+      description: "Enable or Disable the grcov report"
+    scan-build-enabled:
+      default: true
+      type: "boolean"
+      description: "Enable or Disable the scan-build report"
 ---
-".$[[ inputs.job-name ]]-script-test": &test
+".$[[ inputs.job-name ]]-script-build": &build
   - export XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
 
   # GNOMEOS needs the libdir to be manually specified as otherwise meson will
@@ -65,6 +69,9 @@ spec:
   - echo "$CXXFLAGS"
   - meson setup ${_BUILDDIR} $[[ inputs.meson-sourcedir]] --prefix=/usr $optional_set_libdir $_INTERNAL_MESON_ARGS $[[ inputs.meson-options ]]
   - meson compile -C ${_BUILDDIR}
+
+".$[[ inputs.job-name ]]-script-test": &test
+  - *build
   - >-
     if [[ "$[[ inputs.run-tests ]]" = "yes" || "$[[ inputs.run-tests ]]" = "1"  ]]; then
       dbus-run-session -- mutter --headless --wayland --no-x11 --virtual-monitor 1024x768 -- meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild $[[ inputs.meson-test-options ]]
@@ -196,3 +203,27 @@ spec:
       - "public_grcov"
   rules:
     - if: '"$[[ inputs.grcov-c-enabled ]]" == "true" && "$[[ inputs.run-tests ]]" == "yes"'
+
+"$[[ inputs.job-name ]]-scan-build":
+  extends: ".$[[ inputs.job-name ]] common"
+  needs:
+    - job: "$[[ inputs.job-name ]]"
+      artifacts: false
+  variables:
+    # https://clang.llvm.org/docs/analyzer/user-docs/CommandLineUsage.html#always-analyze-a-project-in-its-debug-configuration
+    _INTERNAL_MESON_ARGS: "--buildtype=debug"
+  script:
+    - *build
+    - ninja -C ${_BUILDDIR} scan-build
+    # The scan-build command creates builddir/meson-logs/scanbuild/UUID which is annoying,
+    # so we copy it to a friendly name instead. The "known" name makes writing an index page
+    # easier (if you are combining reports from multiple tools).
+    - cp -r ${_BUILDDIR}/meson-logs/scanbuild/* public_scanbuild/
+  artifacts:
+    name: "${CI_PROJECT_NAME}-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    when: always
+    paths:
+      - "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/"
+      - "public_scanbuild/"
+  rules:
+    - if: '"$[[ inputs.scan-build-enabled ]]" == "true"'
