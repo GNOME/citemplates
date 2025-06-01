@@ -10,7 +10,7 @@ spec:
       default: "quay.io/gnome_infrastructure/gnome-build-meta:core-nightly"
       description: "Specify the OCI image to use"
     meson-options:
-      default: ""
+      default: null
       description: "List of options to setup the meson project"
     meson-sourcedir:
       default: "."
@@ -20,13 +20,13 @@ spec:
       # Some test-suites have unique environment requirements
       description: "Whether to execute the testsuite pass empty value to skip"
     meson-test-options:
-      default: ""
+      default: null
       description: "List of options passed to meson test. Example: --no-suite foo"
     before-script:
       default: null
       description: "Optional before-script to execute"
     asan-options:
-      default: ""
+      default: null
       description: "Value of ASAN_OPTIONS variable"
     asan:
       default: "enabled"
@@ -35,7 +35,7 @@ spec:
         - "disabled"
       description: "Enable or Disable the asan build"
     tsan-options:
-      default: ""
+      default: null
       description: "Value of TSAN_OPTIONS variable"
     tsan:
       default: "enabled"
@@ -44,7 +44,7 @@ spec:
         - "disabled"
       description: "Enable or Disable the tsan build"
     ubsan-options:
-      default: ""
+      default: null
       description: "Value of UBSAN_OPTIONS variable"
     ubsan:
       default: "enabled"
@@ -145,7 +145,7 @@ spec:
   # ASAN requires debugging capabilities
   tags: ["asan"]
   variables:
-    ASAN_OPTIONS: "$[[ inputs.asan-options ]]"
+    ASAN_OPTIONS: $[[ inputs.asan-options ]]
     _INTERNAL_MESON_ARGS: "-Db_sanitize=address"
     # https://clang.llvm.org/docs/AddressSanitizer.html#usage
     CFLAGS: "-fno-omit-frame-pointer -O1 -fno-optimize-sibling-calls -g"
@@ -160,7 +160,7 @@ spec:
     - job: "$[[ inputs.job-name ]]"
       artifacts: false
   variables:
-    TSAN_OPTIONS: "$[[ inputs.tsan-options ]]"
+    TSAN_OPTIONS: $[[ inputs.tsan-options ]]
     _INTERNAL_MESON_ARGS: "-Db_sanitize=thread"
   script:
     - *test
@@ -173,7 +173,7 @@ spec:
     - job: "$[[ inputs.job-name ]]"
       artifacts: false
   variables:
-    UBSAN_OPTIONS: "$[[ inputs.ubsan-options ]]"
+    UBSAN_OPTIONS: $[[ inputs.ubsan-options ]]
     _INTERNAL_MESON_ARGS: "-Db_sanitize=undefined"
     # https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html#stack-traces-and-report-symbolization
     # FIXME: fno-sanitize-merge is not available in gcc
