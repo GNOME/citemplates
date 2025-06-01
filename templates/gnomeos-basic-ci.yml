@@ -218,7 +218,9 @@ spec:
     # The scan-build command creates builddir/meson-logs/scanbuild/UUID which is annoying,
     # so we copy it to a friendly name instead. The "known" name makes writing an index page
     # easier (if you are combining reports from multiple tools).
-    - cp -r ${_BUILDDIR}/meson-logs/scanbuild/* public_scanbuild/
+    # If there are no bugs found, scanbuild removes the directory and then cp will complain
+    # cp: cannot stat '/builds/GNOME/yelp-xsl/_builddir/meson-logs/scanbuild/*': No such file or directory
+    - cp -r ${_BUILDDIR}/meson-logs/scanbuild/* public_scanbuild/ || true
   artifacts:
     name: "${CI_PROJECT_NAME}-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
     when: always
