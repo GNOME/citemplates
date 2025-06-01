@@ -5,7 +5,19 @@ include:
 
   # Testing the local templates
   - local: "test-the-templates/flatpak.yml"
+    rules:
+      - changes:
+          paths:
+            - "flatpak/*"
+            - "templates/defeault-rules.yml"
+            - "test-the-templates/flatpak.yml"
+
   - local: "test-the-templates/gnomeos-basic-ci.yml"
+    rules:
+      - changes:
+          paths:
+            - "templates/gnomeos-basic-ci.yml"
+            - "test-the-templates/gnomeos-basic-ci.yml"
 
 stages:
   - "Flatpak app"
