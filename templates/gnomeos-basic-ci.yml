@@ -85,7 +85,6 @@ spec:
     - *test
 
     - meson dist -C ${_BUILDDIR} --no-tests
-    - mkdir -p public-dist
     - cp -r "${_BUILDDIR}/meson-dist/" "${CI_PROJECT_DIR}/public-dist/"
 
     - mkdir -p ${_DESTDIR}
