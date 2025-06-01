@@ -81,6 +81,9 @@ spec:
     grcov-c-options:
       default: null
       description: "List of additional options passed to grcov"
+    scan-build-executable:
+      default: "scan-build"
+      description: "Value of SCANBUILD variable"
     scan-build:
       default: "enabled"
       options:
@@ -372,6 +375,10 @@ spec:
   variables:
     # https://clang.llvm.org/docs/analyzer/user-docs/CommandLineUsage.html#always-analyze-a-project-in-its-debug-configuration
     _INTERNAL_MESON_ARGS: "--buildtype=debug"
+    CC: "ccache clang"
+    CXX: "ccache clang++"
+    # https://mesonbuild.com/howtox.html#use-clang-static-analyzer
+    SCANBUILD: $[[ inputs.scan-build-executable ]]
   script:
     - *build
     - ninja -C ${_BUILDDIR} scan-build
