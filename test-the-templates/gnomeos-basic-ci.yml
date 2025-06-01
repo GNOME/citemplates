@@ -5,6 +5,7 @@ include:
       job-name: "basic-ci-default"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git"
       # Doesn't have any tests other than validate appdata
       asan: "disabled"
       tsan: "disabled"
@@ -15,18 +16,27 @@ include:
       job-name: "basic-ci-default-calendar"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-calendar"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-calendar.git"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-no-tests"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git"
       run-tests: "no"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-no-before-script"
+      job-stage: "GNOMEOS Basic CI"
+      run-tests: "no"
+      scan-build: "disabled"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-with-meson-args"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       meson-options: "-Dprofile=development"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git"
       # only need one of them to test
       tsan: "disabled"
       ubsan: "disabled"
@@ -37,6 +47,7 @@ include:
       job-name: "basic-ci-fedora"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
+      before-script: "bash ./test-the-templates/basic-ci-fedora-before-script.sh"
       image-ref: "fedora:42"
       asan: "disabled"
       tsan: "disabled"
@@ -48,6 +59,7 @@ include:
       job-name: "basic-ci-ubuntu"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
+      before-script: "bash ./test-the-templates/basic-ci-ubuntu-before-script.sh"
       image-ref: "ubuntu:25.04"
       asan: "disabled"
       tsan: "disabled"
@@ -55,80 +67,19 @@ include:
       grcov-c: "disabled"
       scan-build: "disabled"
 
-.basic-ci-test-setup: &setup
-  before_script:
-    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
-
-# Override the jobs, gitlab should "merge" them so we can add our before_script
-basic-ci-default:
-  <<: *setup
-
-basic-ci-default-asan:
-  <<: *setup
-
-basic-ci-default-tsan:
-  <<: *setup
-
-basic-ci-default-ubsan:
-  <<: *setup
-
-basic-ci-default-scan-build:
-  <<: *setup
-
-basic-ci-no-tests:
-  <<: *setup
-
-basic-ci-no-tests-scan-build:
-  <<: *setup
-
-basic-ci-with-meson-args:
-  <<: *setup
-
-basic-ci-with-meson-args-asan:
-  <<: *setup
-
-.basic-ci-test-setup-fedora: &setup-fedora
-  before_script:
-    - dnf builddep -y gnome-font-viewer
-    - dnf install -y git meson dbus-run-session mutter
-    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
-
-basic-ci-fedora:
-  <<: *setup-fedora
-
-.basic-ci-test-setup-ubuntu: &setup-ubuntu
-  # We often get 403s in the CI runner while trying to install things
-  # Error: Failed to fetch http://archive.ubuntu.com/ubuntu/pool/main/libx/libxcb/libxcb-shm0_1.17.0-2_amd64.deb  403  Forbidden [IP: 185.125.190.82 80]
-  allow_failure: true
-  before_script:
-    - "sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources"
-    - apt update -yq && apt build-dep -y gnome-font-viewer
-    - apt install -y git xvfb
-    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
-
-basic-ci-ubuntu:
-  <<: *setup-ubuntu
-
-.basic-ci-test-setup-calendar: &setup-calendar
-  before_script:
-    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-calendar.git
-
-basic-ci-default-calendar:
-  <<: *setup-calendar
-
+# Override the jobs, gitlab should "merge" them so we can add the allow_failure
 basic-ci-default-calendar-asan:
   # The job itself fails as expected due to leaks
   allow_failure: true
-  <<: *setup-calendar
 
-basic-ci-default-calendar-tsan:
-  <<: *setup-calendar
+basic-ci-ubuntu:
+  # We often get 403s in the CI runner while trying to install things
+  # Error: Failed to fetch http://archive.ubuntu.com/ubuntu/pool/main/libx/libxcb/libxcb-shm0_1.17.0-2_amd64.deb  403  Forbidden [IP: 185.125.190.82 80]
+  allow_failure: true
 
-basic-ci-default-calendar-ubsan:
-  <<: *setup-calendar
-
-basic-ci-default-calendar-grcov-c:
-  <<: *setup-calendar
-
-basic-ci-default-calendar-scan-build:
-  <<: *setup-calendar
+# Test that when we don't specify a before script
+# the template does not explode.
+# Without a before-script we can't test an app (unless add one in the repo)
+# but that's fine, as we only care about gitlab complaining
+basic-ci-no-before-script:
+  script: "echo Hello world"

@@ -22,6 +22,9 @@ spec:
     meson-test-options:
       default: ""
       description: "List of options passed to meson test. Example: --no-suite foo"
+    before-script:
+      default: null
+      description: "Optional before-script to execute"
     asan-options:
       default: ""
       description: "Value of ASAN_OPTIONS variable"
@@ -102,6 +105,7 @@ spec:
     # FIXME: use meson c_args instead
     CFLAGS: "-fno-omit-frame-pointer -g"
     CXXFLAGS: "$CFLAGS"
+  before_script: $[[ inputs.before-script ]]
   script:
     - *test
 
