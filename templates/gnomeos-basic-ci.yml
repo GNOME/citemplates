@@ -25,31 +25,41 @@ spec:
     asan-options:
       default: ""
       description: "Value of ASAN_OPTIONS variable"
-    asan-enabled:
-      default: true
-      type: "boolean"
+    asan:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
       description: "Enable or Disable the asan build"
     tsan-options:
       default: ""
       description: "Value of TSAN_OPTIONS variable"
-    tsan-enabled:
-      default: true
-      type: "boolean"
+    tsan:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
       description: "Enable or Disable the tsan build"
     ubsan-options:
       default: ""
       description: "Value of UBSAN_OPTIONS variable"
-    ubsan-enabled:
-      default: true
-      type: "boolean"
+    ubsan:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
       description: "Enable or Disable the ubsan build"
-    grcov-c-enabled:
-      default: true
-      type: "boolean"
+    grcov-c:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
       description: "Enable or Disable the grcov report"
-    scan-build-enabled:
-      default: true
-      type: "boolean"
+    scan-build:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
       description: "Enable or Disable the scan-build report"
 ---
 ".$[[ inputs.job-name ]]-script-build": &build
@@ -138,7 +148,7 @@ spec:
   script:
     - *test
   rules:
-    - if: '"$[[ inputs.asan-enabled ]]" == "true" && "$[[ inputs.run-tests ]]" == "yes"'
+    - if: '"$[[ inputs.asan ]]" == "enabled" && "$[[ inputs.run-tests ]]" == "yes"'
 
 "$[[ inputs.job-name ]]-tsan":
   extends: ".$[[ inputs.job-name ]] common"
@@ -151,7 +161,7 @@ spec:
   script:
     - *test
   rules:
-    - if: '"$[[ inputs.tsan-enabled ]]" == "true" && "$[[ inputs.run-tests ]]" == "yes"'
+    - if: '"$[[ inputs.tsan ]]" == "enabled" && "$[[ inputs.run-tests ]]" == "yes"'
 
 "$[[ inputs.job-name ]]-ubsan":
   extends: ".$[[ inputs.job-name ]] common"
@@ -167,7 +177,7 @@ spec:
   script:
     - *test
   rules:
-    - if: '"$[[ inputs.ubsan-enabled ]]" == "true" && "$[[ inputs.run-tests ]]" == "yes"'
+    - if: '"$[[ inputs.ubsan ]]" == "enabled" && "$[[ inputs.run-tests ]]" == "yes"'
 
 "$[[ inputs.job-name ]]-grcov-c":
   extends: ".$[[ inputs.job-name ]] common"
@@ -202,7 +212,7 @@ spec:
       - "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/"
       - "public_grcov"
   rules:
-    - if: '"$[[ inputs.grcov-c-enabled ]]" == "true" && "$[[ inputs.run-tests ]]" == "yes"'
+    - if: '"$[[ inputs.grcov-c ]]" == "enabled" && "$[[ inputs.run-tests ]]" == "yes"'
 
 "$[[ inputs.job-name ]]-scan-build":
   extends: ".$[[ inputs.job-name ]] common"
@@ -228,4 +238,4 @@ spec:
       - "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/"
       - "public_scanbuild/"
   rules:
-    - if: '"$[[ inputs.scan-build-enabled ]]" == "true"'
+    - if: '"$[[ inputs.scan-build ]]" == "enabled"'

@@ -6,10 +6,10 @@ include:
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       # Doesn't have any tests other than validate appdata
-      asan-enabled: false
-      tsan-enabled: false
-      ubsan-enabled: false
-      grcov-c-enabled: false
+      asan: "disabled"
+      tsan: "disabled"
+      ubsan: "disabled"
+      grcov-c: "disabled"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-default-calendar"
@@ -28,32 +28,32 @@ include:
       meson-sourcedir: "gnome-font-viewer"
       meson-options: "-Dprofile=development"
       # only need one of them to test
-      tsan-enabled: false
-      ubsan-enabled: false
-      grcov-c-enabled: false
-      scan-build-enabled: false
+      tsan: "disabled"
+      ubsan: "disabled"
+      grcov-c: "disabled"
+      scan-build: "disabled"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-fedora"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       image-ref: "fedora:42"
-      asan-enabled: false
-      tsan-enabled: false
-      ubsan-enabled: false
-      grcov-c-enabled: false
-      scan-build-enabled: false
+      asan: "disabled"
+      tsan: "disabled"
+      ubsan: "disabled"
+      grcov-c: "disabled"
+      scan-build: "disabled"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-ubuntu"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       image-ref: "ubuntu:25.04"
-      asan-enabled: false
-      tsan-enabled: false
-      ubsan-enabled: false
-      grcov-c-enabled: false
-      scan-build-enabled: false
+      asan: "disabled"
+      tsan: "disabled"
+      ubsan: "disabled"
+      grcov-c: "disabled"
+      scan-build: "disabled"
 
 .basic-ci-test-setup: &setup
   before_script:
