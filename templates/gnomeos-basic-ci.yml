@@ -206,6 +206,7 @@ spec:
   coverage: '/Coverage: \d+\.\d+/'
   artifacts:
     name: "${CI_PROJECT_NAME}-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    expose_as: "Link to Coverage Report"
     expire_in: 2 days
     when: "always"
     reports:
@@ -214,7 +215,8 @@ spec:
         path: public_grcov/coverage.xml
     paths:
       - "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/"
-      - "public_grcov"
+      - "public_grcov/"
+      - "public_grcov/coverage/index.html"
   rules:
     - if: '"$[[ inputs.grcov-c ]]" == "enabled" && "$[[ inputs.run-tests ]]" == "yes"'
 
@@ -237,9 +239,12 @@ spec:
     - cp -r ${_BUILDDIR}/meson-logs/scanbuild/* public_scanbuild/ || true
   artifacts:
     name: "${CI_PROJECT_NAME}-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    expose_as: "Link to Scanbuild Report"
+    expire_in: 2 days
     when: always
     paths:
       - "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/"
       - "public_scanbuild/"
+      - "public_scanbuild/index.html"
   rules:
     - if: '"$[[ inputs.scan-build ]]" == "enabled"'
