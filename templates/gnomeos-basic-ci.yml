@@ -38,7 +38,10 @@ spec:
       default: null
       description: "Value of TSAN_OPTIONS variable"
     tsan:
-      default: "enabled"
+      # Disable tsan until the glib bugs are resolved
+      # https://gitlab.gnome.org/GNOME/glib/-/issues/1672
+      # https://gitlab.gnome.org/GNOME/glib/-/issues/3695
+      default: "disabled"
       options:
         - "enabled"
         - "disabled"
