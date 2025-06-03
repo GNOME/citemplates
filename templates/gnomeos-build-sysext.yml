@@ -17,7 +17,10 @@ spec:
       description: "List of options to setup the meson project"
 ---
 "$[[ inputs.job-name ]]":
-  image: quay.io/gnome_infrastructure/gnome-build-meta:core-$[[ inputs.branch ]]
+  image: 
+    name: "quay.io/gnome_infrastructure/gnome-build-meta:core-$[[ inputs.branch ]]"
+    docker:
+      user: "root"
   stage: $[[ inputs.job-stage ]]
   script:
     - mkdir -p $[[ inputs.extension-contents ]]

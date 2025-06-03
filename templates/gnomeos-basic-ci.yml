@@ -91,7 +91,10 @@ spec:
     fi
 
 ".$[[ inputs.job-name ]] common":
-  image: $[[ inputs.image-ref ]]
+  image: 
+    name: $[[ inputs.image-ref ]]
+    docker:
+      user: "root"
   tags:
     - "x86_64_v3"
   stage: $[[ inputs.job-stage ]]
