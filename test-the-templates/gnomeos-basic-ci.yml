@@ -8,6 +8,7 @@ include:
       before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git"
       # Doesn't have any tests other than validate appdata
       asan: "disabled"
+      lsan: "disabled"
       tsan: "disabled"
       ubsan: "disabled"
       grcov-c: "disabled"
@@ -50,6 +51,7 @@ include:
       before-script: "bash ./test-the-templates/basic-ci-fedora-before-script.sh"
       image-ref: "fedora:42"
       asan: "disabled"
+      lsan: "disabled"
       tsan: "disabled"
       ubsan: "disabled"
       grcov-c: "disabled"
@@ -62,13 +64,14 @@ include:
       before-script: "bash ./test-the-templates/basic-ci-ubuntu-before-script.sh"
       image-ref: "ubuntu:25.04"
       asan: "disabled"
+      lsan: "disabled"
       tsan: "disabled"
       ubsan: "disabled"
       grcov-c: "disabled"
       scan-build: "disabled"
 
 # Override the jobs, gitlab should "merge" them so we can add the allow_failure
-basic-ci-default-calendar-asan:
+basic-ci-default-calendar-lsan:
   # The job itself fails as expected due to leaks
   allow_failure: true
 

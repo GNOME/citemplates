@@ -26,9 +26,18 @@ spec:
       default: null
       description: "Optional before-script to execute"
     asan-options:
+      default: "detect_leaks=0"
+      description: "Value of ASAN_OPTIONS variable. Note it defaults to detect_leaks=0 since we have a separate lsan job"
+    asan:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
+      description: "Enable or Disable the asan build"
+    lsan-options:
       default: null
       description: "Value of ASAN_OPTIONS variable"
-    asan:
+    lsan:
       default: "enabled"
       options:
         - "enabled"
@@ -159,6 +168,23 @@ spec:
     - *test
   rules:
     - if: '"$[[ inputs.asan ]]" == "enabled" && "$[[ inputs.run-tests ]]" == "yes"'
+
+"$[[ inputs.job-name ]]-lsan":
+  extends: ".$[[ inputs.job-name ]] common"
+  needs:
+    - job: "$[[ inputs.job-name ]]"
+      artifacts: false
+  # ASAN requires debugging capabilities
+  tags: ["asan"]
+  variables:
+    ASAN_OPTIONS: $[[ inputs.lsan-options ]]
+    _INTERNAL_MESON_ARGS: "-Db_sanitize=leak"
+    # https://clang.llvm.org/docs/AddressSanitizer.html#usage
+    CFLAGS: "-fno-omit-frame-pointer -O1 -fno-optimize-sibling-calls -g"
+  script:
+    - *test
+  rules:
+    - if: '"$[[ inputs.lsan ]]" == "enabled" && "$[[ inputs.run-tests ]]" == "yes"'
 
 "$[[ inputs.job-name ]]-tsan":
   extends: ".$[[ inputs.job-name ]] common"
