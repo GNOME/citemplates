@@ -25,6 +25,12 @@ spec:
     before-script:
       default: null
       description: "Optional before-script to execute"
+    clang:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
+      description: "Add a build job with clang"
     asan-options:
       default: "detect_leaks=0"
       description: "Value of ASAN_OPTIONS variable. Note it defaults to detect_leaks=0 since we have a separate lsan job"
@@ -90,8 +96,13 @@ spec:
       optional_set_libdir="--libdir=lib/$(gcc -print-multiarch)"
     fi
 
+  - echo "$CC"
+  - echo "$CXX"
   - echo "$CFLAGS"
   - echo "$CXXFLAGS"
+  - echo "$optional_set_libdir"
+  - echo "$_INTERNAL_MESON_ARGS"
+
   - meson setup ${_BUILDDIR} $[[ inputs.meson-sourcedir]] --prefix=/usr $optional_set_libdir $_INTERNAL_MESON_ARGS $[[ inputs.meson-options ]]
   - meson compile -C ${_BUILDDIR}
 
@@ -151,6 +162,18 @@ spec:
 
 "$[[ inputs.job-name ]]":
   extends: ".$[[ inputs.job-name ]] common"
+
+"$[[ inputs.job-name ]]-clang":
+  extends: ".$[[ inputs.job-name ]] common"
+  # These are job configuration and I absolutely hate that
+  # they are variables rather than arguments we can pass
+  # to a script, but all we have is inline bash inside yaml
+  # so we have to make due with it for now.
+  variables:
+    CC: "ccache clang"
+    CXX: "ccache clang++"
+  rules:
+    - if: '"$[[ inputs.clang ]]" == "enabled"'
 
 "$[[ inputs.job-name ]]-asan":
   extends: ".$[[ inputs.job-name ]] common"

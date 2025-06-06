@@ -30,6 +30,7 @@ include:
       job-name: "basic-ci-no-before-script"
       job-stage: "GNOMEOS Basic CI"
       run-tests: "no"
+      clang: "disabled"
       scan-build: "disabled"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
