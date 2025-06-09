@@ -1,0 +1,34 @@
+include:
+  # include the component located in the current project from the current SHA
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-build-sysext@$CI_COMMIT_SHA
+    inputs:
+      job-name: "build-sysext-mutter"
+      job-stage: "GNOMEOS Build Sysext CI"
+      meson-sourcedir: "mutter"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-build-sysext@$CI_COMMIT_SHA
+    inputs:
+      job-name: "build-sysext-shell"
+      job-stage: "GNOMEOS Build Sysext CI"
+      meson-sourcedir: "gnome-shell"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-build-sysext@$CI_COMMIT_SHA
+    inputs:
+      job-name: "build-sysext-libadwaita"
+      job-stage: "GNOMEOS Build Sysext CI"
+      meson-sourcedir: "libadwaita"
+
+# Override the jobs, gitlab should "merge" them so we can add the allow_failure
+build-sysext-mutter:
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/mutter.git
+    - cd mutter
+    - .gitlab-ci/install-gnomeos-sysext-dependencies.sh $CI_PROJECT_DIR/extension
+
+build-sysext-shell:
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-shell.git
+    - cd gnome-shell
+    - .gitlab-ci/install-gnomeos-sysext-dependencies.sh $CI_PROJECT_DIR/extension
+
+build-sysext-libadwaita:
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/libadwaita.git

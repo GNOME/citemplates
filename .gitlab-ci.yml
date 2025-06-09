@@ -19,7 +19,15 @@ include:
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/gnomeos-basic-ci.yml"
 
+  - local: "test-the-templates/gnomeos-build-sysext.yml"
+    rules:
+      - changes:
+          paths:
+            - "templates/gnomeos-build-sysext.yml"
+            - "test-the-templates/gnomeos-build-sysext.yml"
+
 stages:
   - "Flatpak app"
   - "GNOMEOS Basic CI"
+  - "GNOMEOS Build Sysext CI"
   - "deploy"
