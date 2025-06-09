@@ -15,16 +15,23 @@ spec:
     meson-options:
       default: ""
       description: "List of options to setup the meson project"
+    meson-sourcedir:
+      default: "."
+      description: "Meson sourcedir path. Useful if the project is not in the root directory"
+    before-script:
+      default: null
+      description: "Optional before-script to execute"
 ---
 "$[[ inputs.job-name ]]":
-  image: 
+  image:
     name: "quay.io/gnome_infrastructure/gnome-build-meta:core-$[[ inputs.branch ]]"
     docker:
       user: "root"
   stage: $[[ inputs.job-stage ]]
+  before_script: $[[ inputs.before-script ]]
   script:
     - mkdir -p $[[ inputs.extension-contents ]]
-    - meson setup build --prefix=/usr --libdir="lib/$(gcc -print-multiarch)" $[[ inputs.meson-options ]]
+    - meson setup build $[[ inputs.meson-sourcedir]] --prefix=/usr --libdir="lib/$(gcc -print-multiarch)" $[[ inputs.meson-options ]]
     - meson compile -C build
     - meson install -C build --destdir $[[ inputs.extension-contents ]]
     - sysext-build extension $[[ inputs.extension-contents ]] --ignore-release --verbose

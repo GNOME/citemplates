@@ -35,10 +35,17 @@ include:
             - "test-the-templates/test-docs-generation.yml"
 
   - local: "templates/default-rules.yml"
+  - local: "test-the-templates/gnomeos-build-sysext.yml"
+    rules:
+      - changes:
+          paths:
+            - "templates/gnomeos-build-sysext.yml"
+            - "test-the-templates/gnomeos-build-sysext.yml"
 
 stages:
   - "Flatpak app"
   - "GNOMEOS Basic CI"
   - "Dist tarball tests"
   - "Docs generation tests"
+  - "GNOMEOS Build Sysext CI"
   - "deploy"

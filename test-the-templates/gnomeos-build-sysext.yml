@@ -1,0 +1,14 @@
+include:
+  # include the component located in the current project from the current SHA
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-build-sysext@$CI_COMMIT_SHA
+    inputs:
+      job-name: "build-sysext-mutter"
+      job-stage: "GNOMEOS Build Sysext CI"
+      meson-sourcedir: "mutter"
+      before-script: "bash test-the-templates/basic-ci-mutter-before-script.sh"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-build-sysext@$CI_COMMIT_SHA
+    inputs:
+      job-name: "build-sysext-libadwaita"
+      job-stage: "GNOMEOS Build Sysext CI"
+      meson-sourcedir: "libadwaita"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/libadwaita.git"
