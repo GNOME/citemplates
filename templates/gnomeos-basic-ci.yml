@@ -42,7 +42,7 @@ spec:
       description: "Enable or Disable the asan build"
     lsan-options:
       default: null
-      description: "Value of ASAN_OPTIONS variable"
+      description: "Value of LSAN_OPTIONS variable"
     lsan:
       default: "enabled"
       options:
@@ -200,7 +200,7 @@ spec:
   # ASAN requires debugging capabilities
   tags: ["asan"]
   variables:
-    ASAN_OPTIONS: $[[ inputs.lsan-options ]]
+    LSAN_OPTIONS: $[[ inputs.lsan-options ]]
     _INTERNAL_MESON_ARGS: "-Db_sanitize=leak"
     # https://clang.llvm.org/docs/AddressSanitizer.html#usage
     CFLAGS: "-fno-omit-frame-pointer -O1 -fno-optimize-sibling-calls -g"
