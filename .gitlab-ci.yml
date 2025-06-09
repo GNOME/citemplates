@@ -27,8 +27,16 @@ include:
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/test-tarball-dist.yml"
 
+  - local: "test-the-templates/gnomeos-build-sysext.yml"
+    rules:
+      - changes:
+          paths:
+            - "templates/gnomeos-build-sysext.yml"
+            - "test-the-templates/gnomeos-build-sysext.yml"
+
 stages:
   - "Flatpak app"
   - "GNOMEOS Basic CI"
   - "Dist tarball tests"
+  - "GNOMEOS Build Sysext CI"
   - "deploy"
