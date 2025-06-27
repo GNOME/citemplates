@@ -1,0 +1,52 @@
+include:
+  # Testing the local templates
+  - local: "flatpak/flatpak_ci_initiative.yml"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-generate-tarball"
+      job-stage: "Dist tarball tests"
+      meson-sourcedir: "gnome-font-viewer"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git"
+      run-tests: "no"
+      clang: "disabled"
+      scan-build: "disabled"
+
+.flatpak-test-dist-setup:
+  stage: "Dist tarball tests"
+  variables:
+    # This is different than the Upstream yaml, as it has the gnome-font-viewer subdir added in the path
+    MANIFEST_PATH: "gnome-font-viewer/build-aux/flatpak/org.gnome.font-viewerDevel.json"
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer/
+
+# Copy from the font-viewer ci yaml
+.flatpak-dist-test-common:
+  extends: [".flatpak", ".flatpak-test-dist-setup"]
+  variables:
+    FLATPAK_MODULE: "gnome-font-viewer"
+    RUNTIME_REPO: "https://sdk.gnome.org/gnome-nightly.flatpakrepo"
+    APP_ID: "org.gnome.font-viewerDevel"
+    BUNDLE: "org.gnome.font-viewerDevel.flatpak"
+
+flatpak-generate-dist:
+  extends: [".flatpak-dist-test-common"]
+  needs: []
+  variables:
+    MESON_DIST: "1"
+
+test-flatpak-dist:
+  stage: "Dist tarball tests"
+  needs: ["flatpak-generate-dist"]
+  variables:
+    FLATPAK_MODULE: "gnome-font-viewer"
+  script:
+    # This is the default TARBALL_ARTIFACT_PATH we recommend in the old docs and has to keep working
+    # The docs mention ${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.xz but we will use a wildcards instead
+    - ls -lh .flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/*.tar.xz
+    - ls -lh public-dist/*.tar.xz*
+
+test-basic-ci-dist:
+  stage: "Dist tarball tests"
+  needs: ["basic-ci-generate-tarball"]
+  script:
+    - ls -lh public-dist/*.tar.xz*

@@ -19,7 +19,16 @@ include:
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/gnomeos-basic-ci.yml"
 
+  - local: "test-the-templates/test-tarball-dist.yml"
+    rules:
+      - changes:
+          paths:
+            - "flatpak/*"
+            - "templates/gnomeos-basic-ci.yml"
+            - "test-the-templates/test-tarball-dist.yml"
+
 stages:
   - "Flatpak app"
   - "GNOMEOS Basic CI"
+  - "Dist tarball tests"
   - "deploy"
