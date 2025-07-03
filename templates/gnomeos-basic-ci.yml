@@ -16,7 +16,7 @@ spec:
       default: "."
       description: "Meson sourcedir path. Useful if the project is not in the root directory"
     run-tests:
-      default: "no"
+      default: "yes"
       # Some test-suites have unique environment requirements
       description: "Whether to execute the testsuite pass empty value to skip"
     meson-test-options:
