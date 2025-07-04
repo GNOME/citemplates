@@ -96,6 +96,9 @@ spec:
       optional_set_libdir="--libdir=lib/$(gcc -print-multiarch)"
     fi
 
+  # Generate the hwdb.bin
+  - systemd-hwdb --usr update
+
   - echo "$CC"
   - echo "$CXX"
   - echo "$CFLAGS"
