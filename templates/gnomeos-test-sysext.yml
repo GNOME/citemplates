@@ -40,20 +40,18 @@ spec:
   - |
     echo "Fetching GNOME OS media"
     if [ "$GNOMEOS_BUILD_SYSEXT_BRANCH" = "nightly" ]; then
-      url=$(_openqa-utils/test_media_url.py --kind disk --variant sysupdate --pipeline $GNOMEOS_BUILD_SYSEXT_PIPELINE)
+      url=$(_openqa-utils/test_media_url.py --kind iso --variant sysupdate --pipeline $GNOMEOS_BUILD_SYSEXT_PIPELINE)
     else
-      url=$(_openqa-utils/test_media_url.py --kind disk --variant sysupdate --stable-branch $GNOMEOS_BUILD_SYSEXT_BRANCH)
+      url=$(_openqa-utils/test_media_url.py --kind iso --variant sysupdate --stable-branch $GNOMEOS_BUILD_SYSEXT_BRANCH)
     fi
     echo "Fetching $url"
-    _openqa-utils/fetch_test_media.sh $url /data/factory/hdd/disk.img.xz
-    unxz /data/factory/hdd/disk.img.xz
+    _openqa-utils/fetch_test_media.sh $url /data/factory/iso/disk.iso
   - |
     echo "Calculating checksums of GNOME OS media"
-    sha256sum /data/factory/hdd/disk.img
-  - |
-    _openqa-utils/expand_disk.sh /data/factory/hdd/disk.img 40 GB
+    sha256sum /data/factory/iso/disk.iso
   # Make system extension available to openQA test runner.
   - |
+    mkdir -p /data/factory/hdd/
     mv extension.sysext.raw /data/factory/hdd/
     ls -l /data/factory/hdd/
   - ls -l /var/lib/openqa/share/factory/
