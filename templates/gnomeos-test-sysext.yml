@@ -23,7 +23,7 @@ spec:
     OPENQA_TEST_TIMEOUT_SCALE_CI: 4
     OPENQA_HOST: https://openqa.gnome.org
     OPENQA_UTILS_GIT: https://gitlab.gnome.org/gnome/openqa-utils
-    OPENQA_UTILS_BRANCH: main
+    OPENQA_UTILS_BRANCH: tchx84/test-sysext-update
     OPENQA_NEEDLES_GIT: https://gitlab.gnome.org/gnome/openqa-needles
     OPENQA_NEEDLES_BRANCH: master
   stage: $[[ inputs.job-stage ]]
