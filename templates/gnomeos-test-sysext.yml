@@ -23,7 +23,7 @@ spec:
     OPENQA_TEST_TIMEOUT_SCALE_CI: 4
     OPENQA_HOST: https://openqa.gnome.org
     OPENQA_UTILS_GIT: https://gitlab.gnome.org/gnome/openqa-utils
-    OPENQA_UTILS_BRANCH: v1
+    OPENQA_UTILS_BRANCH: v2
     OPENQA_NEEDLES_GIT: https://gitlab.gnome.org/gnome/openqa-needles
     OPENQA_NEEDLES_BRANCH: master
   stage: $[[ inputs.job-stage ]]
@@ -34,24 +34,24 @@ spec:
   before_script:
   # Fetch openqa-utils repo - it contains helper scripts which we need.
   - |
-    git clone --depth 1 --branch "$OPENQA_UTILS_BRANCH" "$OPENQA_UTILS_GIT" ./_openqa
-    echo "Checked out $OPENQA_UTILS_GIT commit $(git -C ./_openqa rev-parse HEAD)"
+    git clone --depth 1 --branch "$OPENQA_UTILS_BRANCH" "$OPENQA_UTILS_GIT" ./_openqa-utils
+    echo "Checked out $OPENQA_UTILS_GIT commit $(git -C ./_openqa-utils rev-parse HEAD)"
   # Fetch the correspondent version of GNOME OS disk image
   - |
     echo "Fetching GNOME OS media"
     if [ "$GNOMEOS_BUILD_SYSEXT_BRANCH" = "nightly" ]; then
-      url=$(_openqa/utils/test_media_url.py --kind disk --variant sysupdate --pipeline $GNOMEOS_BUILD_SYSEXT_PIPELINE)
+      url=$(_openqa-utils/test_media_url.py --kind disk --variant sysupdate --pipeline $GNOMEOS_BUILD_SYSEXT_PIPELINE)
     else
-      url=$(_openqa/utils/test_media_url.py --kind disk --variant sysupdate --stable-branch $GNOMEOS_BUILD_SYSEXT_BRANCH)
+      url=$(_openqa-utils/test_media_url.py --kind disk --variant sysupdate --stable-branch $GNOMEOS_BUILD_SYSEXT_BRANCH)
     fi
     echo "Fetching $url"
-    _openqa/utils/fetch_test_media.sh $url /data/factory/hdd/disk.img.xz
+    _openqa-utils/fetch_test_media.sh $url /data/factory/hdd/disk.img.xz
     unxz /data/factory/hdd/disk.img.xz
   - |
     echo "Calculating checksums of GNOME OS media"
     sha256sum /data/factory/hdd/disk.img
   - |
-    _openqa/utils/expand_disk.sh /data/factory/hdd/disk.img 40 GB
+    _openqa-utils/expand_disk.sh /data/factory/hdd/disk.img 40 GB
   # Make system extension available to openQA test runner.
   - |
     mv extension.sysext.raw /data/factory/hdd/
@@ -73,21 +73,21 @@ spec:
   # Start openQA worker
   - |
     worker_class=qemu_x86_64-${CI_JOB_ID}
-    _openqa/utils/setup_worker.sh ${worker_class}
+    _openqa-utils/setup_worker.sh ${worker_class}
     /run_openqa_worker.sh &> worker.log &
   # Submit a job to the controller, which will run in the container.
   - |
     version="master"
     casedir="$(pwd)/$[[ inputs.tests ]]"
     echo "casedir is: $casedir"
-    _openqa/utils/start_all_jobs.sh "${worker_class}" "${version}" "${casedir}" > /tmp/job_ids
+    _openqa-utils/start_all_jobs.sh "${worker_class}" "${version}" "${casedir}" > /tmp/job_ids
   - |
     echo "Test jobs have been started. To see progress, visit:"
     for job_id in $(cat /tmp/job_ids); do
       echo "  * $OPENQA_HOST/tests/$job_id"
     done
   # Wait for completion and report success or failure.
-  - _openqa/utils/wait_for_job.sh $(cat /tmp/job_ids) > /tmp/exit_code
+  - _openqa-utils/wait_for_job.sh $(cat /tmp/job_ids) > /tmp/exit_code
   - exit $(cat /tmp/exit_code)
   after_script:
   - |
@@ -96,7 +96,7 @@ spec:
         cat openqa.log
     fi
   - |
-    ./_openqa/utils/openqa_junit_report.py $(cat /tmp/job_ids) > ./junit.xml
+    ./_openqa-utils/openqa_junit_report.py $(cat /tmp/job_ids) > ./junit.xml
   artifacts:
     when: always
     paths:
