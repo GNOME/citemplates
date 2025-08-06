@@ -20,6 +20,9 @@ include:
     # Pass "--runtime" in order to build a runtime or extension
     EXPORT_RUNTIME: ""
     NIGHTLY_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
+    USE_CACHE: "1"
+    # Default for backwards compatibility
+    ARCH: "x86_64"
   # Till now this was the template job used for everything,
   # so assume its default tags are x86 to avoid breaking backwards
   # compatibility.
@@ -38,6 +41,42 @@ include:
     # Print the date, since appstream depends on local timezone
     - date && date -u
 
+    # Make sure we don't end up with any leftover volume cache
+    # as we are going to extract our own anyway
+    - rm -rf .flatpak-builder
+
+    # Install oras for now
+    - VERSION="1.2.3"
+    - >-
+      case "${ARCH}" in 
+        x86_64) oras_arch='amd64';; 
+        aarch64) oras_arch='arm64';;
+        *) echo >&2 "unsupported architecture: ${ARCH}"; exit 1 ;;
+      esac;
+    - curl -LO "https://github.com/oras-project/oras/releases/download/v${VERSION}/oras_${VERSION}_linux_${oras_arch}.tar.gz"
+    - mkdir -p oras-install/
+    - tar -zxf oras_${VERSION}_*.tar.gz -C oras-install/
+    # FIXME: add oras to the image directly
+    # - sudo mv oras-install/oras /usr/local/bin/
+    # - rm -rf oras_${VERSION}_*.tar.gz oras-install/
+
+    - app_id_lc=${APP_ID,,}
+    # FIXME: Only hardcode cache for main atm
+    # eventually we can also do stable branch caches but that needs more logic
+    # to determine when and what to pull and push
+    - branch=main
+    - registry="ghcr.io/gnome-infra/nightly-cache/${ARCH}/${app_id_lc}:${branch}"
+    - >-
+      if [[ -n "${NIGHTLY_CACHE_GHCR_RO_TOKEN_FILE}" ]] && [[ "$USE_CACHE" == "1" ]]; then
+        echo "Pulling cache..."
+        ./oras-install/oras logout ghcr.io || true
+        cat $NIGHTLY_CACHE_GHCR_RO_TOKEN_FILE | ./oras-install/oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin ghcr.io || true
+        ./oras-install/oras pull $registry || true
+        ./oras-install/oras logout ghcr.io || true
+        tar --extract --xattrs --zstd --file "builder.tar.zstd"    || true
+        du -hs "builder.tar.zstd" || true
+      fi
+
     - export REWRITE_RUN_TESTS="--run-tests"
     - |-
       if [[ "${RUN_TESTS}" != "1" ]]; then
@@ -50,7 +89,7 @@ include:
     - >-
       xvfb-run -a -s "-screen 0 1024x768x24" --
       dbus-run-session
-      flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse --build-only flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
+      flatpak-builder ${CI_FB_ARGS} --ccache --keep-build-dirs --user --disable-rofiles-fuse --build-only flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
 
     # rewrite-flatpak-manifest will make our checkout dirty and meson will complain
     # FIXME: we need to copy the manifest rather than modify it in place to avoid making the checkout dirty
@@ -65,7 +104,7 @@ include:
       #! /bin/bash
       set -ex
       if [[ "${MESON_DIST}" == "1" ]]; then
-          flatpak-builder ${CI_FB_ARGS} --keep-build-dirs --user --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}" <<'END'
+          flatpak-builder ${CI_FB_ARGS} --ccache --keep-build-dirs --user --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}" <<'END'
             LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
       END
 
@@ -80,7 +119,7 @@ include:
       EOF
     - bash ./dist.sh
 
-    - flatpak-builder ${CI_FB_ARGS} --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
+    - flatpak-builder ${CI_FB_ARGS} --ccache --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
 
     # Generate a Flatpak bundle
     - flatpak build-bundle repo "${BUNDLE}" ${EXPORT_RUNTIME} --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" ${BRANCH}
@@ -101,6 +140,17 @@ include:
           mkdir -p .flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/
           mv "$dist_path_real" ".flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/"
       fi
+
+    - >-
+      if [[ -n "$NIGHTLY_CACHE_GHCR_TOKEN_FILE" ]] && [[ "$USE_CACHE" == "1" ]] && [[ $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH ]]; then
+        echo "Uploading cache..."
+        ./oras-install/oras logout ghcr.io || true
+        cat $NIGHTLY_CACHE_GHCR_TOKEN_FILE | ./oras-install/oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin ghcr.io || true
+        tar --create --xattrs --zstd --file "builder.tar.zstd" --exclude .flatpak-builder/build --exclude .flatpak-builder/rofiles .flatpak-builder/ || true
+        du -hs "builder.tar.zstd" || true
+        ./oras-install/oras push $registry "builder.tar.zstd" || true
+        ./oras-install/oras logout ghcr.io || true
+      fi
   artifacts:
     name: 'Flatpak artifacts'
     when: 'always'
@@ -116,11 +166,15 @@ include:
 
 .flatpak@x86_64:
   extends: '.flatpak'
+  variables:
+    ARCH: "x86_64"
   tags:
     - flatpak
 
 .flatpak@aarch64:
   extends: '.flatpak'
+  variables:
+    ARCH: "aarch64"
   tags:
     - flatpak-aarch64
 
