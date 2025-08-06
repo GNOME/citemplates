@@ -74,3 +74,18 @@ flatpak-shell-extension-app:
   script:
     - cd gnome-shell
     - !reference [".flatpak", "script"]
+
+flatpak-nautilus:
+  stage: "Flatpak app"
+  extends: [ ".flatpak" ]
+  variables:
+    MANIFEST_PATH: "build-aux/flatpak/org.gnome.Nautilus.json"
+    FLATPAK_MODULE: "nautilus"
+    RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
+    APP_ID: "org.gnome.Nautilus.Devel"
+    BUNDLE: "nautilus-dev.flatpak"
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/nautilus.git
+  script:
+    - cd nautilus
+    - !reference [".flatpak", "script"]
