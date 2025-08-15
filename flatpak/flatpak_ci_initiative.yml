@@ -45,21 +45,6 @@ include:
     # as we are going to extract our own anyway
     - rm -rf .flatpak-builder
 
-    # Install oras for now
-    - VERSION="1.2.3"
-    - >-
-      case "${ARCH}" in 
-        x86_64) oras_arch='amd64';; 
-        aarch64) oras_arch='arm64';;
-        *) echo >&2 "unsupported architecture: ${ARCH}"; exit 1 ;;
-      esac;
-    - curl -LO "https://github.com/oras-project/oras/releases/download/v${VERSION}/oras_${VERSION}_linux_${oras_arch}.tar.gz"
-    - mkdir -p oras-install/
-    - tar -zxf oras_${VERSION}_*.tar.gz -C oras-install/
-    # FIXME: add oras to the image directly
-    # - sudo mv oras-install/oras /usr/local/bin/
-    # - rm -rf oras_${VERSION}_*.tar.gz oras-install/
-
     - app_id_lc=${APP_ID,,}
     # FIXME: Only hardcode cache for main atm
     # eventually we can also do stable branch caches but that needs more logic
@@ -69,10 +54,10 @@ include:
     - >-
       if [[ -n "${NIGHTLY_CACHE_GHCR_RO_TOKEN_FILE}" ]] && [[ "$USE_CACHE" == "1" ]]; then
         echo "Pulling cache..."
-        ./oras-install/oras logout ghcr.io || true
-        cat $NIGHTLY_CACHE_GHCR_RO_TOKEN_FILE | ./oras-install/oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin ghcr.io || true
-        ./oras-install/oras pull $registry || true
-        ./oras-install/oras logout ghcr.io || true
+        oras logout ghcr.io || true
+        cat $NIGHTLY_CACHE_GHCR_RO_TOKEN_FILE | oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin ghcr.io || true
+        oras pull $registry || true
+        oras logout ghcr.io || true
         tar --extract --xattrs --zstd --file "builder.tar.zstd"    || true
         du -hs "builder.tar.zstd" || true
       fi
@@ -144,12 +129,12 @@ include:
     - >-
       if [[ -n "$NIGHTLY_CACHE_GHCR_TOKEN_FILE" ]] && [[ "$USE_CACHE" == "1" ]] && [[ $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH ]]; then
         echo "Uploading cache..."
-        ./oras-install/oras logout ghcr.io || true
-        cat $NIGHTLY_CACHE_GHCR_TOKEN_FILE | ./oras-install/oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin ghcr.io || true
+        oras logout ghcr.io || true
+        cat $NIGHTLY_CACHE_GHCR_TOKEN_FILE | oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin ghcr.io || true
         tar --create --xattrs --zstd --file "builder.tar.zstd" --exclude .flatpak-builder/build --exclude .flatpak-builder/rofiles .flatpak-builder/ || true
         du -hs "builder.tar.zstd" || true
-        ./oras-install/oras push $registry "builder.tar.zstd" || true
-        ./oras-install/oras logout ghcr.io || true
+        oras push $registry "builder.tar.zstd" || true
+        oras logout ghcr.io || true
       fi
   artifacts:
     name: 'Flatpak artifacts'
