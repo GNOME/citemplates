@@ -1,6 +1,5 @@
 include:
   # used in the pipeline
-  - local: "templates/default-rules.yml"
   - local: "templates/basic-release.yml"
 
   # Testing the local templates
@@ -34,6 +33,8 @@ include:
             - "flatpak/*"
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/test-docs-generation.yml"
+
+  - local: "templates/default-rules.yml"
 
 stages:
   - "Flatpak app"
