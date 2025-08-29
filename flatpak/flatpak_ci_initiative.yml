@@ -193,3 +193,19 @@ include:
     FLATPAK_REPO: nightly
   rules:
     - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "main") && $REPO_TOKEN_FILE
+
+token-check:
+  image: 'ubuntu:latest'
+  stage: 'deploy'
+  needs: []
+  script:
+    - |
+      echo "System Notice!!"
+      echo "Due to security reason we had to switch the name and type of the REPO_TOKEN variable used to publish in gnome-nightly Flatpak repository"
+      echo "In order to fix this, please navigate to Project -> Settings -> CI/CD -> Variables"
+      echo "Or click here ${CI_PROJECT_URL}/-/settings/ci_cd#js-cicd-variables-settings"
+      echo "Find the variable named \`REPO_TOKEN\`. It will have a \`Environment Variable\` type set atm. Switch it to \`File Variable\` and rename it to \`REPO_TOKEN_FILE\`"
+      echo "Now you should be able to trigger a new pipeline, retrying the job alone will not work, and publishing should work again."
+    - exit 1
+  rules:
+    - if: $REPO_TOKEN && ($REPO_TOKEN_FILE == null)
