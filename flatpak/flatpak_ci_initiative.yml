@@ -21,6 +21,8 @@ include:
     EXPORT_RUNTIME: ""
     NIGHTLY_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
     USE_CACHE: "1"
+    _ORAS_CACHE_REGISTRY: "ghcr.io"
+    _ORAS_CACHE_REPOSITORY: "gnome-infra/nightly-cache"
     # Default for backwards compatibility
     ARCH: "x86_64"
   # Till now this was the template job used for everything,
@@ -50,14 +52,15 @@ include:
     # eventually we can also do stable branch caches but that needs more logic
     # to determine when and what to pull and push
     - branch=main
-    - registry="ghcr.io/gnome-infra/nightly-cache/${ARCH}/${app_id_lc}:${branch}"
+    - registry="${_ORAS_CACHE_REGISTRY}/${_ORAS_CACHE_REPOSITORY}/${ARCH}/${app_id_lc}:${branch}"
+    - echo ${registry}
     - >-
       if [[ -n "${NIGHTLY_CACHE_GHCR_RO_TOKEN_FILE}" ]] && [[ "$USE_CACHE" == "1" ]]; then
         echo "Pulling cache..."
-        oras logout ghcr.io || true
-        cat $NIGHTLY_CACHE_GHCR_RO_TOKEN_FILE | oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin ghcr.io || true
+        oras logout ${_ORAS_CACHE_REGISTRY} || true
+        cat $NIGHTLY_CACHE_GHCR_RO_TOKEN_FILE | oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin "${_ORAS_CACHE_REGISTRY}" || true
         oras pull $registry || true
-        oras logout ghcr.io || true
+        oras logout ${_ORAS_CACHE_REGISTRY} || true
         tar --extract --xattrs --zstd --file "builder.tar.zstd"    || true
         du -hs "builder.tar.zstd" || true
       fi
@@ -129,12 +132,12 @@ include:
     - >-
       if [[ -n "$NIGHTLY_CACHE_GHCR_TOKEN_FILE" ]] && [[ "$USE_CACHE" == "1" ]] && [[ $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH ]]; then
         echo "Uploading cache..."
-        oras logout ghcr.io || true
-        cat $NIGHTLY_CACHE_GHCR_TOKEN_FILE | oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin ghcr.io || true
+        oras logout ${_ORAS_CACHE_REGISTRY} || true
+        cat $NIGHTLY_CACHE_GHCR_TOKEN_FILE | oras login -u "${NIGHTLY_CACHE_GHCR_USER}" --password-stdin ${_ORAS_CACHE_REGISTRY} || true
         tar --create --xattrs --zstd --file "builder.tar.zstd" --exclude .flatpak-builder/build --exclude .flatpak-builder/rofiles .flatpak-builder/ || true
         du -hs "builder.tar.zstd" || true
         oras push $registry "builder.tar.zstd" || true
-        oras logout ghcr.io || true
+        oras logout ${_ORAS_CACHE_REGISTRY} || true
       fi
   artifacts:
     name: 'Flatpak artifacts'
