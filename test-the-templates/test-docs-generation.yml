@@ -36,18 +36,17 @@ flatpak-generate-docs:
     APP_ID: "org.gnome.libpanel.demo"
     BUNDLE: "libpanel-dev.flatpak"
 
-test-flatpak-docs-generation:
+.test-docs:
   stage: "Docs generation tests"
-  needs: ["flatpak-generate-docs"]
   script:
     - ls -lh "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz"
     - tar --extract --file $CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz
     - ls -alhR panel-1.0
 
-test-basic-ci-docs-generation:
-  stage: "Docs generation tests"
+test-flatpak-docs-generation:
+  extends: [".test-docs"]
   needs: ["basic-ci-generate-docs"]
-  script:
-    - ls -lh "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz"
-    - tar --extract --file $CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz
-    - ls -alhR panel-1.0
+
+test-basic-ci-docs-generation:
+  extends: [".test-docs"]
+  needs: ["basic-ci-generate-docs"]
