@@ -44,9 +44,13 @@ test-flatpak-dist:
     # The docs mention ${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.xz but we will use a wildcards instead
     - ls -lh .flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/*.tar.xz
     - ls -lh public-dist/*.tar.xz*
+    # Make sure we can decompress the archive
+    - tar --verbose --extract --file public-dist/*.tar.xz
 
 test-basic-ci-dist:
   stage: "Dist tarball tests"
   needs: ["basic-ci-generate-tarball"]
   script:
     - ls -lh public-dist/*.tar.xz*
+    # Make sure we can decompress the archive
+    - tar --verbose --extract --file public-dist/*.tar.xz
