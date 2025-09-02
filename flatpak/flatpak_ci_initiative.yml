@@ -113,6 +113,13 @@ include:
     - flatpak build-bundle repo "${BUNDLE}" ${EXPORT_RUNTIME} --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" ${BRANCH}
     - tar cf repo.tar repo/
 
+    # Export the documentation if it exist
+    - >-
+      docs_path="flatpak_app/files/share/doc/"
+      if [[ -d "$docs_path" ]]; then
+          tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory $docs_path .
+      fi
+
     # Fix dist-path for artifacts
     # Previously gitlab would create a copy of the files in the symlink `build/${FLATPAK_MODULE}-2/` ->  `build/${FLATPAK_MODULE}/`
     # and the artifacts would contain the tarball under `build/${FLATPAK_MODULE}`. This changed recently
@@ -145,6 +152,7 @@ include:
     paths:
       - $BUNDLE
       - 'repo.tar'
+      - "${CI_PROJECT_NAME}-docs.tar.gz"
       - '.flatpak-builder/build/**/_flatpak_build/meson-logs/'
       - '.flatpak-builder/build/**/_flatpak_build/meson-dist/'
       - 'public-dist'
