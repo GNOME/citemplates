@@ -53,12 +53,10 @@ include:
     # to determine when and what to pull and push
     - branch=main
     - registry="${_ORAS_CACHE_REGISTRY}/${_ORAS_CACHE_REPOSITORY}:${ARCH}-${app_id_lc}-${branch}"
-    - echo ${registry}
-    - >-
-      echo "Pulling cache..."
-      oras pull $registry || true
-      tar --extract --xattrs --zstd --file "builder.tar.zstd"    || true
-      du -hs "builder.tar.zstd" || true
+    - echo "Pulling cache from ${registry}"
+    - oras pull $registry || true
+    - tar --extract --xattrs --zstd --file "builder.tar.zstd" || true
+    - du -hs "builder.tar.zstd" || true
 
     - export REWRITE_RUN_TESTS="--run-tests"
     - |-
