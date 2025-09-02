@@ -114,8 +114,8 @@ include:
     - tar cf repo.tar repo/
 
     # Export the documentation if it exist
+    - docs_path="flatpak_app/files/share/doc/"
     - >-
-      docs_path="flatpak_app/files/share/doc/"
       if [[ -d "$docs_path" ]]; then
           tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory $docs_path .
       fi

@@ -1,0 +1,53 @@
+include:
+  # Testing the local templates
+  - local: "flatpak/flatpak_ci_initiative.yml"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-generate-docs"
+      job-stage: "Docs generation tests"
+      meson-options: "-Ddocs=enabled -Dinstall-examples=true"
+      meson-sourcedir: "libpanel"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/libpanel.git"
+      run-tests: "no"
+      clang: "disabled"
+      scan-build: "disabled"
+
+.flatpak-test-docs-setup:
+  stage: "Docs generation tests"
+  variables:
+    # This is different than the Upstream yaml, as it has the libpanel subdir added in the path
+    MANIFEST_PATH: "org.gnome.libpanel.demo.json"
+    CONFIG_OPTS: "-Ddocs=enabled -Dinstall-examples=true"
+    # This hits https://gitlab.gnome.org/GNOME/citemplates/-/issues/32
+    MESON_DIST: "0"
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/libpanel/
+  script:
+    - cd libpanel
+    - !reference [".flatpak", "script"]
+
+# Copy from the libpanel ci yaml
+flatpak-generate-docs:
+  needs: []
+  extends: [".flatpak", ".flatpak-test-docs-setup"]
+  variables:
+    FLATPAK_MODULE: "libpanel"
+    RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
+    APP_ID: "org.gnome.libpanel.demo"
+    BUNDLE: "libpanel-dev.flatpak"
+
+test-flatpak-docs-generation:
+  stage: "Docs generation tests"
+  needs: ["flatpak-generate-docs"]
+  script:
+    - ls -lh "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz"
+    - tar --extract --file $CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz
+    - ls -alhR panel-1.0
+
+test-basic-ci-docs-generation:
+  stage: "Docs generation tests"
+  needs: ["basic-ci-generate-docs"]
+  script:
+    - ls -lh "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz"
+    - tar --extract --file $CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz
+    - ls -alhR panel-1.0
