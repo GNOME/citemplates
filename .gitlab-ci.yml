@@ -42,3 +42,12 @@ stages:
   - "Dist tarball tests"
   - "Docs generation tests"
   - "deploy"
+
+remove-gh-packages:
+  needs: []
+  image: fedora
+  stage: "deploy"
+  script:
+    - dnf install -y gh
+    - export GITHUB_TOKEN=$(cat $NIGHTLY_CACHE_GHCR_TOKEN_FILE)
+    - bash gh_delete.sh gnome-infra 'org.gnome'
