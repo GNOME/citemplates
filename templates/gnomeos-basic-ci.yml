@@ -145,6 +145,8 @@ spec:
     - >-
       if [[ -d "${_DESTDIR}/usr/share/doc/" ]]; then
         tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory ${_DESTDIR}/usr/share/doc/ .
+      elif [[ -d "${_DESTDIR}/usr/share/gtk-doc/" ]]; then
+        tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory ${_DESTDIR}/usr/share/gtk-doc/ .
       fi
   after_script:
     # Cleanup the destdir and thus container volume once we are done

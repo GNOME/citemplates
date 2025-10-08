@@ -11,6 +11,16 @@ include:
       run-tests: "no"
       clang: "disabled"
       scan-build: "disabled"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-generate-gtk-docs"
+      job-stage: "Docs generation tests"
+      meson-options: "-Dgtk_doc=true"
+      meson-sourcedir: "gnome-desktop"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-desktop.git"
+      run-tests: "no"
+      clang: "disabled"
+      scan-build: "disabled"
 
 .flatpak-test-docs-setup:
   stage: "Docs generation tests"
@@ -43,6 +53,14 @@ flatpak-generate-docs:
     - tar --extract --file $CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz
     - ls -alhR panel-1.0
 
+.test-gtk-doc:
+  stage: "Docs generation tests"
+  script:
+    - ls -lh "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz"
+    - tar --extract --file $CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz
+    - ls -alh html/
+    - ls -alhR html/gnome-desktop3
+
 test-flatpak-docs-generation:
   extends: [".test-docs"]
   needs: ["basic-ci-generate-docs"]
@@ -50,3 +68,7 @@ test-flatpak-docs-generation:
 test-basic-ci-docs-generation:
   extends: [".test-docs"]
   needs: ["basic-ci-generate-docs"]
+
+test-basic-ci-gtk-doc-generation:
+  extends: [".test-gtk-doc"]
+  needs: ["basic-ci-generate-gtk-docs"]
