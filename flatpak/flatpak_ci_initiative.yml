@@ -58,6 +58,18 @@ include:
     - tar --extract --xattrs --zstd --file "builder.tar.zstd" || true
     - du -hs "builder.tar.zstd" || true
 
+    - |-
+      if [[ -n "$BRANCH" ]]; then
+          default_branch="$BRANCH"
+      elif [[ -n "$CI_MERGE_REQUEST_IID" ]]; then
+          default_branch="mr-$CI_MERGE_REQUEST_IID"
+      elif [[ -n "$CI_DEFAULT_BRANCH" ]] && [[ "$CI_DEFAULT_BRANCH" == "$CI_COMMIT_BRANCH" ]]; then
+          default_branch="master"
+      else
+          default_branch="test"
+      fi
+    - echo "${default_branch}"
+
     - export REWRITE_RUN_TESTS="--run-tests"
     - |-
       if [[ "${RUN_TESTS}" != "1" ]]; then
@@ -70,7 +82,7 @@ include:
     - >-
       xvfb-run -a -s "-screen 0 1024x768x24" --
       dbus-run-session
-      flatpak-builder ${CI_FB_ARGS} --ccache --keep-build-dirs --user --disable-rofiles-fuse --build-only flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
+      flatpak-builder ${CI_FB_ARGS} --default-branch="${default_branch}" --ccache --keep-build-dirs --user --disable-rofiles-fuse --build-only flatpak_app --repo=repo "${MANIFEST_PATH}"
 
     # rewrite-flatpak-manifest will make our checkout dirty and meson will complain
     # FIXME: we need to copy the manifest rather than modify it in place to avoid making the checkout dirty
@@ -85,7 +97,7 @@ include:
       #! /bin/bash
       set -ex
       if [[ "${MESON_DIST}" == "1" ]]; then
-          flatpak-builder ${CI_FB_ARGS} --ccache --keep-build-dirs --user --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}" <<'END'
+          flatpak-builder ${CI_FB_ARGS} --default-branch="${default_branch}" --ccache --keep-build-dirs --user --disable-rofiles-fuse --build-shell="${FLATPAK_MODULE}" --disable-download --disable-updates flatpak_app "${MANIFEST_PATH}" <<'END'
             LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
       END
 
@@ -100,10 +112,10 @@ include:
       EOF
     - bash ./dist.sh
 
-    - flatpak-builder ${CI_FB_ARGS} --ccache --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo ${BRANCH:+--default-branch=$BRANCH} "${MANIFEST_PATH}"
+    - flatpak-builder ${CI_FB_ARGS} --default-branch="${default_branch}" --ccache --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo "${MANIFEST_PATH}"
 
     # Generate a Flatpak bundle
-    - flatpak build-bundle repo "$CI_PROJECT_DIR/${BUNDLE}" ${EXPORT_RUNTIME} --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" ${BRANCH}
+    - flatpak build-bundle repo "$CI_PROJECT_DIR/${BUNDLE}" ${EXPORT_RUNTIME} --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" "${default_branch}"
     - tar cf "$CI_PROJECT_DIR/repo.tar" repo/
 
     # Export the documentation if it exist
