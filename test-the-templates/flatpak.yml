@@ -15,7 +15,6 @@ include:
     # This is different than the Upstream yaml, as it has the gnome-font-viewer subdir added in the path
     MANIFEST_PATH: "gnome-font-viewer/build-aux/flatpak/org.gnome.font-viewerDevel.json"
     FLATPAK_MODULE: "gnome-font-viewer"
-    RUNTIME_REPO: "https://sdk.gnome.org/gnome-nightly.flatpakrepo"
     APP_ID: "org.gnome.font-viewerDevel"
     BUNDLE: "org.gnome.font-viewerDevel.flatpak"
   before_script:
