@@ -96,6 +96,7 @@ spec:
   - |
     ./_openqa-utils/openqa_junit_report.py $(cat /tmp/job_ids) > ./junit.xml
   artifacts:
+    access: "developer"
     when: always
     paths:
     - junit.xml
