@@ -150,7 +150,7 @@ spec:
       fi
   after_script:
     # Cleanup the destdir and thus container volume once we are done
-    - rm -rvf ${_DESTDIR}
+    - rm -rf ${_DESTDIR}
   artifacts:
     access: "developer"
     expire_in: "2 days"
