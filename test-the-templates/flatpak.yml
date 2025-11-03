@@ -71,7 +71,6 @@ flatpak-shell-extension-app:
     # https://gitlab.gnome.org/GNOME/citemplates/-/issues/32
     SUBPROJECT: "subprojects/extensions-app"
     MANIFEST_PATH: "$SUBPROJECT/build-aux/flatpak/org.gnome.Extensions.json"
-    RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
     FLATPAK_MODULE: "gnome-extensions-app"
     APP_ID: "org.gnome.Extensions.Devel"
     BUNDLE: "extensions-git.flatpak"
@@ -87,6 +86,8 @@ flatpak-nautilus:
   variables:
     MANIFEST_PATH: "build-aux/flatpak/org.gnome.Nautilus.json"
     FLATPAK_MODULE: "nautilus"
+    # Only keep one runtime_repo override and otherwise
+    # leave the rest of the tests to the default
     RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
     APP_ID: "org.gnome.Nautilus.Devel"
     BUNDLE: "nautilus-dev.flatpak"
