@@ -148,7 +148,7 @@ spec:
   script:
     - *test
 
-    - meson dist -C ${_BUILDDIR} --no-tests
+    - meson dist -C ${_BUILDDIR} --include-subprojects --no-tests
     - cp -r "${_BUILDDIR}/meson-dist/" "${CI_PROJECT_DIR}/public-dist/"
 
     - mkdir -p ${_DESTDIR}
