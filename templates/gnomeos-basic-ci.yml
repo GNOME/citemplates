@@ -83,7 +83,15 @@ spec:
         - "disabled"
       description: "Enable or Disable the scan-build report"
 ---
+".$[[ inputs.job-name ]]-print-useful-info": &info
+  - cat /etc/os-release
+  - whoami && id -u && id -g
+  # Print the date, since appstream depends on local timezone
+  - date && date -u
+
 ".$[[ inputs.job-name ]]-script-build": &build
+  - *info
+
   - export XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
 
   # GNOMEOS needs the libdir to be manually specified as otherwise meson will
