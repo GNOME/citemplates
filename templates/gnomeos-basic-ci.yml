@@ -103,6 +103,10 @@ spec:
   - echo "$optional_set_libdir"
   - echo "$_INTERNAL_MESON_ARGS"
 
+  # Make sure the ccache directory exists
+  - mkdir -p /var/roothome
+  - mkdir -p /var/roothome/.cache/ccache
+
   - meson setup ${_BUILDDIR} $[[ inputs.meson-sourcedir]] --prefix=/usr $optional_set_libdir $_INTERNAL_MESON_ARGS $[[ inputs.meson-options ]]
   - meson compile -C ${_BUILDDIR}
 
