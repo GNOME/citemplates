@@ -14,8 +14,6 @@ stages:
 # Expects ${DOCKERFILE} variable which should be the path to the Dockerfile.
 .dockerfile_template:
   image: "quay.io/buildah/stable:latest"
-  before_script:
-    - buildah login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
   script:
     - bash ./scripts/build-image.sh $REGISTRY_TAG
   after_script:
@@ -55,8 +53,6 @@ base-manifest:
   stage: "manifests"
   variables:
     REGISTRY_TAG: "base"
-  before_script:
-    - buildah login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
   script:
     - bash ./scripts/make-manifest.sh $REGISTRY_TAG
   needs:

@@ -11,8 +11,6 @@ spec:
 ---
 ".common:$[[ inputs.platform-version ]]":
   image: "quay.io/buildah/stable:latest"
-  before_script:
-    - buildah login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
   rules:
     - if: $CI_MERGE_REQUEST_ID && "$[[ inputs.platform-version ]]" == "master"
       when: "always"
