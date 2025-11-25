@@ -43,6 +43,16 @@ include:
     # Print the date, since appstream depends on local timezone
     - date && date -u
 
+    # Create a subject to add to the OSTree commit subject
+    # Mirrored from flathub
+    # https://github.com/flathub-infra/vorarbeiter/blob/0a3534f4aacc3962f46f85706872beb53eee261e/justfile#L18-L25
+    - commit_msg=$(git log -1 --pretty=%s)
+    - commit_hash=$(git rev-parse --short=12 HEAD)
+    - subject="$commit_msg ($commit_hash)"
+    - subject="${subject//[^[:ascii:]]/}"
+    - echo -n 'Commit Subject:'
+    - echo "${subject}"
+
     # Make sure we don't end up with any leftover volume cache
     # as we are going to extract our own anyway
     - rm -rf .flatpak-builder
@@ -112,7 +122,7 @@ include:
       EOF
     - bash ./dist.sh
 
-    - flatpak-builder ${CI_FB_ARGS} --default-branch="${default_branch}" --ccache --user --disable-rofiles-fuse --finish-only --disable-download --disable-updates flatpak_app --repo=repo "${MANIFEST_PATH}"
+    - flatpak-builder ${CI_FB_ARGS} --default-branch="${default_branch}" --ccache --user --disable-rofiles-fuse --finish-only --subject="${subject}" --disable-download --disable-updates flatpak_app --repo=repo "${MANIFEST_PATH}"
 
     # Generate a Flatpak bundle
     - flatpak build-bundle repo "$CI_PROJECT_DIR/${BUNDLE}" ${EXPORT_RUNTIME} --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" "${default_branch}"
