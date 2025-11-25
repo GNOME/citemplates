@@ -47,8 +47,9 @@ spec:
   extends: ".common:$[[ inputs.platform-version ]]"
   after_script: []
   needs:
-    - "gnome:$[[ inputs.platform-version ]]"
-    - "gnome:aarch64:$[[ inputs.platform-version ]]"
-# Expects ${REGISTRY_TAG} which should be the name+tag of the manifest ref
+    - job: "gnome:$[[ inputs.platform-version ]]"
+      artifacts: false
+    - job: "gnome:aarch64:$[[ inputs.platform-version ]]"
+      artifacts: false
   script:
     - bash ./scripts/make-manifest.sh "gnome-$[[ inputs.platform-version ]]"

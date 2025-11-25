@@ -7,13 +7,13 @@ FD_BRANCH="$2"
 LLVM_VERSION="$3"
 LLVM_VERSION_2="$4"
 
-# build the flatpak sdk image
-#
-# Explicitly specify the repo to install nightly and 44,45 runtimes
-# Workaround https://github.com/flathub/flathub/issues/4452
-CONTAINER=$(buildah from "${CI_REGISTRY_IMAGE}:base")
+img_arch="${ARCH:-$(arch)}"
+default_reg="quay.io/gnome_infrastructure/gnome-runtime-images"
+img_reg="${img_reg:-$default_reg}"
 
-export TAG="${CI_REGISTRY_IMAGE}:${ARCH}-gnome-${BRANCH}"
+CONTAINER=$(buildah from "${img_reg}:base")
+
+TAG="${img_reg}:${img_arch}-gnome-${BRANCH}"
 echo "Building $TAG"
 
 if [[ "$FD_BRANCH" == *beta ]]; then
@@ -53,7 +53,7 @@ echo "Committing $TAG"
 buildah commit --squash "$CONTAINER" "$TAG"
 
 # push only on master branch
-if [ "$CI_COMMIT_REF_NAME" == "master" ]; then
+if [ "${CI_COMMIT_REF_NAME:-}" == "master" ]; then
     echo "Pushing $TAG"
     buildah login -u "${OCI_REGISTRY_USER}" -p "${OCI_REGISTRY_PASSWORD}" quay.io
     buildah push "$TAG"

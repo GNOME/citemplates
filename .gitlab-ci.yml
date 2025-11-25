@@ -10,54 +10,39 @@ stages:
   - runtimes
   - manifests
 
-# Expects ${DOCKERIMAGE} which should be the name+tag of the registry image.
-# Expects ${DOCKERFILE} variable which should be the path to the Dockerfile.
-.dockerfile_template:
+.base_template:
   image: "quay.io/buildah/stable:latest"
+  stage: base
+  needs: []
   script:
-    - bash ./scripts/build-image.sh $REGISTRY_TAG
-  after_script:
-    # don't try to use systemd/journald
-    - |
-      cat >> /etc/containers/libpod.conf << END
-      cgroup_manager = "cgroupfs"
-      events_logger = "file"
-      END
-    # - podman run --rm ${DOCKERIMAGE} flatpak list --columns=application,branch,arch,active,size
-    - buildah inspect --format "{{.FromImageID}}" ${DOCKERIMAGE}
+    - bash ./scripts/build-image.sh
   rules:
     - when: "manual"
       allow_failure: true
 
 base:
-  stage: base
-  extends: ".dockerfile_template"
+  extends: ".base_template"
   variables:
     ARCH: x86_64
-    DOCKERIMAGE: ${CI_REGISTRY_IMAGE}:${ARCH}-base
-    DOCKERFILE: Dockerfile
 
 base:aarch64:
-  stage: base
-  extends: ".dockerfile_template"
+  extends: ".base_template"
   tags:
     - aarch64
     - gnome-build-meta
   variables:
     ARCH: aarch64
-    DOCKERIMAGE: ${CI_REGISTRY_IMAGE}:${ARCH}-base
-    DOCKERFILE: Dockerfile
 
 base-manifest:
   image: "quay.io/buildah/stable:latest"
   stage: "manifests"
-  variables:
-    REGISTRY_TAG: "base"
   script:
-    - bash ./scripts/make-manifest.sh $REGISTRY_TAG
+    - bash ./scripts/make-manifest.sh "base"
   needs:
-    - base
-    - base:aarch64
+    - job: "base"
+      artifacts: false
+    - job: "base:aarch64"
+      artifacts: false
 
 include:
   - project: "gnome/citemplates"
