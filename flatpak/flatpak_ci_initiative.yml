@@ -31,6 +31,8 @@ include:
   tags:
     - flatpak
   script:
+    - git config --global --add safe.directory "${CI_PROJECT_DIR}"
+
     - cat /etc/os-release
 
     - whoami && id -u && id -g

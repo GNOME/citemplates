@@ -84,6 +84,7 @@ spec:
       description: "Enable or Disable the scan-build report"
 ---
 ".$[[ inputs.job-name ]]-print-useful-info": &info
+  - git config --global --add safe.directory "${CI_PROJECT_DIR}"
   - cat /etc/os-release
   - whoami && id -u && id -g
   # Print the date, since appstream depends on local timezone
@@ -126,7 +127,7 @@ spec:
     fi
 
 ".$[[ inputs.job-name ]] common":
-  image: 
+  image:
     name: $[[ inputs.image-ref ]]
     docker:
       user: "root"
