@@ -192,7 +192,7 @@ include:
     - flatpak-aarch64
 
 .publish_nightly:
-  image: 'ghcr.io/flathub-infra/flatpak-builder-lint:latest'
+  image: 'registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst2:34b50c4b93ca53ce67aafa7b54ce35e9bd336090'
   stage: 'deploy'
   timeout: '100m'
   script:
