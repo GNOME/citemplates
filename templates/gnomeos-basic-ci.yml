@@ -2,7 +2,7 @@ spec:
   inputs:
     job-name:
       default: "build-gnomeos"
-      description: "Name for the job"
+      description: "Name/Prefix for the jobs"
     job-stage:
       default: "build"
       description: "Stage to run the job"
@@ -21,7 +21,7 @@ spec:
       description: "Whether to execute the testsuite pass empty value to skip"
     meson-test-options:
       default: null
-      description: "List of options passed to meson test. Example: --no-suite foo"
+      description: 'List of additional options passed to meson test (ex "--exclude test-gobject-mkhtml")'
     before-script:
       default: null
       description: "Optional before-script to execute"
@@ -48,7 +48,7 @@ spec:
       options:
         - "enabled"
         - "disabled"
-      description: "Enable or Disable the asan build"
+      description: "Enable or Disable the lsan build"
     tsan-options:
       default: null
       description: "Value of TSAN_OPTIONS variable"
@@ -75,7 +75,7 @@ spec:
       options:
         - "enabled"
         - "disabled"
-      description: "Enable or Disable the grcov report"
+      description: "Enable or Disable the grcov report. Tailored for C projects"
     scan-build:
       default: "enabled"
       options:
