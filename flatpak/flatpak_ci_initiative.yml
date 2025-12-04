@@ -202,7 +202,7 @@ include:
     - unset REPO_TOKEN
 
     - tar xf repo.tar
-    - flatpak build-update-repo --generate-static-deltas --static-delta-ignore-ref=*.Debug --static-delta-ignore-ref=*.Sources repo/
+    - flatpak build-update-repo --generate-static-deltas repo/
     - BUILD_ID=$(flat-manager-client --token-file "${REPO_TOKEN_FILE}" create "${FLAT_MANAGER_URL}" "${FLATPAK_REPO}")
     - flat-manager-client --token-file "${REPO_TOKEN_FILE}" push --commit --publish --wait "${BUILD_ID}" repo/ || result=$?
     - if [ "$result" != 0 ]; then flat-manager-client --token-file "${REPO_TOKEN_FILE}" purge "${BUILD_ID}"; fi
