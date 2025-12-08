@@ -47,13 +47,11 @@ spec:
       upload_from_public_dist () {
           for _file in public-dist/*.tar.{xz,gz}; do
               if [[ -f "$_file" && -f "$_file.sha256sum" ]]; then
-                  echo "Uploading dist: $_file"
-                  glab release upload "$CI_COMMIT_TAG" "$_file" "$_file.sha256sum"
+                  echo "$_file" "$_file.sha256sum"
                   return 0
               fi
           done
 
-          echo "Failed to find any files to upload"
           return 1
       }
 
@@ -63,4 +61,6 @@ spec:
     # Add bash cause god has forsaken the heavens and clouds
     # and everyone is using alpine with busybox and ash instead
     - apk add --no-cache bash
-    - bash ./upload.sh
+    - to_upload=$(bash ./upload.sh)
+    - echo "uploading $to_upload"
+    - glab release upload "$CI_COMMIT_TAG" $to_upload
