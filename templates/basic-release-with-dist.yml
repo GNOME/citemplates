@@ -38,11 +38,11 @@ spec:
     # and everyone is using alpine with busybox and ash instead
     - apk add --no-cache bash
     - |
-      cat > upload.sh <<'EOF'
+      cat > get_files.sh <<'EOF'
       #! /bin/bash
       set -eu
 
-      upload_from_public_dist () {
+      get_files_from_public_dist () {
           for _file in public-dist/*.tar.{xz,gz}; do
               if [[ -f "$_file" && -f "$_file.sha256sum" ]]; then
                   echo "$_file" "$_file.sha256sum"
@@ -53,9 +53,9 @@ spec:
           return 1
       }
 
-      upload_from_public_dist
+      get_files_from_public_dist
       EOF
-    - to_upload=$(bash ./upload.sh)
+    - to_upload=$(bash ./get_files.sh)
 
     - echo "running release_job"
     - glab version
