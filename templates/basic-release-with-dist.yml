@@ -46,6 +46,7 @@ spec:
           return 1
       }
 
+      glab auth status --all
       upload_from_public_dist
       EOF
 
