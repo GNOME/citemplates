@@ -46,7 +46,7 @@ spec:
           return 1
       }
 
-      glab auth status --all
+      glab auth status --hostname $CI_SERVER_HOST
       upload_from_public_dist
       EOF
 
