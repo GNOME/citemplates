@@ -3,8 +3,6 @@
 This project provides reusable CI/CD components and legacy templates for jobs
 across multiple GNOME projects.
 
-[Link text](_TOC_)]
-
 ## Components
 
 ### gnomeos-basic-ci

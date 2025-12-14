@@ -12,7 +12,8 @@ spec:
   needs: []
   image: "debian:13"
   before_script:
-    - apt update -yqq && apt install -yqq curl
+    - apt update --assume-yes --quiet=1
+    - apt install --assume-yes --quiet=1 curl
 
     - rumdl_tag="v0.0.181"
     - mkdir -p "$CI_PROJECT_DIR/bin"
