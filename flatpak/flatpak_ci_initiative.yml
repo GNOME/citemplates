@@ -215,7 +215,7 @@ include:
 
 token-check:
   image: 'ubuntu:latest'
-  stage: 'deploy'
+  stage: 'build'
   needs: []
   script:
     - |
