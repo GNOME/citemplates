@@ -27,6 +27,9 @@ spec:
     - $CI_PROJECT_DIR/bin/rumdl check --output-format gitlab $CI_PROJECT_DIR > "$CI_PROJECT_DIR/rumdl.json"
   after_script:
     - cat "$CI_PROJECT_DIR/rumdl.json"
+    - |-
+      echo "You can attempt to fix issues with the following command:"
+      echo "rumdl check --fix ."
   rules:
     - changes:
         paths:
