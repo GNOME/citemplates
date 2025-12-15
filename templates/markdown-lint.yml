@@ -33,6 +33,10 @@ spec:
           - ".rumdl.toml"
           - "*.md"
           - "**/*.md"
+    - if: $CI_PROJECT_NAME == "citemplates"
+      changes:
+        paths:
+          - "templates/markdown-lint.yml"
   artifacts:
     when: always
     paths:
