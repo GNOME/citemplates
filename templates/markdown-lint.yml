@@ -15,7 +15,12 @@ spec:
     - apt update --assume-yes --quiet=1
     - apt install --assume-yes --quiet=1 curl
 
-    - rumdl_tag="v0.0.181"
+    # We could make this a component input, but ideally we want
+    # to have pinned, pre-built images to avoid apt/curl.
+    #
+    # Thus its harder to accommodate an image for every version.
+    - rumdl_tag="v0.0.194"
+
     - mkdir -p "$CI_PROJECT_DIR/bin"
     - curl -LsSf "https://github.com/rvben/rumdl/releases/download/$rumdl_tag/rumdl-$rumdl_tag-x86_64-unknown-linux-gnu.tar.gz" | tar xzf - -C "$CI_PROJECT_DIR/bin"
   script:
