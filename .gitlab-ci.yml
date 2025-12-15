@@ -2,6 +2,7 @@ include:
   # used in the pipeline
   - local: "templates/basic-release.yml"
   - local: "templates/markdown-lint.yml"
+  - local: "templates/ruff-lint.yml"
 
   # Testing the local templates
   - local: "test-the-templates/flatpak.yml"

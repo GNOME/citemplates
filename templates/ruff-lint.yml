@@ -1,0 +1,44 @@
+spec:
+  inputs:
+    job-name:
+      default: "ruff linter"
+      description: "Name for the job"
+    job-stage:
+      default: "lint"
+      description: "Stage to run the job"
+    ruff-version:
+      default: "0.15.0"
+      description: "The version of Ruff to use. Uses the upstream ghcr.io/astral-sh/ruff image."
+---
+"$[[ inputs.job-name ]]":
+  stage: "$[[ inputs.job-stage ]]"
+  needs: []
+  image: "ghcr.io/astral-sh/ruff:$[[ inputs.ruff-version ]]-debian-slim"
+  before_script: []
+  script:
+    - ruff --version
+    - ruff check --output-format=gitlab > "$CI_PROJECT_DIR/ruff-code-quality.json"
+    - cat "$CI_PROJECT_DIR/ruff-code-quality.json"
+  after_script:
+    - ruff format --diff
+    - |-
+      echo "You can attempt to fix issues with the following commands:"
+      echo "ruff format"
+      echo "ruff check --fix"
+  rules:
+    - changes:
+        paths:
+          - "pyproject.toml"
+          - "ruff.toml"
+          - ".ruff.toml"
+          - "*.py"
+          - "**/*.py"
+    - if: $CI_PROJECT_NAME == "citemplates"
+      changes:
+        paths:
+          - "templates/ruff-lint.yml"
+  artifacts:
+    paths:
+      - "ruff-code-quality.json"
+    reports:
+      codequality: "ruff-code-quality.json"
