@@ -8,7 +8,7 @@ spec:
       description: "Stage to run the job"
 ---
 "$[[ inputs.job-name ]]":
-  stage: $[[ inputs.job-stage ]]
+  stage: "$[[ inputs.job-stage ]]"
   needs: []
   image: "debian:13"
   before_script:
@@ -41,8 +41,8 @@ spec:
         paths:
           - "templates/markdown-lint.yml"
   artifacts:
-    when: always
+    when: "always"
     paths:
-      - rumdl.json
+      - "rumdl.json"
     reports:
-      codequality: rumdl.json
+      codequality: "rumdl.json"
