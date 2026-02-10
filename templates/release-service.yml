@@ -20,6 +20,13 @@ spec:
   needs:
     - job: $[[ inputs.dist-job-name ]]
       artifacts: true
+  retry:
+    max: 2
+    when:
+      - "runner_system_failure"
+      - "stuck_or_timeout_failure"
+      - "scheduler_failure"
+      - "api_failure"
   variables:
     GNOME_RELEASE_SERVICE_API_URL: "https://gnome-release-route-gnome-release-service.apps.openshift.gnome.org"
     GNOME_RELEASE_SERVICE_API_INSTALL_MODULE_RELEASE_ENDPOINT: "$GNOME_RELEASE_SERVICE_API_URL/install-module-release"
