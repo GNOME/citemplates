@@ -101,7 +101,7 @@ spec:
   # about it and can be used with any image as long the deps exist
   - os_id="$(grep '^ID=' /etc/os-release)"
   - >-
-    if [[ "$os_id" == "ID=org.gnome.os" ]]; then
+    if [[ "$os_id" == 'ID="org.gnome.os"' ]]; then
       optional_set_libdir="--libdir=lib/$(gcc -print-multiarch)"
     fi
 
