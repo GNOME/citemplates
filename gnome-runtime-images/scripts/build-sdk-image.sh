@@ -9,11 +9,19 @@ LLVM_VERSION_2="$4"
 
 img_arch="${ARCH:-$(arch)}"
 default_reg="quay.io/gnome_infrastructure/gnome-runtime-images"
-img_reg="${img_reg:-$default_reg}"
 
-CONTAINER=$(buildah from "${img_reg}:base")
+if [ "${CI_COMMIT_REF_NAME:-}" == "master" ] && [ "${CI_PROJECT_NAMESPACE:-}" == "GNOME" ]; then
+    img_reg="$default_reg"
+    TAG="${img_reg}:${img_arch}-gnome-${BRANCH}"
+    base_manifest_tag="base"
+else
+    img_reg="${CI_REGISTRY_IMAGE:-$default_reg}"
+    TAG="${img_reg}:${img_arch}-gnome-${BRANCH}-${CI_COMMIT_REF_SLUG:-local}"
+    base_manifest_tag="base-${CI_COMMIT_REF_SLUG:-local}"
+fi
 
-TAG="${img_reg}:${img_arch}-gnome-${BRANCH}"
+CONTAINER=$(buildah from "${img_reg}:${base_manifest_tag}")
+
 echo "Building $TAG"
 
 if [[ "$FD_BRANCH" == *beta ]]; then
@@ -54,7 +62,11 @@ buildah commit --squash "$CONTAINER" "$TAG"
 
 # push only on master branch
 if [ "${CI_COMMIT_REF_NAME:-}" == "master" ]; then
-    echo "Pushing $TAG"
+    echo "Pushing ${TAG}"
     buildah login -u "${OCI_REGISTRY_USER}" -p "${OCI_REGISTRY_PASSWORD}" quay.io
-    buildah push "$TAG"
+    buildah push "${TAG}"
+else
+    echo "Pushing ${TAG}"
+    echo "$CI_JOB_TOKEN" | buildah login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+    buildah push "${TAG}"
 fi
