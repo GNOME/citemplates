@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+
+# The latest version of this script can be found at
+# https://gitlab.gnome.org/GNOME/gnome-runtime-images
+
+import gi
+gi.require_version('Json', '1.0')
+
+from gi.repository import Json
+from ruamel import yaml
+import argparse
+import os, sys
+
+from contextlib import contextmanager
+
+
+def set_json_test_args(mod):
+    gtk_ally_element = Json.from_string('"--env=GTK_A11Y=none"')
+    no_at_bridge_element = Json.from_string('"--env=NO_AT_SPI=1"')
+
+    default_test_args = Json.Array()
+    default_test_args.add_element(gtk_ally_element)
+    default_test_args.add_element(no_at_bridge_element)
+    default_test_args_member = Json.Object.new()
+    default_test_args_member.set_array_member("test-args", default_test_args)
+    default_test_args_node = Json.Node.new(Json.NodeType.OBJECT)
+    default_test_args_node.set_object(default_test_args_member)
+
+    if not mod.has_member("build-options"):
+        mod.set_member("build-options", default_test_args_node)
+
+    bopts = mod.get_member("build-options")
+    if not bopts.get_object().has_member("test-args"):
+        bopts.get_object().set_array_member("test-args", default_test_args)
+
+    test_args = bopts.get_object().get_array_member("test-args")
+
+    elements = test_args.get_elements()
+    elements_values = [element.get_value() for element in elements]
+
+    if "--env=GTK_A11Y=none" not in elements_values:
+        test_args.add_element(gtk_ally_element)
+
+    if "--env=NO_AT_SPI=1" not in elements_values:
+        test_args.add_element(no_at_bridge_element)
+
+
+def rewrite_json_manifest(args):
+    with open(args.flatpak_manifest) as f:
+        data = Json.from_string(f.read())
+
+    mods = data.get_object().get_array_member('modules')
+    for i in range(mods.get_length()):
+        mod = mods.get_element(i)
+        if mod.get_node_type() != Json.NodeType.OBJECT:
+            continue
+        mod = mod.get_object()
+
+        if mod.get_string_member('name') == args.module_name:
+            sources = mod.get_array_member('sources')
+            new_sources = Json.Array()
+            if sources.get_object_element(0).get_string_member('type') == 'git':
+                sources.remove_element(0)
+                path = os.path.relpath('.', os.path.dirname(args.flatpak_manifest))
+                new_sources.add_element(Json.from_string('{"type": "dir", "path": "%s"}' % path))
+
+            for i in range(sources.get_length()):
+                new_sources.add_object_element(sources.get_object_element(i))
+
+            mod.set_array_member('sources', new_sources)
+
+            if args.run_tests is not None:
+                mod.set_boolean_member('run-tests', args.run_tests)
+                set_json_test_args(mod)
+
+            if args.config_opt:
+                newconfig = Json.Array.sized_new(len(args.config_opt))
+                for arg in args.config_opt:
+                    newconfig.add_string_element(arg)
+                mod.set_array_member('config-opts', newconfig)
+
+    with open(args.flatpak_manifest, 'w') as f:
+        f.write(Json.to_string(data, True))
+
+
+def set_yaml_test_args(mod):
+    gtk_ally = "--env=GTK_A11Y=none"
+    no_at_bridge = "--env=NO_AT_SPI=1"
+    default_test_args = [gtk_ally, no_at_bridge]
+    default_build_opts = { "test-args": default_test_args }
+
+    if not mod.get("build-options"):
+        mod["build-options"] = default_build_opts
+
+    if not mod["build-options"].get("test-args"):
+        mod["build-options"]["test-args"] = default_test_args
+
+    test_args = mod["build-options"]["test-args"]
+
+    if gtk_ally not in test_args:
+        test_args.append(gtk_ally)
+
+    if no_at_bridge not in test_args:
+        test_args.append(no_at_bridge)
+
+
+def rewrite_yaml_manifest(args):
+    yaml_parser = yaml.YAML()
+    yaml_parser.preserve_quotes = True
+
+    with open(args.flatpak_manifest) as f:
+        data = yaml_parser.load(f)
+
+    for mod in data['modules']:
+        if not isinstance(mod, dict):
+            continue
+
+        if mod['name'] == args.module_name:
+            if mod['sources'][0]['type'] == 'git':
+                path = os.path.relpath('.', os.path.dirname(args.flatpak_manifest))
+                mod['sources'][0] = {'type': 'dir', 'path': path}
+
+            if args.run_tests is not None:
+                mod['run-tests'] = args.run_tests
+                set_yaml_test_args(mod)
+
+            if args.config_opt:
+                mod['config-opts'] = args.config_opt
+
+    with open(args.flatpak_manifest, 'w') as f:
+        yaml_parser.dump(data, f)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Prepare a flatpak manifest for CI execution')
+    parser.add_argument('flatpak_manifest', help='filename of the flatpak manifest (JSON or YAML)')
+    parser.add_argument('module_name', help='name of the main module in the manifest')
+    parser.add_argument('config_opt', nargs='*', help='replacement values for config-opts of main module')
+    parser.add_argument('--run-tests', action=argparse.BooleanOptionalAction, help='replace run-tests value of main module')
+
+    args = parser.parse_args()
+    if args.flatpak_manifest.endswith('.json'):
+        rewrite_json_manifest(args)
+    else:
+        rewrite_yaml_manifest(args)

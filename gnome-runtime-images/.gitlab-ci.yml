@@ -1,0 +1,74 @@
+# Buildah can't use 'overlay' driver when running inside docker
+variables:
+  STORAGE_DRIVER: "vfs"
+  BUILDAH_FORMAT: "docker"
+  BUILDAH_ISOLATION: "chroot"
+  CI_REGISTRY_IMAGE: quay.io/gnome_infrastructure/gnome-runtime-images
+
+stages:
+  - base
+  - runtimes
+  - manifests
+
+.base_template:
+  image: "quay.io/buildah/stable:latest"
+  stage: base
+  needs: []
+  script:
+    - bash ./scripts/build-image.sh
+  rules:
+    - when: "manual"
+      allow_failure: true
+
+base:
+  extends: ".base_template"
+  variables:
+    ARCH: x86_64
+
+base:aarch64:
+  extends: ".base_template"
+  tags:
+    - aarch64
+    - gnome-build-meta
+  variables:
+    ARCH: aarch64
+
+base-manifest:
+  image: "quay.io/buildah/stable:latest"
+  stage: "manifests"
+  script:
+    - bash ./scripts/make-manifest.sh "base"
+  needs:
+    - job: "base"
+      artifacts: false
+    - job: "base:aarch64"
+      artifacts: false
+
+include:
+  - project: "gnome/citemplates"
+    file: "templates/default-rules.yml"
+  # include the component located in the current project from the current SHA
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+    inputs:
+      platform-version: "master"
+      fdsdk-version: "25.08"
+      llvm-version-1: "20"
+      llvm-version-2: "21"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+    inputs:
+      platform-version: "49"
+      fdsdk-version: "25.08"
+      llvm-version-1: "20"
+      llvm-version-2: "21"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+    inputs:
+      platform-version: "48"
+      fdsdk-version: "24.08"
+      llvm-version-1: "18"
+      llvm-version-2: "20"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+    inputs:
+      platform-version: "47"
+      fdsdk-version: "24.08"
+      llvm-version-1: "18"
+      llvm-version-2: "20"
