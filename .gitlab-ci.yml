@@ -1,16 +1,26 @@
+# FIXME: Add schedule only rules
+
 include:
   # used in the pipeline
   - local: "templates/basic-release.yml"
   - local: "templates/markdown-lint.yml"
   - local: "templates/ruff-lint.yml"
+  - local: "gnome-runtime-images/.gitlab-ci.yml"
+    rules:
+      - changes:
+          paths:
+            - "gnome-runtime-images/**/*"
+            - "templates/build-runtime-images/**/*"
 
   # Testing the local templates
   - local: "test-the-templates/flatpak.yml"
     rules:
       - changes:
           paths:
+            - "gnome-runtime-images/**/*"
+            - "templates/build-runtime-images/**/*"
             - "flatpak/*"
-            - "templates/defeault-rules.yml"
+            - "templates/default-rules.yml"
             - "test-the-templates/flatpak.yml"
 
   - local: "test-the-templates/gnomeos-basic-ci.yml"
@@ -25,6 +35,8 @@ include:
       - changes:
           paths:
             - "flatpak/*"
+            - "gnome-runtime-images/**/*"
+            - "templates/build-runtime-images/**/*"
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/test-tarball-dist.yml"
 
@@ -46,10 +58,10 @@ include:
 
 stages:
   - "lint"
+  - "gnome-runtime-images"
   - "Flatpak app"
   - "GNOMEOS Basic CI"
   - "Dist tarball tests"
   - "Docs generation tests"
   - "GNOMEOS Build Sysext CI"
   - "deploy"
-
