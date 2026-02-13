@@ -1,24 +1,14 @@
-# Buildah can't use 'overlay' driver when running inside docker
-variables:
-  STORAGE_DRIVER: "vfs"
-  BUILDAH_FORMAT: "docker"
-  BUILDAH_ISOLATION: "chroot"
-  CI_REGISTRY_IMAGE: quay.io/gnome_infrastructure/gnome-runtime-images
-
-stages:
-  - base
-  - runtimes
-  - manifests
-
 .base_template:
   image: "quay.io/buildah/stable:latest"
-  stage: base
+  stage: "gnome-runtime-images" 
   needs: []
+  variables:
+  # Buildah can't use 'overlay' driver when running inside docker
+    STORAGE_DRIVER: "vfs"
+    BUILDAH_FORMAT: "docker"
+    BUILDAH_ISOLATION: "chroot"
   script:
-    - bash ./scripts/build-image.sh
-  rules:
-    - when: "manual"
-      allow_failure: true
+    - bash ./gnome-runtime-images/scripts/build-image.sh
 
 base:
   extends: ".base_template"
@@ -35,9 +25,9 @@ base:aarch64:
 
 base-manifest:
   image: "quay.io/buildah/stable:latest"
-  stage: "manifests"
+  stage: "gnome-runtime-images"
   script:
-    - bash ./scripts/make-manifest.sh "base"
+    - bash ./gnome-runtime-images/scripts/make-manifest.sh "base"
   needs:
     - job: "base"
       artifacts: false
@@ -45,28 +35,26 @@ base-manifest:
       artifacts: false
 
 include:
-  - project: "gnome/citemplates"
-    file: "templates/default-rules.yml"
   # include the component located in the current project from the current SHA
-  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-runtime-images@$CI_COMMIT_SHA
     inputs:
       platform-version: "master"
       fdsdk-version: "25.08"
       llvm-version-1: "20"
       llvm-version-2: "21"
-  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-runtime-images@$CI_COMMIT_SHA
     inputs:
       platform-version: "49"
       fdsdk-version: "25.08"
       llvm-version-1: "20"
       llvm-version-2: "21"
-  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-runtime-images@$CI_COMMIT_SHA
     inputs:
       platform-version: "48"
       fdsdk-version: "24.08"
       llvm-version-1: "18"
       llvm-version-2: "20"
-  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-runtime-images@$CI_COMMIT_SHA
     inputs:
       platform-version: "47"
       fdsdk-version: "24.08"

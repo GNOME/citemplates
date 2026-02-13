@@ -9,8 +9,17 @@ spec:
     llvm-version-2:
       description: "Version of the .Extension.llvm to install"
 ---
+#
+# THIS IS A TEMPLATE FOR PRIVATE USE WITHIN THIS REPOSITORY
+#
+
 ".common:$[[ inputs.platform-version ]]":
   image: "quay.io/buildah/stable:latest"
+  # Buildah can't use 'overlay' driver when running inside docker
+  variables:
+    STORAGE_DRIVER: "vfs"
+    BUILDAH_FORMAT: "docker"
+    BUILDAH_ISOLATION: "chroot"
   rules:
     - if: $CI_MERGE_REQUEST_ID && "$[[ inputs.platform-version ]]" == "master"
       when: "always"
@@ -18,16 +27,16 @@ spec:
       when: "always"
     - if: $CI_COMMIT_BRANCH == "master"
       when: "always"
-    - when: "manual"
-      allow_failure: true
+    - if: $CI_COMMIT_BRANCH
+      when: "manual"
 
 ".sdk_template:$[[ inputs.platform-version ]]":
-  stage: "runtimes"
+  stage: "gnome-runtime-images"
   extends: ".common:$[[ inputs.platform-version ]]"
+  needs: ["base-manifest"]
   after_script: []
-  needs: []
   script:
-    - bash ./scripts/build-sdk-image.sh "$[[ inputs.platform-version ]]" "$[[ inputs.fdsdk-version ]]" "$[[ inputs.llvm-version-1 ]]" "$[[ inputs.llvm-version-2 ]]"
+    - bash ./gnome-runtime-images/scripts/build-sdk-image.sh "$[[ inputs.platform-version ]]" "$[[ inputs.fdsdk-version ]]" "$[[ inputs.llvm-version-1 ]]" "$[[ inputs.llvm-version-2 ]]"
 
 "gnome:$[[ inputs.platform-version ]]":
   extends: ".sdk_template:$[[ inputs.platform-version ]]"
@@ -43,7 +52,7 @@ spec:
     ARCH: aarch64
 
 "gnome-manifest:$[[ inputs.platform-version ]]":
-  stage: "manifests"
+  stage: "gnome-runtime-images"
   extends: ".common:$[[ inputs.platform-version ]]"
   after_script: []
   needs:
@@ -52,4 +61,4 @@ spec:
     - job: "gnome:aarch64:$[[ inputs.platform-version ]]"
       artifacts: false
   script:
-    - bash ./scripts/make-manifest.sh "gnome-$[[ inputs.platform-version ]]"
+    - bash ./gnome-runtime-images/scripts/make-manifest.sh "gnome-$[[ inputs.platform-version ]]"

@@ -3,7 +3,6 @@ include:
     file: "templates/default-rules.yml"
 
 .flatpak:
-  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
   stage: 'test'
   interruptible: true
   variables:
@@ -25,6 +24,14 @@ include:
     _ORAS_CACHE_REPOSITORY: "gnome_infrastructure/gnome-nightly-cache"
     # Default for backwards compatibility
     ARCH: "x86_64"
+
+    _IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master"
+  rules:
+  - if: $CI_PROJECT_NAME == "citemplates" && $CI_COMMIT_BRANCH != "master"
+    needs: [ "gnome-manifest:master" ]
+    variables:
+      _IMAGE: "$CI_REGISTRY_IMAGE:gnome-master-$CI_COMMIT_REF_SLUG"
+  image: "$_IMAGE"
   # Till now this was the template job used for everything,
   # so assume its default tags are x86 to avoid breaking backwards
   # compatibility.
