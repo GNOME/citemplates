@@ -20,7 +20,7 @@ include:
             - "gnome-runtime-images/**/*"
             - "templates/build-runtime-images/**/*"
             - "flatpak/*"
-            - "templates/defeault-rules.yml"
+            - "templates/default-rules.yml"
             - "test-the-templates/flatpak.yml"
 
   - local: "test-the-templates/gnomeos-basic-ci.yml"
