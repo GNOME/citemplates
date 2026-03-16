@@ -175,7 +175,7 @@ include:
       - 'public-dist'
     reports:
       junit: ".flatpak-builder/build/${FLATPAK_MODULE}*/_flatpak_build/meson-logs/testlog*.junit.xml"
-    expire_in: 14 days
+    expire_in: "2 days"
 
 .flatpak@x86_64:
   extends: '.flatpak'
