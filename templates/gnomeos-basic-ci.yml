@@ -269,14 +269,13 @@ spec:
     - *test
 
     - mkdir -p public_grcov
-    - grcov ${_BUILDDIR} --source-dir $[[ inputs.meson-sourcedir]] --prefix-dir ../ --output-type cobertura --branch --ignore-not-existing $[[ inputs.grcov-c-options ]] -o public_grcov/coverage.xml
-    - grcov ${_BUILDDIR} --source-dir $[[ inputs.meson-sourcedir]] --prefix-dir ../ --output-type html --branch --ignore-not-existing $[[ inputs.grcov-c-options ]] -o public_grcov/coverage
+    - grcov ${_BUILDDIR} --source-dir $[[ inputs.meson-sourcedir]] --prefix-dir ../ --output-types cobertura,html --branch --ignore-not-existing $[[ inputs.grcov-c-options ]] -o public_grcov
 
     # Print "Coverage: 42.42" so .gitlab-ci.yml will pick it up with a regex
     #
     # We scrape this from the HTML report, not the JSON summary, because coverage.json
     # uses no decimal places, just something like "42%".
-    - grep -Eo 'abbr title.* %' public_grcov/coverage/index.html | head -n 1 | grep -Eo '[0-9.]+ %' | grep -Eo '[0-9.]+' | awk '{ print "Coverage:", $1 }'
+    - grep -Eo 'abbr title.* %' public_grcov/html/index.html | head -n 1 | grep -Eo '[0-9.]+ %' | grep -Eo '[0-9.]+' | awk '{ print "Coverage:", $1 }'
   coverage: '/Coverage: \d+\.\d+/'
   artifacts:
     access: "developer"
@@ -287,11 +286,11 @@ spec:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: public_grcov/coverage.xml
+        path: public_grcov/cobertura.xml
     paths:
       - "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/"
       - "public_grcov/"
-      - "public_grcov/coverage/index.html"
+      - "public_grcov/html/index.html"
   rules:
     - if: '"$[[ inputs.grcov-c ]]" == "enabled" && "$[[ inputs.run-tests ]]" == "yes"'
 
