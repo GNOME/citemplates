@@ -50,19 +50,19 @@ include:
 | `job-stage`          |  `build`                     | Stage to run the job                                                |
 | `image-ref`          |  `quay.io/gnome_infrastructure/gnome-build-meta:core-nightly`  | Specify the OCI image to use      |
 | `meson-sourcedir`    |  `"."`(Current directory)    | "Meson sourcedir path. Useful if the project is not in the root directory"            |
-| `meson-options`      |  `""` (Empty String)         | List of options to setup the meson project                                            |
-| `meson-test-options` |  `""` (Empty String)         | List of additional options passed to meson test (ex "--exclude test-gobject-mkhtml")  |
+| `meson-options`      |  `null` (Nullable String)    | List of additional options passed to meson setup                                      |
+| `meson-test-options` |  `null` (Nullable String)    | List of additional options passed to meson test (ex "--exclude test-gobject-mkhtml")  |
 | `run-tests`          |  `"yes"`                     | Whether to execute the testsuite pass empty value to skip                             |
 | `before-script`      |  `null`                      | Optional before-script to execute                                                     |
 | `clang`              |  `enabled`                   | Add a build job with clang                                                            |
 | `asan`               |  `enabled`                   | Enable or Disable the asan build                                                      |
-| `asan-options`       |  `enabled`                   | Value of ASAN_OPTIONS variable. Note it defaults to detect_leaks=0 since we have a separate lsan job |
+| `asan-options`       |  `null`                      | Value of ASAN_OPTIONS variable. Note it defaults to detect_leaks=0 since we have a separate lsan job |
 | `lsan`               |  `enabled`                   | Enable or Disable the lsan build                                                      |
-| `lsan-options`       |  `enabled`                   | Value of LSAN_OPTIONS variable.                                                       |
+| `lsan-options`       |  `null`                      | Value of LSAN_OPTIONS variable.                                                       |
 | `tsan`               |  `disabled`                  | Enable or Disable the tsan build                                                      |
-| `tsan-options`       |  `enabled`                   | Value of TSAN_OPTIONS variable.                                                       |
+| `tsan-options`       |  `null`                      | Value of TSAN_OPTIONS variable.                                                       |
 | `ubsan`              |  `enabled`                   | Enable or Disable the ubsan build                                                     |
-| `ubsan-options`      |  `enabled`                   | Value of UBSAN_OPTIONS variable.                                                      |
+| `ubsan-options`      |  `null`                      | Value of UBSAN_OPTIONS variable.                                                      |
 | `grcov-c`            |  `enabled`                   | Enable or Disable the grcov report. Tailored for C projects                           |
 | `grcov-c-options`    |  `null`                      | List of additional options passed to grcov                                            |
 | `scan-build`         |  `enabled`                   | Enable or Disable the scan-build report                                               |
