@@ -76,6 +76,9 @@ spec:
         - "enabled"
         - "disabled"
       description: "Enable or Disable the grcov report. Tailored for C projects"
+    grcov-c-options:
+      default: null
+      description: "List of additional options passed to grcov"
     scan-build:
       default: "enabled"
       options:
@@ -266,8 +269,8 @@ spec:
     - *test
 
     - mkdir -p public_grcov
-    - grcov ${_BUILDDIR} --source-dir $[[ inputs.meson-sourcedir]] --prefix-dir ../ --output-type cobertura --branch --ignore-not-existing -o public_grcov/coverage.xml
-    - grcov ${_BUILDDIR} --source-dir $[[ inputs.meson-sourcedir]] --prefix-dir ../ --output-type html --branch --ignore-not-existing -o public_grcov/coverage
+    - grcov ${_BUILDDIR} --source-dir $[[ inputs.meson-sourcedir]] --prefix-dir ../ --output-type cobertura --branch --ignore-not-existing $[[ inputs.grcov-c-options ]] -o public_grcov/coverage.xml
+    - grcov ${_BUILDDIR} --source-dir $[[ inputs.meson-sourcedir]] --prefix-dir ../ --output-type html --branch --ignore-not-existing $[[ inputs.grcov-c-options ]] -o public_grcov/coverage
 
     # Print "Coverage: 42.42" so .gitlab-ci.yml will pick it up with a regex
     #
