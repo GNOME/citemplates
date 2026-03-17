@@ -64,6 +64,7 @@ include:
 | `ubsan`              |  `enabled`                   | Enable or Disable the ubsan build                                                     |
 | `ubsan-options`      |  `enabled`                   | Value of UBSAN_OPTIONS variable.                                                      |
 | `grcov-c`            |  `enabled`                   | Enable or Disable the grcov report. Tailored for C projects                           |
+| `grcov-c-options`    |  `null`                      | List of additional options passed to grcov                                            |
 | `scan-build`         |  `enabled`                   | Enable or Disable the scan-build report                                               |
 
 ### gnomeos-build-sysext
