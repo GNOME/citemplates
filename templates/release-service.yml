@@ -11,6 +11,14 @@ spec:
     tarball-artifact-path:
       default: "public-dist"
       description: "The path of the exported tarball"
+    service-url:
+      default: "https://gnome-release-route-gnome-release-service.apps.openshift.gnome.org"
+      options:
+      # Uploads to https://download.gnome.org/sources/
+      - "https://gnome-release-route-gnome-release-service.apps.openshift.gnome.org"
+      # Artifacts can be inspected at https://gnome-release-route-sandbox-fileserver-gnome-release-service.apps.openshift.gnome.org/
+      - "https://gnome-release-route-sandbox-gnome-release-service.apps.openshift.gnome.org"
+      description: "The end-point of the service. Publishes by default, or you can choose to use the test (sandbox) server instead."
 ---
 "$[[ inputs.job-name ]]":
   image: "registry.gitlab.com/gitlab-org/release-cli:latest"
@@ -28,7 +36,7 @@ spec:
       - "scheduler_failure"
       - "api_failure"
   variables:
-    GNOME_RELEASE_SERVICE_API_URL: "https://gnome-release-route-gnome-release-service.apps.openshift.gnome.org"
+    GNOME_RELEASE_SERVICE_API_URL: "$[[ inputs.service-url ]]"
     GNOME_RELEASE_SERVICE_API_INSTALL_MODULE_RELEASE_ENDPOINT: "$GNOME_RELEASE_SERVICE_API_URL/install-module-release"
   id_tokens:
     JWT_TOKEN:
@@ -42,8 +50,18 @@ spec:
 
     # https://gitlab.com/gitlab-org/gitlab/-/issues/382536
     - echo "Fixing up release tag message for gitlab"
-    - a=$(git tag -l $CI_COMMIT_TAG --format='%(contents)')
+    - >-
+      if [[ "$RELEASE_GIT_REF" == "$CI_COMMIT_TAG" ]]; then
+          a=$(git tag -l $CI_COMMIT_TAG --format='%(contents)')
+      elif [[ "$RELEASE_GIT_REF" == "$CI_COMMIT_SHA" ]]; then
+          a=$(git show -s --format='%B')
+      else
+        echo "Unexpected"
+        exit 1
+      fi
+
     - printf '%s\n' "${a%%-----BEGIN*}" > tag_msg.txt
+    - cat tag_msg.txt
 
     - |-
       cat > upload.sh <<'EOF'
@@ -94,6 +112,11 @@ spec:
     - tag_msg.txt
   rules:
     - if: $CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED
+      variables:
+        RELEASE_GIT_REF: "$CI_COMMIT_TAG"
+    - if: '"$[[ inputs.service-url ]]" == "https://gnome-release-route-sandbox-gnome-release-service.apps.openshift.gnome.org"'
+      variables:
+        RELEASE_GIT_REF: "$CI_COMMIT_SHA"
   release:
-    tag_name: $CI_COMMIT_TAG
+    tag_name: $RELEASE_GIT_REF
     description: "./tag_msg.txt"
