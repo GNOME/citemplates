@@ -61,4 +61,4 @@ spec:
     - glab version
     - glab auth login --hostname $CI_SERVER_HOST --job-token $CI_JOB_TOKEN
     - echo "Creating release uploading $to_upload"
-    - glab release create "$CI_COMMIT_TAG" $to_upload --notes "$tag_msg" --tag-message "$tag_msg" --no-update
+    - glab release create "$CI_COMMIT_TAG" $to_upload --notes "$tag_msg" --tag-message "$tag_msg" --no-update --use-package-registry
