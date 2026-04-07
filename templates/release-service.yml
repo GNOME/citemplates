@@ -60,8 +60,8 @@ spec:
         exit 1
       fi
 
-    - printf '%s\n' "${a%%-----BEGIN*}" > tag_msg.txt
-    - cat tag_msg.txt
+    - tag_msg=$(printf '%s\n' "${a%%-----BEGIN*}")
+    - echo "$tag_msg"
 
     - |-
       cat > upload.sh <<'EOF'
@@ -104,12 +104,14 @@ spec:
       EOF
 
     - bash ./upload.sh "$[[ inputs.tarball-artifact-path ]]"
+
+    - >-
+      if [[ "$RELEASE_GIT_REF" == "$CI_COMMIT_TAG" ]]; then
+        echo "Creating release for tag: $CI_COMMIT_TAG"
+        glab auth login --hostname $CI_SERVER_HOST --job-token $CI_JOB_TOKEN
+        glab release create "$RELEASE_GIT_REF" --notes "$tag_msg" --tag-message "$tag_msg"
+      fi
   after_script: []
-  artifacts:
-    when: 'always'
-    expire_in: "1 days"
-    paths:
-    - tag_msg.txt
   rules:
     - if: $CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED
       variables:
@@ -117,6 +119,3 @@ spec:
     - if: '"$[[ inputs.service-url ]]" == "https://gnome-release-route-sandbox-gnome-release-service.apps.openshift.gnome.org"'
       variables:
         RELEASE_GIT_REF: "$CI_COMMIT_SHA"
-  release:
-    tag_name: $RELEASE_GIT_REF
-    description: "./tag_msg.txt"
