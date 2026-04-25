@@ -1,0 +1,43 @@
+spec:
+  inputs:
+    job-name:
+      default: "goblint"
+      description: "Name for the job"
+    job-stage:
+      default: "test"
+      description: "Stage to run the job"
+---
+"$[[ inputs.job-name ]]":
+  stage: $[[ inputs.job-stage ]]
+  image:
+    name: "ghcr.io/bilelmoussaoui/goblint:latest"
+    entrypoint: [""]
+  needs: []
+  script:
+    # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
+    # - goblint --format sarif > goblint.sarif
+    - goblint --format gitlab-codequality > goblint-codequality.json
+    - goblint --format text > goblint.log
+    - cat goblint.log
+    - goblint --summary
+  artifacts:
+    expire_in: "1 week"
+    paths:
+      - "goblint-codequality.json"
+      - "goblint.log"
+      # - "goblint.sarif"
+    reports:
+      codequality: "goblint-codequality.json"
+      # goblint:artifacts:reports config contains unknown keys: sarif
+      # sarif: "goblint.sarif"
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        - "goblint.toml"
+        - "**/*.c"
+        - "**/*.h"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - "goblint.toml"
+        - "**/*.c"
+        - "**/*.h"
