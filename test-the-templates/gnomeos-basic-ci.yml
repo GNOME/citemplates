@@ -88,3 +88,9 @@ basic-ci-ubuntu:
 # but that's fine, as we only care about gitlab complaining
 basic-ci-no-before-script:
   script: "echo Hello world"
+
+basic-ci-default-goblint:
+  # Override the rules since we don't have any .c/.h or the config file atm
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"

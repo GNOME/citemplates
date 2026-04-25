@@ -85,6 +85,12 @@ spec:
         - "enabled"
         - "disabled"
       description: "Enable or Disable the scan-build report"
+    goblint:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
+      description: "Enable or Disable the goblint report"
 ---
 ".$[[ inputs.job-name ]]-print-useful-info": &info
   - git config --global --add safe.directory "${CI_PROJECT_DIR}"
@@ -321,3 +327,39 @@ spec:
       - "public_scanbuild/index.html"
   rules:
     - if: '"$[[ inputs.scan-build ]]" == "enabled"'
+
+"$[[ inputs.job-name ]]-goblint":
+  image:
+    name: "ghcr.io/bilelmoussaoui/goblint:latest"
+    entrypoint: [""]
+  stage: $[[ inputs.job-stage ]]
+  needs: []
+  before_script: $[[ inputs.before-script ]]
+  script:
+    # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
+    # - goblint $[[ inputs.meson-sourcedir]] --format sarif > goblint.sarif
+    - goblint $[[ inputs.meson-sourcedir]] --format gitlab-codequality > goblint-codequality.json
+    - goblint $[[ inputs.meson-sourcedir]] --format text > goblint.log
+    - cat goblint.log
+    - goblint $[[ inputs.meson-sourcedir]] --summary
+  artifacts:
+    expire_in: "1 week"
+    paths:
+      - "goblint-codequality.json"
+      - "goblint.log"
+      # - "goblint.sarif"
+    reports:
+      codequality: "goblint-codequality.json"
+      # goblint:artifacts:reports config contains unknown keys: sarif
+      # sarif: "goblint.sarif"
+  rules:
+    - if: $CI_COMMIT_BRANCH && "$[[ inputs.goblint ]]" == "enabled"
+      changes:
+        - "goblint.toml"
+        - "**/*.c"
+        - "**/*.h"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && "$[[ inputs.goblint ]]" == "enabled"
+      changes:
+        - "goblint.toml"
+        - "**/*.c"
+        - "**/*.h"
