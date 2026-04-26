@@ -78,6 +78,18 @@ basic-ci-ubuntu:
   # Error: Failed to fetch http://archive.ubuntu.com/ubuntu/pool/main/libx/libxcb/libxcb-shm0_1.17.0-2_amd64.deb  403  Forbidden [IP: 185.125.190.82 80]
   allow_failure: true
 
+# In general distro jobs start failing when we update some dependency in an app,
+# like libadwaita to an unstable/unpackaged version. Mark them allow_failure and
+# only keep the jobs as an indication for how things are going.
+basic-ci-ubuntu-clang:
+  allow_failure: true
+
+basic-ci-fedora:
+  allow_failure: true
+
+basic-ci-fedora-clang:
+  allow_failure: true
+
 # Test that when we don't specify a before script
 # the template does not explode.
 # Without a before-script we can't test an app (unless add one in the repo)
