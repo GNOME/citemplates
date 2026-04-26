@@ -334,7 +334,13 @@ spec:
     entrypoint: [""]
   stage: $[[ inputs.job-stage ]]
   needs: []
-  before_script: $[[ inputs.before-script ]]
+  # Until we add goblint in GNOME OS and use the same image, we can't expect the
+  # before_script to work, as the upstream goblint image doesn't have similar tools installed.
+  # For example git is of an older version, there is no meson, etc etc
+  # error: unknown option `revision'
+  # usage: git clone [<options>] [--] <repo> [<dir>]
+  # https://gitlab.gnome.org/GNOME/gnome-build-meta/-/merge_requests/4659
+  # before_script: $[[ inputs.before-script ]]
   script:
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
     # - goblint $[[ inputs.meson-sourcedir]] --format sarif > goblint.sarif

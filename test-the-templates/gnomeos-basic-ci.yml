@@ -102,3 +102,6 @@ basic-ci-default-goblint:
   rules:
     - if: $CI_COMMIT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  # Also override the before-scipt as we had to disable it
+  # See https://gitlab.gnome.org/GNOME/citemplates/-/merge_requests/172
+  before_script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git"
