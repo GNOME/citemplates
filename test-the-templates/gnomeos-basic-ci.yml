@@ -73,10 +73,6 @@ include:
       scan-build: "disabled"
 
 # Override the jobs, gitlab should "merge" them so we can add the allow_failure
-basic-ci-default-calendar-lsan:
-  # The job itself fails as expected due to leaks
-  allow_failure: true
-
 basic-ci-ubuntu:
   # We often get 403s in the CI runner while trying to install things
   # Error: Failed to fetch http://archive.ubuntu.com/ubuntu/pool/main/libx/libxcb/libxcb-shm0_1.17.0-2_amd64.deb  403  Forbidden [IP: 185.125.190.82 80]
