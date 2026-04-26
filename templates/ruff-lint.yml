@@ -7,7 +7,7 @@ spec:
       default: "lint"
       description: "Stage to run the job"
     ruff-version:
-      default: "0.15.0"
+      default: "0.15.12"
       description: "The version of Ruff to use. Uses the upstream ghcr.io/astral-sh/ruff image."
 ---
 "$[[ inputs.job-name ]]":
