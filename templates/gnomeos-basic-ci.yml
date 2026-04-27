@@ -347,8 +347,7 @@ spec:
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
     # - goblint $[[ inputs.meson-sourcedir]] --format sarif > goblint.sarif || true
     - goblint $[[ inputs.meson-sourcedir]] --format gitlab-codequality > goblint-codequality.json || true
-    - goblint $[[ inputs.meson-sourcedir]] --format text > goblint.log || true
-    - cat goblint.log
+    - goblint $[[ inputs.meson-sourcedir]] --format text | tee goblint.log || true
     - goblint $[[ inputs.meson-sourcedir]] --summary
   artifacts:
     expire_in: "1 week"

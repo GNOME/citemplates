@@ -19,8 +19,7 @@ spec:
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
     # - goblint --format sarif > goblint.sarif || true
     - goblint --format gitlab-codequality > goblint-codequality.json || true
-    - goblint --format text > goblint.log || true
-    - cat goblint.log
+    - goblint --format text | tee goblint.log || true
     - goblint --summary
   artifacts:
     expire_in: "1 week"
