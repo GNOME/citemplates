@@ -351,6 +351,7 @@ spec:
     - goblint $[[ inputs.meson-sourcedir]] --summary
   artifacts:
     expire_in: "1 week"
+    when: "always"
     paths:
       - "goblint-codequality.json"
       - "goblint.log"
