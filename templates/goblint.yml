@@ -14,10 +14,12 @@ spec:
     entrypoint: [""]
   needs: []
   script:
+    # Since we generate multiple reports, with multiple invocatioans, only error on the last one
+    #
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
-    # - goblint --format sarif > goblint.sarif
-    - goblint --format gitlab-codequality > goblint-codequality.json
-    - goblint --format text > goblint.log
+    # - goblint --format sarif > goblint.sarif || true
+    - goblint --format gitlab-codequality > goblint-codequality.json || true
+    - goblint --format text > goblint.log || true
     - cat goblint.log
     - goblint --summary
   artifacts:

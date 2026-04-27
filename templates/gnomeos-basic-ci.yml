@@ -342,10 +342,12 @@ spec:
   # https://gitlab.gnome.org/GNOME/gnome-build-meta/-/merge_requests/4659
   # before_script: $[[ inputs.before-script ]]
   script:
+    # Since we generate multiple reports, with multiple invocatioans, only error on the last one
+    #
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
-    # - goblint $[[ inputs.meson-sourcedir]] --format sarif > goblint.sarif
-    - goblint $[[ inputs.meson-sourcedir]] --format gitlab-codequality > goblint-codequality.json
-    - goblint $[[ inputs.meson-sourcedir]] --format text > goblint.log
+    # - goblint $[[ inputs.meson-sourcedir]] --format sarif > goblint.sarif || true
+    - goblint $[[ inputs.meson-sourcedir]] --format gitlab-codequality > goblint-codequality.json || true
+    - goblint $[[ inputs.meson-sourcedir]] --format text > goblint.log || true
     - cat goblint.log
     - goblint $[[ inputs.meson-sourcedir]] --summary
   artifacts:
