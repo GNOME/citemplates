@@ -21,6 +21,7 @@ spec:
       - "api_failure"
   before_script: []
   after_script: []
+  needs: []
   script:
     - echo "running release_job"
     # https://gitlab.com/gitlab-org/gitlab/-/issues/382536
