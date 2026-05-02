@@ -330,7 +330,7 @@ spec:
 
 "$[[ inputs.job-name ]]-goblint":
   image:
-    name: "ghcr.io/bilelmoussaoui/goblint:latest"
+    name: "ghcr.io/bilelmoussaoui/goblint:main-bbaacd0"
     entrypoint: [""]
   stage: $[[ inputs.job-stage ]]
   needs: []

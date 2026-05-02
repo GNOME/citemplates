@@ -10,7 +10,7 @@ spec:
 "$[[ inputs.job-name ]]":
   stage: $[[ inputs.job-stage ]]
   image:
-    name: "ghcr.io/bilelmoussaoui/goblint:latest"
+    name: "ghcr.io/bilelmoussaoui/goblint:main-bbaacd0"
     entrypoint: [""]
   needs: []
   script:
