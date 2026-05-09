@@ -44,6 +44,13 @@ include:
             - "templates/gnomeos-build-sysext.yml"
             - "test-the-templates/gnomeos-build-sysext.yml"
 
+  - local: "test-the-templates/goblint.yml"
+    rules:
+      - changes:
+          paths:
+            - "templates/goblint.yml"
+            - "test-the-templates/goblint.yml"
+
 stages:
   - "lint"
   - "Flatpak app"
@@ -51,5 +58,6 @@ stages:
   - "Dist tarball tests"
   - "Docs generation tests"
   - "GNOMEOS Build Sysext CI"
+  - "Goblint"
   - "deploy"
 

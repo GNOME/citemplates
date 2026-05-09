@@ -1,0 +1,12 @@
+include:
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/goblint@$CI_COMMIT_SHA
+    inputs:
+      job-name: "test-goblint"
+      job-stage: "Goblint"
+
+.goblint-before: &goblint-before
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git/
+
+test-goblint:
+  *goblint-before
