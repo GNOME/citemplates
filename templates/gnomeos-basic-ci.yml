@@ -7,7 +7,7 @@ spec:
       default: "build"
       description: "Stage to run the job"
     image-ref:
-      default: "quay.io/gnome_infrastructure/gnome-build-meta:core-nightly"
+      default: "quay.io/gnome_infrastructure/gnome-build-meta:gnomeos-devel-nightly"
       description: "Specify the OCI image to use"
     meson-options:
       default: null

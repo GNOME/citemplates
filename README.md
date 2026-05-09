@@ -48,8 +48,8 @@ include:
 | -------------------- | ---------------------------- | ------------------------------------------------------------------- |
 | `job-name`           |  `build-gnomeos`             | Name/Prefix for the jobs                                            |
 | `job-stage`          |  `build`                     | Stage to run the job                                                |
-| `image-ref`          |  `quay.io/gnome_infrastructure/gnome-build-meta:core-nightly`  | Specify the OCI image to use      |
-| `meson-sourcedir`    |  `"."`(Current directory)    | "Meson sourcedir path. Useful if the project is not in the root directory"            |
+| `image-ref`          |  `quay.io/gnome_infrastructure/gnome-build-meta:gnomeos-devel-nightly` | Specify the OCI image to use                |
+| `meson-sourcedir`    |  `"."`  (Current directory)  | "Meson sourcedir path. Useful if the project is not in the root directory"            |
 | `meson-options`      |  `null` (Nullable String)    | List of additional options passed to meson setup                                      |
 | `meson-test-options` |  `null` (Nullable String)    | List of additional options passed to meson test (ex "--exclude test-gobject-mkhtml")  |
 | `run-tests`          |  `"yes"`                     | Whether to execute the testsuite pass empty value to skip                             |

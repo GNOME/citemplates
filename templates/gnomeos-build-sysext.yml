@@ -24,7 +24,7 @@ spec:
 ---
 "$[[ inputs.job-name ]]":
   image:
-    name: "quay.io/gnome_infrastructure/gnome-build-meta:core-$[[ inputs.branch ]]"
+    name: "quay.io/gnome_infrastructure/gnome-build-meta:gnomeos-devel-$[[ inputs.branch ]]"
     docker:
       user: "root"
   stage: $[[ inputs.job-stage ]]
