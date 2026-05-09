@@ -44,6 +44,31 @@ include:
       dist-job-name: "build-gnomeos"
 ```
 
+Using a different image version:
+
+By default the templates follows the rolling image tags from the GNOME OS OCI
+images published. This is the same behavior that we follow for the Flatpak
+runtime branches.
+
+It's possible to downgrade the image to a specific version. First you will need
+to find the desired version. The image tags are currently hosted in [Quay](https://quay.io/repository/gnome_infrastructure/gnome-build-meta?tab=tags)
+but in general the images are tagged after the commit hash in [gnome-build-meta](https://gitlab.gnome.org/GNOME/gnome-build-meta/)
+that produced them.
+
+Afterwards you can specify the tag like this:
+
+```yaml
+include:
+  - component: "gitlab.gnome.org/GNOME/citemplates/gnomeos-basic-ci@25.6"
+    inputs:
+      image: "quay.io/gnome_infrastructure/gnome-build-meta:gnomeos-devel-0133fef135a35cb61a7a49e9475b9fbc269621a8"
+```
+
+Custom images can also be used the same way, but only the GNOME OS image is
+supported upstream.
+
+Inputs:
+
 | Input                | Default value                | Description                                                         |
 | -------------------- | ---------------------------- | ------------------------------------------------------------------- |
 | `job-name`           |  `build-gnomeos`             | Name/Prefix for the jobs                                            |
