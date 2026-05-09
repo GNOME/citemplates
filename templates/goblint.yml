@@ -9,6 +9,14 @@ spec:
     source-directory:
       default: "."
       description: "The source directory to run against"
+    extra-rules:
+      # We can't reference goblint-rules here cause of the
+      # order in which they are declared and passed, and thus
+      # our only option is to have existing + extra, rather
+      # than default and complete override of rules
+      default: []
+      type: array
+      description: "Extra rules to trigger the job"
 ---
 ".$[[ inputs.job-name ]]-goblint-changes": &goblint-changes
   - "goblint.toml"
@@ -52,4 +60,5 @@ spec:
       # gobject-linter:artifacts:reports config contains unknown keys: sarif
       # sarif: "gobject-linter.sarif"
   rules:
+    - "$[[ inputs.extra-rules ]]"
     - *goblint-rules

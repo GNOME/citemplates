@@ -1,13 +1,52 @@
+variables:
+  TEST_GOBLINT_ALWAYS_MANUAL: "yes"
+  TEST_GOBLINT_ALWAYS_TRIGGER: "yes"
+
 include:
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/goblint@$CI_COMMIT_SHA
+    # default rules
     inputs:
       job-name: "test-goblint"
       job-stage: "Goblint"
       source-directory: "gnome-font-viewer"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/goblint@$CI_COMMIT_SHA
+    inputs:
+      job-name: "test-goblint-multiple-rules"
+      job-stage: "Goblint"
+      source-directory: "gnome-font-viewer"
+      extra-rules:
+        - if: $TEST_GOBLINT_ALWAYS_TRIGGER == "nope"
+        - if: $TEST_GOBLINT_ALWAYS_MANUAL
+          when: "manual"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/goblint@$CI_COMMIT_SHA
+    inputs:
+      job-name: "test-goblint-always-run"
+      job-stage: "Goblint"
+      source-directory: "gnome-font-viewer"
+      # Always trigger
+      extra-rules:
+        - if: $TEST_GOBLINT_ALWAYS_TRIGGER
 
 .goblint-before: &goblint-before
   before_script:
     - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git/
 
+# Override the job to add a before_script
 test-goblint:
   *goblint-before
+
+test-goblint-multiple-rules:
+  *goblint-before
+
+test-goblint-always-run:
+  *goblint-before
+
+test-always-trigger-rule:
+  stage: "Goblint"
+  needs:
+    - job: test-goblint-always-run
+      artifacts: false
+      # Try to make the pipelene error if the job didn't trigger
+      optional: false
+  script:
+  - echo "Hello"
