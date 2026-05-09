@@ -6,6 +6,9 @@ spec:
     job-stage:
       default: "test"
       description: "Stage to run the job"
+    source-directory:
+      default: "."
+      description: "The source directory to run against"
 ---
 "$[[ inputs.job-name ]]":
   stage: $[[ inputs.job-stage ]]
@@ -17,10 +20,10 @@ spec:
     # Since we generate multiple reports, with multiple invocatioans, only error on the last one
     #
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
-    # - gobject-linter --format sarif > gobject-linter.sarif || true
-    - gobject-linter --format gitlab-codequality > gobject-linter-codequality.json || true
-    - gobject-linter --format text | tee gobject-linter.log || true
-    - gobject-linter --summary
+    # - gobject-linter $[[ inputs.source-directory]] --format sarif > gobject-linter.sarif || true
+    - gobject-linter $[[ inputs.source-directory]] --format gitlab-codequality > gobject-linter-codequality.json || true
+    - gobject-linter $[[ inputs.source-directory]] --format text | tee gobject-linter.log || true
+    - gobject-linter $[[ inputs.source-directory]] --summary
   artifacts:
     expire_in: "1 week"
     when: "always"

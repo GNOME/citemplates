@@ -3,6 +3,7 @@ include:
     inputs:
       job-name: "test-goblint"
       job-stage: "Goblint"
+      source-directory: "gnome-font-viewer"
 
 .goblint-before: &goblint-before
   before_script:
