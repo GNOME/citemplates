@@ -336,6 +336,20 @@ spec:
   rules:
     - if: '"$[[ inputs.scan-build ]]" == "enabled"'
 
+".$[[ inputs.job-name ]]-goblint-changes": &goblint-changes
+  - "goblint.toml"
+  - "gobject-linter.toml"
+  - "**/*.c"
+  - "**/*.h"
+
+".$[[ inputs.job-name ]]-goblint-rules": &goblint-rules
+    - if: $CI_COMMIT_BRANCH && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
+      changes:
+        *goblint-changes
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
+      changes:
+        *goblint-changes
+
 "$[[ inputs.job-name ]]-gobject-linter":
   image:
     name: "ghcr.io/bilelmoussaoui/gobject-linter:main-606efd7"
@@ -369,15 +383,4 @@ spec:
       # gobject-linter:artifacts:reports config contains unknown keys: sarif
       # sarif: "gobject-linter.sarif"
   rules:
-    - if: $CI_COMMIT_BRANCH && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
-      changes:
-        - "goblint.toml"
-        - "gobject-linter.toml"
-        - "**/*.c"
-        - "**/*.h"
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
-      changes:
-        - "goblint.toml"
-        - "gobject-linter.toml"
-        - "**/*.c"
-        - "**/*.h"
+    *goblint-rules

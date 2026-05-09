@@ -10,6 +10,20 @@ spec:
       default: "."
       description: "The source directory to run against"
 ---
+".$[[ inputs.job-name ]]-goblint-changes": &goblint-changes
+  - "goblint.toml"
+  - "gobject-linter.toml"
+  - "**/*.c"
+  - "**/*.h"
+
+".$[[ inputs.job-name ]]-goblint-rules": &goblint-rules
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        *goblint-changes
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        *goblint-changes
+
 "$[[ inputs.job-name ]]":
   stage: $[[ inputs.job-stage ]]
   image:
@@ -36,15 +50,4 @@ spec:
       # gobject-linter:artifacts:reports config contains unknown keys: sarif
       # sarif: "gobject-linter.sarif"
   rules:
-    - if: $CI_COMMIT_BRANCH
-      changes:
-        - "goblint.toml"
-        - "gobject-linter.toml"
-        - "**/*.c"
-        - "**/*.h"
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes:
-        - "goblint.toml"
-        - "gobject-linter.toml"
-        - "**/*.c"
-        - "**/*.h"
+    - *goblint-rules
