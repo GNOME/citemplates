@@ -97,7 +97,7 @@ basic-ci-fedora-clang:
 basic-ci-no-before-script:
   script: "echo Hello world"
 
-basic-ci-default-goblint:
+basic-ci-default-gobject-linter:
   # Override the rules since we don't have any .c/.h or the config file atm
   rules:
     - if: $CI_COMMIT_BRANCH

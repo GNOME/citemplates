@@ -1,7 +1,7 @@
 spec:
   inputs:
     job-name:
-      default: "goblint"
+      default: "gobject-linter"
       description: "Name for the job"
     job-stage:
       default: "test"
@@ -10,36 +10,38 @@ spec:
 "$[[ inputs.job-name ]]":
   stage: $[[ inputs.job-stage ]]
   image:
-    name: "ghcr.io/bilelmoussaoui/goblint:main-bbaacd0"
+    name: "ghcr.io/bilelmoussaoui/gobject-linter:main-606efd7"
     entrypoint: [""]
   needs: []
   script:
     # Since we generate multiple reports, with multiple invocatioans, only error on the last one
     #
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
-    # - goblint --format sarif > goblint.sarif || true
-    - goblint --format gitlab-codequality > goblint-codequality.json || true
-    - goblint --format text | tee goblint.log || true
-    - goblint --summary
+    # - gobject-linter --format sarif > gobject-linter.sarif || true
+    - gobject-linter --format gitlab-codequality > gobject-linter-codequality.json || true
+    - gobject-linter --format text | tee gobject-linter.log || true
+    - gobject-linter --summary
   artifacts:
     expire_in: "1 week"
     when: "always"
     paths:
-      - "goblint-codequality.json"
-      - "goblint.log"
-      # - "goblint.sarif"
+      - "gobject-linter-codequality.json"
+      - "gobject-linter.log"
+      # - "gobject-linter.sarif"
     reports:
-      codequality: "goblint-codequality.json"
-      # goblint:artifacts:reports config contains unknown keys: sarif
-      # sarif: "goblint.sarif"
+      codequality: "gobject-linter-codequality.json"
+      # gobject-linter:artifacts:reports config contains unknown keys: sarif
+      # sarif: "gobject-linter.sarif"
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
         - "goblint.toml"
+        - "gobject-linter.toml"
         - "**/*.c"
         - "**/*.h"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
         - "goblint.toml"
+        - "gobject-linter.toml"
         - "**/*.c"
         - "**/*.h"

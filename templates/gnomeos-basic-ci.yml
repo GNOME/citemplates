@@ -85,12 +85,20 @@ spec:
         - "enabled"
         - "disabled"
       description: "Enable or Disable the scan-build report"
+    # If we rename this we will break existing users and they will have
+    # to update the input
     goblint:
       default: "enabled"
       options:
         - "enabled"
         - "disabled"
-      description: "Enable or Disable the goblint report"
+      description: "(Deprecated) Use gobject-linter input instead"
+    gobject-linter:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
+      description: "Enable or Disable the gobject-linter report"
 ---
 ".$[[ inputs.job-name ]]-print-useful-info": &info
   - git config --global --add safe.directory "${CI_PROJECT_DIR}"
@@ -328,14 +336,14 @@ spec:
   rules:
     - if: '"$[[ inputs.scan-build ]]" == "enabled"'
 
-"$[[ inputs.job-name ]]-goblint":
+"$[[ inputs.job-name ]]-gobject-linter":
   image:
-    name: "ghcr.io/bilelmoussaoui/goblint:main-bbaacd0"
+    name: "ghcr.io/bilelmoussaoui/gobject-linter:main-606efd7"
     entrypoint: [""]
   stage: $[[ inputs.job-stage ]]
   needs: []
-  # Until we add goblint in GNOME OS and use the same image, we can't expect the
-  # before_script to work, as the upstream goblint image doesn't have similar tools installed.
+  # Until we add gobject-linter in GNOME OS and use the same image, we can't expect the
+  # before_script to work, as the upstream gobject-linter image doesn't have similar tools installed.
   # For example git is of an older version, there is no meson, etc etc
   # error: unknown option `revision'
   # usage: git clone [<options>] [--] <repo> [<dir>]
@@ -345,29 +353,31 @@ spec:
     # Since we generate multiple reports, with multiple invocatioans, only error on the last one
     #
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
-    # - goblint $[[ inputs.meson-sourcedir]] --format sarif > goblint.sarif || true
-    - goblint $[[ inputs.meson-sourcedir]] --format gitlab-codequality > goblint-codequality.json || true
-    - goblint $[[ inputs.meson-sourcedir]] --format text | tee goblint.log || true
-    - goblint $[[ inputs.meson-sourcedir]] --summary
+    # - gobject-linter $[[ inputs.meson-sourcedir]] --format sarif > gobject-linter.sarif || true
+    - gobject-linter $[[ inputs.meson-sourcedir]] --format gitlab-codequality > gobject-linter-codequality.json || true
+    - gobject-linter $[[ inputs.meson-sourcedir]] --format text | tee gobject-linter.log || true
+    - gobject-linter $[[ inputs.meson-sourcedir]] --summary
   artifacts:
     expire_in: "1 week"
     when: "always"
     paths:
-      - "goblint-codequality.json"
-      - "goblint.log"
-      # - "goblint.sarif"
+      - "gobject-linter-codequality.json"
+      - "gobject-linter.log"
+      # - "gobject-linter.sarif"
     reports:
-      codequality: "goblint-codequality.json"
-      # goblint:artifacts:reports config contains unknown keys: sarif
-      # sarif: "goblint.sarif"
+      codequality: "gobject-linter-codequality.json"
+      # gobject-linter:artifacts:reports config contains unknown keys: sarif
+      # sarif: "gobject-linter.sarif"
   rules:
-    - if: $CI_COMMIT_BRANCH && "$[[ inputs.goblint ]]" == "enabled"
+    - if: $CI_COMMIT_BRANCH && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
       changes:
         - "goblint.toml"
+        - "gobject-linter.toml"
         - "**/*.c"
         - "**/*.h"
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && "$[[ inputs.goblint ]]" == "enabled"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
       changes:
         - "goblint.toml"
+        - "gobject-linter.toml"
         - "**/*.c"
         - "**/*.h"

@@ -66,7 +66,7 @@ include:
 | `grcov-c`            |  `enabled`                   | Enable or Disable the grcov report. Tailored for C projects                           |
 | `grcov-c-options`    |  `null`                      | List of additional options passed to grcov                                            |
 | `scan-build`         |  `enabled`                   | Enable or Disable the scan-build report                                               |
-| `goblint`            |  `enabled`                   | Enable or Disable the goblint report                                                  |
+| `goblint`            |  `enabled`                   | Enable or Disable the gobject-linter report                                                  |
 
 ### gnomeos-build-sysext
 
