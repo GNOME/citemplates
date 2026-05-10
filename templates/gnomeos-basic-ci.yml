@@ -339,6 +339,8 @@ spec:
 ".$[[ inputs.job-name ]]-goblint-changes": &goblint-changes
   - "goblint.toml"
   - "gobject-linter.toml"
+  - "meson.build"
+  - "**/meson.build"
   - "**/*.c"
   - "**/*.h"
 
