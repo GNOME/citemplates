@@ -6,6 +6,14 @@ spec:
     job-stage:
       default: "lint"
       description: "Stage to run the job"
+    extra-rules:
+      # We can't reference variables here cause of the
+      # order in which they are declared and passed, and thus
+      # our only option is to have existing + extra rules, rather
+      # than default and complete override of rules
+      default: []
+      type: array
+      description: "Extra rules to trigger the job"
 ---
 "$[[ inputs.job-name ]]":
   stage: "$[[ inputs.job-stage ]]"
@@ -31,15 +39,12 @@ spec:
       echo "You can attempt to fix issues with the following command:"
       echo "rumdl check --fix ."
   rules:
+    - "$[[ inputs.extra-rules ]]"
     - changes:
         paths:
           - ".rumdl.toml"
           - "*.md"
           - "**/*.md"
-    - if: $CI_PROJECT_NAME == "citemplates"
-      changes:
-        paths:
-          - "templates/markdown-lint.yml"
   artifacts:
     when: "always"
     paths:

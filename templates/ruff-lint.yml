@@ -9,6 +9,14 @@ spec:
     ruff-version:
       default: "0.15.12"
       description: "The version of Ruff to use. Uses the upstream ghcr.io/astral-sh/ruff image."
+    extra-rules:
+      # We can't reference variables here cause of the
+      # order in which they are declared and passed, and thus
+      # our only option is to have existing + extra rules, rather
+      # than default and complete override of rules
+      default: []
+      type: array
+      description: "Extra rules to trigger the job"
 ---
 "$[[ inputs.job-name ]]":
   stage: "$[[ inputs.job-stage ]]"
@@ -26,6 +34,7 @@ spec:
       echo "ruff format"
       echo "ruff check --fix"
   rules:
+    - "$[[ inputs.extra-rules ]]"
     - changes:
         paths:
           - "pyproject.toml"
@@ -33,10 +42,6 @@ spec:
           - ".ruff.toml"
           - "*.py"
           - "**/*.py"
-    - if: $CI_PROJECT_NAME == "citemplates"
-      changes:
-        paths:
-          - "templates/ruff-lint.yml"
   artifacts:
     paths:
       - "ruff-code-quality.json"
