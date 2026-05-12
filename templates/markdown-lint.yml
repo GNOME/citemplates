@@ -6,6 +6,9 @@ spec:
     job-stage:
       default: "lint"
       description: "Stage to run the job"
+    rumdl-version:
+      default: "0.1.83"
+      description: "The version of Rumdl to use."
     extra-rules:
       # We can't reference variables here cause of the
       # order in which they are declared and passed, and thus
@@ -23,11 +26,8 @@ spec:
     - apt update --assume-yes --quiet=1
     - apt install --assume-yes --quiet=1 curl
 
-    # We could make this a component input, but ideally we want
-    # to have pinned, pre-built images to avoid apt/curl.
-    #
-    # Thus its harder to accommodate an image for every version.
-    - rumdl_tag="v0.1.83"
+    # Ideally we want to have pinned, pre-built images to avoid apt/curl.
+    - rumdl_tag="v$[[ inputs.rumdl-version ]]"
 
     - mkdir -p "$CI_PROJECT_DIR/bin"
     - curl -LsSf "https://github.com/rvben/rumdl/releases/download/$rumdl_tag/rumdl-$rumdl_tag-x86_64-unknown-linux-gnu.tar.gz" | tar xzf - -C "$CI_PROJECT_DIR/bin"
