@@ -23,6 +23,8 @@ spec:
       default: null
       description: 'List of additional options passed to meson test (ex "--exclude test-gobject-mkhtml")'
     before-script:
+      # ugh, This should have been an array
+      # Otherwise it defaults to a string
       default: null
       description: "Optional before-script to execute"
     clang:

@@ -6,6 +6,13 @@ spec:
     job-stage:
       default: "test"
       description: "Stage to run the job"
+    image-ref:
+      default: "ghcr.io/bilelmoussaoui/gobject-linter:main-f065339"
+      description: "Specify the OCI image to use"
+    before-script:
+      default: []
+      type: array
+      description: "Optional before-script to execute"
     source-directory:
       default: "."
       description: "The source directory to run against"
@@ -37,9 +44,10 @@ spec:
 "$[[ inputs.job-name ]]":
   stage: $[[ inputs.job-stage ]]
   image:
-    name: "ghcr.io/bilelmoussaoui/gobject-linter:main-f065339"
+    name: $[[ inputs.image-ref ]]
     entrypoint: [""]
   needs: []
+  before_script: $[[ inputs.before-script ]]
   script:
     # Since we generate multiple reports, with multiple invocatioans, only error on the last one
     #
