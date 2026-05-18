@@ -23,6 +23,8 @@ include:
         - if: $TEST_GOBLINT_ALWAYS_TRIGGER == "nope"
         - if: $TEST_GOBLINT_ALWAYS_MANUAL
           when: "manual"
+          # Otherwise this blocks the MR until its triggered
+          allow_failure: true
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/goblint@$CI_COMMIT_SHA
     inputs:
       job-name: "test-goblint-always-run"
