@@ -16,6 +16,10 @@ spec:
     source-directory:
       default: "."
       description: "The source directory to run against"
+    allow-failure:
+      default: false
+      type: boolean
+      description: "The source directory to run against"
     extra-rules:
       # We can't reference goblint-rules here cause of the
       # order in which they are declared and passed, and thus
@@ -48,6 +52,7 @@ spec:
     entrypoint: [""]
   needs: []
   before_script: $[[ inputs.before-script ]]
+  allow_failure: $[[ inputs.allow-failure ]]
   script:
     # Since we generate multiple reports, with multiple invocatioans, only error on the last one
     #

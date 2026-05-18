@@ -32,6 +32,16 @@ include:
       # Always trigger
       extra-rules:
         - if: $TEST_GOBLINT_ALWAYS_TRIGGER
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/goblint@$CI_COMMIT_SHA
+    inputs:
+      job-name: "test-goblint-allow-failure-run"
+      job-stage: "Goblint"
+      image-ref: "ghcr.io/bilelmoussaoui/gobject-linter:latest"
+      allow-failure: true
+      before-script: *goblint-before
+      source-directory: "gnome-font-viewer"
+      extra-rules:
+        - if: $TEST_GOBLINT_ALWAYS_TRIGGER
 
 test-always-trigger-rule:
   stage: "Goblint"
