@@ -51,26 +51,28 @@ include:
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       before-script: "bash ./test-the-templates/basic-ci-fedora-before-script.sh"
-      image-ref: "fedora:42"
+      image-ref: "fedora:latest"
       asan: "disabled"
       lsan: "disabled"
       tsan: "disabled"
       ubsan: "disabled"
       grcov-c: "disabled"
       scan-build: "disabled"
+      goblint: "disabled"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
     inputs:
       job-name: "basic-ci-ubuntu"
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-font-viewer"
       before-script: "bash ./test-the-templates/basic-ci-ubuntu-before-script.sh"
-      image-ref: "ubuntu:25.04"
+      image-ref: "ubuntu:latest"
       asan: "disabled"
       lsan: "disabled"
       tsan: "disabled"
       ubsan: "disabled"
       grcov-c: "disabled"
       scan-build: "disabled"
+      goblint: "disabled"
 
 # Override the jobs, gitlab should "merge" them so we can add the allow_failure
 basic-ci-ubuntu:
