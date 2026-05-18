@@ -63,14 +63,14 @@ test-flatpak-dist:
     #
     # The idea is that on every commit we will possibly want to test the
     # release service template and thus we need a version that will be
-    # incrementing on its own. To that end use the number of commits in the
-    # branch. Additionally, the release service will only parse the gnome-like
+    # incrementing on its own. To that end use the Pipeline Intenral ID.
+    # Additionally, the release service will only parse the gnome-like
     # version schemes. To that end we will use .alpha.0 for the flatpak tarball
     # and .alpha.1 for the basic-ci tarball
     #
     # https://gitlab.gnome.org/Infrastructure/openshift-images/gnome-release-service/-/blob/8744cfa644f6f19d718623a1892a775d99d18a03/gnome_release_service/gnome_release_system/modules/module_release.py#L63-98
     - COMMITS_TOTAL=$(git rev-list HEAD --count)
-    - version="01.$COMMITS_TOTAL.alpha.0"
+    - version="01.$CI_PIPELINE_IID.alpha.0"
     - mv public-dist/gnome-font-viewer-*.tar.xz public-dist/gnome-font-viewer-$version.tar.xz
     - mv public-dist/gnome-font-viewer-*.tar.xz.sha256sum public-dist/gnome-font-viewer-$version.tar.xz.sha256sum
     - ls -al public-dist/
@@ -94,7 +94,7 @@ test-basic-ci-dist:
 
     # Rename the tarball for the release-service tests
     - COMMITS_TOTAL=$(git rev-list HEAD --count)
-    - version="01.$COMMITS_TOTAL.alpha.1"
+    - version="01.$CI_PIPELINE_IID.alpha.1"
     - mv public-dist/gnome-font-viewer-*.tar.xz public-dist/gnome-font-viewer-$version.tar.xz
     - mv public-dist/gnome-font-viewer-*.tar.xz.sha256sum public-dist/gnome-font-viewer-$version.tar.xz.sha256sum
     - ls -al public-dist/
