@@ -356,7 +356,7 @@ spec:
 
 "$[[ inputs.job-name ]]-gobject-linter":
   image:
-    name: "ghcr.io/bilelmoussaoui/gobject-linter:main-f065339"
+    name: "ghcr.io/bilelmoussaoui/gobject-linter:main-5afb48e"
     entrypoint: [""]
   stage: $[[ inputs.job-stage ]]
   needs: []

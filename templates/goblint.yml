@@ -7,7 +7,7 @@ spec:
       default: "test"
       description: "Stage to run the job"
     image-ref:
-      default: "ghcr.io/bilelmoussaoui/gobject-linter:main-f065339"
+      default: "ghcr.io/bilelmoussaoui/gobject-linter:main-5afb48e"
       description: "Specify the OCI image to use"
     before-script:
       default: []
