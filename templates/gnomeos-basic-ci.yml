@@ -347,10 +347,11 @@ spec:
   - "**/*.h"
 
 ".$[[ inputs.job-name ]]-goblint-rules": &goblint-rules
-    - if: $CI_COMMIT_BRANCH && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
+    # enabled is the default, so if either of them is specified as disabled we should avoid running
+    - if: $CI_COMMIT_BRANCH && ("$[[ inputs.goblint ]]" == "enabled" && "$[[ inputs.gobject-linter ]]" == "enabled")
       changes:
         *goblint-changes
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && ("$[[ inputs.goblint ]]" == "enabled" && "$[[ inputs.gobject-linter ]]" == "enabled")
       changes:
         *goblint-changes
 
