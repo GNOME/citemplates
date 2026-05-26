@@ -90,13 +90,13 @@ spec:
     # If we rename this we will break existing users and they will have
     # to update the input
     goblint:
-      default: "enabled"
+      default: "disabled"
       options:
         - "enabled"
         - "disabled"
       description: "(Deprecated) Use gobject-linter input instead"
     gobject-linter:
-      default: "enabled"
+      default: "disabled"
       options:
         - "enabled"
         - "disabled"
@@ -347,11 +347,14 @@ spec:
   - "**/*.h"
 
 ".$[[ inputs.job-name ]]-goblint-rules": &goblint-rules
-    # enabled is the default, so if either of them is specified as disabled we should avoid running
-    - if: $CI_COMMIT_BRANCH && ("$[[ inputs.goblint ]]" == "enabled" && "$[[ inputs.gobject-linter ]]" == "enabled")
+    - exists:
+      - "goblint.toml"
+      - "gobject-linter.toml"
+    # dibable by default, so run if either of them is specified
+    - if: $CI_COMMIT_BRANCH && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
       changes:
         *goblint-changes
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && ("$[[ inputs.goblint ]]" == "enabled" && "$[[ inputs.gobject-linter ]]" == "enabled")
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && ("$[[ inputs.goblint ]]" == "enabled" || "$[[ inputs.gobject-linter ]]" == "enabled")
       changes:
         *goblint-changes
 
