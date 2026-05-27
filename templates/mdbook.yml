@@ -1,0 +1,45 @@
+spec:
+  inputs:
+    job-name:
+      default: "mdbook"
+      description: "Name for the job"
+    job-stage:
+      default: "deploy"
+      description: "Stage to run the job"
+    mdbook-version:
+      default: "0.5.3"
+      description: "The version of mdbook to use"
+    extra-rules:
+      # We can't reference variables here cause of the
+      # order in which they are declared and passed, and thus
+      # our only option is to have existing + extra rules, rather
+      # than default and complete override of rules
+      default: []
+      type: array
+      description: "Extra rules to trigger the job"
+---
+"$[[ inputs.job-name ]]":
+  stage: "$[[ inputs.job-stage ]]"
+  needs: []
+  image: "debian:13"
+  before_script:
+    - apt update --assume-yes --quiet=1
+    - apt install --assume-yes --quiet=1 curl
+
+    # Ideally we want to have pinned, pre-built images to avoid apt/curl.
+    - mdbook_tag="v$[[ inputs.mdbook-version ]]"
+
+    - mkdir -p "$CI_PROJECT_DIR/bin"
+    - curl -LsSf "https://github.com/rust-lang/mdBook/releases/download/$mdbook_tag/mdbook-$mdbook_tag-x86_64-unknown-linux-gnu.tar.gz" | tar xzf - -C "$CI_PROJECT_DIR/bin"
+  script:
+    - $CI_PROJECT_DIR/bin/mdbook build --dest-dir "$CI_PROJECT_DIR/book"
+  rules:
+    - "$[[ inputs.extra-rules ]]"
+    - changes:
+        paths:
+          - "docs/book.toml"
+          - "docs/**/*.md"
+  artifacts:
+    when: "always"
+    paths:
+      - "book"
