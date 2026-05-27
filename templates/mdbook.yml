@@ -1,0 +1,66 @@
+spec:
+  inputs:
+    job-name:
+      default: "mdbook"
+      description: "Name for the job"
+    job-stage:
+      default: "deploy"
+      description: "Stage to run the job"
+    mdbook-version:
+      default: "0.5.3"
+      description: "The version of mdbook to use"
+    mdbook-checksum:
+      default: "e2fd508a4fac06cbaa9f88b97d27bdc3b55a08946304ca845879fe26a3699e11"
+      description: "The SHA256 checksum of the tarball"
+    mdbook-sourcedir:
+      default: "."
+      description: "mdbook sourcedir path. Useful if the project is not in the root directory"
+    theme-git-url:
+      default: null
+      description: "The url for the theme you want to use. The theme will be git cloned to the theme/ directory. If left empty we do not do anything."
+    before-script:
+      default: []
+      type: array
+      description: "Before script to execute before the job"
+    extra-rules:
+      # We can't reference variables here cause of the
+      # order in which they are declared and passed, and thus
+      # our only option is to have existing + extra rules, rather
+      # than default and complete override of rules
+      default: []
+      type: array
+      description: "Extra rules to trigger the job"
+---
+"$[[ inputs.job-name ]]":
+  stage: "$[[ inputs.job-stage ]]"
+  needs: []
+  image: "debian:13"
+  before_script: $[[ inputs.before-script ]]
+  script:
+    - apt update --assume-yes --quiet=1
+    - apt install --assume-yes --quiet=1 curl git
+
+    # Ideally we want to have pinned, pre-built images to avoid apt/curl.
+    - mdbook_tag="v$[[ inputs.mdbook-version ]]"
+
+    - mkdir -p "$CI_PROJECT_DIR/bin"
+    - curl -LsSf "https://github.com/rust-lang/mdBook/releases/download/$mdbook_tag/mdbook-$mdbook_tag-x86_64-unknown-linux-gnu.tar.gz" > mdbook.tar.gz
+    - echo "$[[ inputs.mdbook-checksum ]]" mdbook.tar.gz | sha256sum --check
+    - tar -xzf mdbook.tar.gz -C "$CI_PROJECT_DIR/bin"
+    - |
+      theme_url="$[[ inputs.theme-git-url ]]"
+      if [[ -n "$theme_url" ]]; then
+        git clone --depth=1 "$theme_url" "$[[ inputs.mdbook-sourcedir]]/theme"
+      fi
+    - $CI_PROJECT_DIR/bin/mdbook build --dest-dir "$CI_PROJECT_DIR/book" $[[ inputs.mdbook-sourcedir]]
+  rules:
+    - "$[[ inputs.extra-rules ]]"
+    - changes:
+        paths:
+          - "docs/book.toml"
+          - "docs/**/*.md"
+  artifacts:
+    when: "always"
+    expire_in: "2 days"
+    paths:
+      - "book"
