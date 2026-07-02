@@ -19,7 +19,7 @@ spec:
     allow-failure:
       default: false
       type: boolean
-      description: "The source directory to run against"
+      description: "Configure the gitlab-ci allow-failure behavior for the job"
     extra-rules:
       # We can't reference goblint-rules here cause of the
       # order in which they are declared and passed, and thus
