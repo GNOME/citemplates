@@ -205,7 +205,6 @@ spec:
     CXXFLAGS: "$CFLAGS"
   before_script: $[[ inputs.before-script ]]
   artifacts:
-    access: "developer"
     expire_in: "2 days"
     when: "always"
     paths:
