@@ -101,6 +101,12 @@ spec:
         - "enabled"
         - "disabled"
       description: "Enable or Disable the gobject-linter report"
+    generate-extensions:
+      default: "enabled"
+      options:
+        - "enabled"
+        - "disabled"
+      description: "Generate sysext and confext extension images"
 ---
 ".$[[ inputs.job-name ]]-print-useful-info": &info
   - git config --global --add safe.directory "${CI_PROJECT_DIR}"
@@ -181,6 +187,22 @@ spec:
       elif [[ -d "${_DESTDIR}/usr/share/gtk-doc/" ]]; then
         tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory ${_DESTDIR}/usr/share/gtk-doc/ .
       fi
+
+    # Generate sysext and confext images from the destdir
+    # Assume we always have a sysext for simplicity, ifdef the confext
+    - >-
+      if [[ "$os_id" == 'ID="org.gnome.os"' ]] && [[ "$[[ inputs.generate-extensions ]]" ==  "enabled" ]] ; then
+        sysext-build ${CI_PROJECT_NAME} ${_DESTDIR} --verbose
+        echo -e "Try this extension in GNOME OS with:"
+        echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/${CI_PROJECT_NAME}.sysext.raw"
+        if [[ -e "${CI_PROJECT_NAME}.confext.raw" ]]; then
+          echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/${CI_PROJECT_NAME}.confext.raw"
+        fi
+        echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
+
+        echo "GNOMEOS_BUILD_SYSEXT_PIPELINE=$(cat /etc/os-release | grep IMAGE_VERSION | sed -E s/.*\\.//)" >> build.env
+      fi
+
   after_script:
     # Cleanup the destdir and thus container volume once we are done
     - rm -rf ${_DESTDIR}
@@ -193,6 +215,8 @@ spec:
       - "${_BUILDDIR_FOR_ARTIFACTS}/meson-dist/"
       - "public-dist"
       - "${CI_PROJECT_NAME}-docs.tar.gz"
+      - "${CI_PROJECT_NAME}.sysext.raw"
+      - "${CI_PROJECT_NAME}.confext.raw"
     reports:
       junit: "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/testlog.junit.xml"
 

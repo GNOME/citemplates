@@ -92,8 +92,11 @@ Inputs:
 | `grcov-c-options`    |  `null`                      | List of additional options passed to grcov                                            |
 | `scan-build`         |  `enabled`                   | Enable or Disable the scan-build report                                               |
 | `goblint`            |  `enabled`                   | Enable or Disable the gobject-linter report                                                  |
+| `generate-extensions`|  `enabled`                   | Generate sysext and confext extension images report                                   |
 
-### gnomeos-build-sysext
+### gnomeos-build-sysext (Derpecated)
+
+⚠️ Derpecated ⚠️. Use `gnomeos-basic-ci` instead.
 
 The sysext component facilitates the creation of system extension images for
 GNOME OS.

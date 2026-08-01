@@ -75,6 +75,34 @@ include:
       grcov-c: "disabled"
       scan-build: "disabled"
       goblint: "disabled"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-default-libadwaita"
+      job-stage: "GNOMEOS Basic CI"
+      meson-sourcedir: "libadwaita"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/libadwaita.git"
+      generate-extensions: "enabled"
+      run-tests: "no"
+      clang: "disabled"
+      grcov-c: "disabled"
+      scan-build: "disabled"
+      goblint: "disabled"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-default-mutter"
+      job-stage: "GNOMEOS Basic CI"
+      meson-sourcedir: "mutter"
+      before-script: >-
+        git clone --depth=1 https://gitlab.gnome.org/gnome/mutter.git &&
+        cd mutter &&
+        .gitlab-ci/install-gnomeos-sysext-dependencies.sh "${CI_PROJECT_DIR}/$CI_PROJECT_NAME" &&
+        cd "${CI_PROJECT_DIR}"
+      generate-extensions: "enabled"
+      run-tests: "no"
+      clang: "disabled"
+      grcov-c: "disabled"
+      scan-build: "disabled"
+      goblint: "disabled"
 
 # Override the jobs, gitlab should "merge" them so we can add the allow_failure
 basic-ci-ubuntu:
