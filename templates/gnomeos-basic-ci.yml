@@ -152,6 +152,39 @@ spec:
       dbus-run-session -- mutter --headless --wayland --no-x11 --virtual-monitor 1024x768 -- meson test -C ${_BUILDDIR} --print-errorlogs --no-stdsplit --no-rebuild $[[ inputs.meson-test-options ]]
     fi
 
+".$[[ inputs.job-name ]]-script-dist": &dist
+  - meson dist -C ${_BUILDDIR} --include-subprojects --no-tests
+  - cp -r "${_BUILDDIR}/meson-dist/" "${CI_PROJECT_DIR}/public-dist/"
+
+".$[[ inputs.job-name ]]-script-install": &install
+  - mkdir -p ${_DESTDIR}
+  - meson install -C ${_BUILDDIR} --no-rebuild --destdir=${_DESTDIR}
+
+".$[[ inputs.job-name ]]-script-export-docs": &export-docs
+  # Export the documentation if it exist
+  - >-
+    if [[ -d "${_DESTDIR}/usr/share/doc/" ]]; then
+      tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory ${_DESTDIR}/usr/share/doc/ .
+    elif [[ -d "${_DESTDIR}/usr/share/gtk-doc/" ]]; then
+      tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory ${_DESTDIR}/usr/share/gtk-doc/ .
+    fi
+
+".$[[ inputs.job-name ]]-script-generate-extensions": &generate-extensions
+  # Generate sysext and confext images from the destdir
+  # Assume we always have a sysext for simplicity, ifdef the confext
+  - >-
+    if [[ "$os_id" == 'ID="org.gnome.os"' ]] && [[ "$[[ inputs.generate-extensions ]]" ==  "enabled" ]] ; then
+      sysext-build ${CI_PROJECT_NAME} ${_DESTDIR} --verbose
+      echo -e "Try this extension in GNOME OS with:"
+      echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/${CI_PROJECT_NAME}.sysext.raw"
+      if [[ -e "${CI_PROJECT_NAME}.confext.raw" ]]; then
+        echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/${CI_PROJECT_NAME}.confext.raw"
+      fi
+      echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
+
+      echo "GNOMEOS_BUILD_SYSEXT_PIPELINE=$(cat /etc/os-release | grep IMAGE_VERSION | sed -E s/.*\\.//)" >> build.env
+    fi
+
 ".$[[ inputs.job-name ]] common":
   image:
     name: $[[ inputs.image-ref ]]
@@ -173,35 +206,10 @@ spec:
   before_script: $[[ inputs.before-script ]]
   script:
     - *test
-
-    - meson dist -C ${_BUILDDIR} --include-subprojects --no-tests
-    - cp -r "${_BUILDDIR}/meson-dist/" "${CI_PROJECT_DIR}/public-dist/"
-
-    - mkdir -p ${_DESTDIR}
-    - meson install -C ${_BUILDDIR} --no-rebuild --destdir=${_DESTDIR}
-
-    # Export the documentation if it exist
-    - >-
-      if [[ -d "${_DESTDIR}/usr/share/doc/" ]]; then
-        tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory ${_DESTDIR}/usr/share/doc/ .
-      elif [[ -d "${_DESTDIR}/usr/share/gtk-doc/" ]]; then
-        tar --create --auto-compress --file "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz" --directory ${_DESTDIR}/usr/share/gtk-doc/ .
-      fi
-
-    # Generate sysext and confext images from the destdir
-    # Assume we always have a sysext for simplicity, ifdef the confext
-    - >-
-      if [[ "$os_id" == 'ID="org.gnome.os"' ]] && [[ "$[[ inputs.generate-extensions ]]" ==  "enabled" ]] ; then
-        sysext-build ${CI_PROJECT_NAME} ${_DESTDIR} --verbose
-        echo -e "Try this extension in GNOME OS with:"
-        echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/${CI_PROJECT_NAME}.sysext.raw"
-        if [[ -e "${CI_PROJECT_NAME}.confext.raw" ]]; then
-          echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/${CI_PROJECT_NAME}.confext.raw"
-        fi
-        echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
-
-        echo "GNOMEOS_BUILD_SYSEXT_PIPELINE=$(cat /etc/os-release | grep IMAGE_VERSION | sed -E s/.*\\.//)" >> build.env
-      fi
+    - *dist
+    - *install
+    - *export-docs
+    - *generate-extensions
 
   after_script:
     # Cleanup the destdir and thus container volume once we are done
