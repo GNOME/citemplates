@@ -204,16 +204,6 @@ spec:
     CFLAGS: "-fno-omit-frame-pointer -g"
     CXXFLAGS: "$CFLAGS"
   before_script: $[[ inputs.before-script ]]
-  script:
-    - *test
-    - *dist
-    - *install
-    - *export-docs
-    - *generate-extensions
-
-  after_script:
-    # Cleanup the destdir and thus container volume once we are done
-    - rm -rf ${_DESTDIR}
   artifacts:
     access: "developer"
     expire_in: "2 days"
@@ -230,6 +220,15 @@ spec:
 
 "$[[ inputs.job-name ]]":
   extends: ".$[[ inputs.job-name ]] common"
+  script:
+    - *test
+    - *dist
+    - *install
+    - *export-docs
+    - *generate-extensions
+  after_script:
+    # Cleanup the destdir and thus container volume once we are done
+    - rm -rf ${_DESTDIR}
 
 "$[[ inputs.job-name ]]-clang":
   extends: ".$[[ inputs.job-name ]] common"
@@ -242,6 +241,9 @@ spec:
     CXX: "ccache clang++"
   rules:
     - if: '"$[[ inputs.clang ]]" == "enabled"'
+  script:
+    - *test
+    - *install
 
 "$[[ inputs.job-name ]]-asan":
   extends: ".$[[ inputs.job-name ]] common"
