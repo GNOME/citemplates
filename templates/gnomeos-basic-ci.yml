@@ -223,8 +223,8 @@ spec:
       - "${_BUILDDIR_FOR_ARTIFACTS}/meson-dist/"
       - "public-dist"
       - "${CI_PROJECT_NAME}-docs.tar.gz"
-      - "${CI_PROJECT_NAME}.sysext.raw"
-      - "${CI_PROJECT_NAME}.confext.raw"
+      - "${CI_PROJECT_NAME}*.sysext.raw"
+      - "${CI_PROJECT_NAME}*.confext.raw"
     reports:
       junit: "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/testlog.junit.xml"
 
