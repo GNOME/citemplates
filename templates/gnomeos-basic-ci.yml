@@ -170,15 +170,26 @@ spec:
     fi
 
 ".$[[ inputs.job-name ]]-script-generate-extensions": &generate-extensions
+  # Extensions depend on the name for the generated os-release file.
+  # Both the os-release file and the image name must match
+  # Also we can't use branches or other arbitrary input for the name, as we need
+  # to avoid special characters
+  - |-
+    if [[ -n "$CI_MERGE_REQUEST_IID" ]]; then
+        extension_name="${CI_PROJECT_NAME}-mr-${CI_MERGE_REQUEST_IID}"
+    else
+        extension_name="${CI_PROJECT_NAME}-${CI_COMMIT_SHORT_SHA}"
+    fi
+  - echo "${extension_name}"
   # Generate sysext and confext images from the destdir
   # Assume we always have a sysext for simplicity, ifdef the confext
   - >-
     if [[ "$os_id" == 'ID="org.gnome.os"' ]] && [[ "$[[ inputs.generate-extensions ]]" ==  "enabled" ]] ; then
-      sysext-build ${CI_PROJECT_NAME} ${_DESTDIR} --verbose
+      sysext-build $extension_name ${_DESTDIR} --verbose
       echo -e "Try this extension in GNOME OS with:"
-      echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/${CI_PROJECT_NAME}.sysext.raw"
-      if [[ -e "${CI_PROJECT_NAME}.confext.raw" ]]; then
-        echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/${CI_PROJECT_NAME}.confext.raw"
+      echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/$extension_name.sysext.raw"
+      if [[ -e "$extension_name.confext.raw" ]]; then
+        echo -e "  $ sysext-add $CI_JOB_URL/artifacts/raw/$extension_name.confext.raw"
       fi
       echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
 
