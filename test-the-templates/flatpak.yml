@@ -55,6 +55,14 @@ flatpak-no-dist:
   variables:
     MESON_DIST: "0"
 
+flatpak-no-gitlab-metadata:
+  extends: [".flatpak-common"]
+  variables:
+    ADD_GITLAB_METADATA: "0"
+    # Make it faster
+    MESON_DIST: "0"
+    RUN_TESTS: "0"
+
 flatpak-no-dist-no-tests:
   extends: [".flatpak-common"]
   variables:
