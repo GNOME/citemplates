@@ -163,6 +163,13 @@ include:
         oras push $registry "builder.tar.zstd" || true
         oras logout ${_ORAS_CACHE_REGISTRY} || true
       fi
+
+    # Print the link to the bundle
+    - |-
+      echo -e "Try this Flatpak build with:"
+      echo -e "  $ wcurl $CI_JOB_URL/artifacts/raw/$BUNDLE --output /tmp/$BUNDLE"
+      echo -e "  $ flatpak install --bundle /tmp/$BUNDLE"
+      echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
   artifacts:
     name: 'Flatpak artifacts'
     when: 'always'
