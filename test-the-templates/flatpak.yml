@@ -61,25 +61,6 @@ flatpak-no-dist-no-tests:
     MESON_DIST: "0"
     RUN_TESTS: "0"
 
-flatpak-shell-extension-app:
-  stage: "Flatpak app"
-  extends: [ ".flatpak@x86_64" ]
-  variables:
-    # Since its a subproject, it causes an edge case where
-    # the flatpak-builddir path is not the one we were expecting
-    # but rather in a sub-directory matching the subproject
-    # https://gitlab.gnome.org/GNOME/citemplates/-/issues/32
-    SUBPROJECT: "subprojects/extensions-app"
-    MANIFEST_PATH: "$SUBPROJECT/build-aux/flatpak/org.gnome.Extensions.json"
-    FLATPAK_MODULE: "gnome-extensions-app"
-    APP_ID: "org.gnome.Extensions.Devel"
-    BUNDLE: "extensions-git.flatpak"
-  before_script:
-    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-shell.git
-  script:
-    - cd gnome-shell
-    - !reference [".flatpak", "script"]
-
 flatpak-nautilus:
   stage: "Flatpak app"
   extends: [ ".flatpak@x86_64" ]
