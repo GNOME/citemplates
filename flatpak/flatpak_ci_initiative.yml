@@ -19,7 +19,10 @@ include:
     MESON_DIST: "1"
     # Pass "--runtime" in order to build a runtime or extension
     EXPORT_RUNTIME: ""
+    # This has a misleading name cause it was used before adding
+    # the non-runtime --repo-url arg
     NIGHTLY_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
+    NIGHTLY_REPO_NONFILE: "https://nightly.gnome.org/repo/"
     USE_CACHE: "1"
     _ORAS_CACHE_REGISTRY: "quay.io"
     _ORAS_CACHE_REPOSITORY: "gnome_infrastructure/gnome-nightly-cache"
@@ -127,7 +130,7 @@ include:
     - flatpak-builder ${CI_FB_ARGS} --default-branch="${default_branch}" --ccache --user --disable-rofiles-fuse --finish-only --subject="${subject}" --disable-download --disable-updates flatpak_app --repo=repo "${MANIFEST_PATH}"
 
     # Generate a Flatpak bundle
-    - flatpak build-bundle repo "$CI_PROJECT_DIR/${BUNDLE}" ${EXPORT_RUNTIME} --repo-url="${REPO_URL:-$NIGHTLY_REPO}" --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" "${default_branch}"
+    - flatpak build-bundle repo "$CI_PROJECT_DIR/${BUNDLE}" ${EXPORT_RUNTIME} --repo-url="${REPO_URL:-$NIGHTLY_REPO_NONFILE}" --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" "${default_branch}"
     - tar cf "$CI_PROJECT_DIR/repo.tar" repo/
 
     # Export the documentation if it exist
