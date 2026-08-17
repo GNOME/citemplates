@@ -23,7 +23,8 @@ include:
     # the non-runtime --repo-url arg
     NIGHTLY_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
     NIGHTLY_REPO_NONFILE: "https://nightly.gnome.org/repo/"
-    USE_CACHE: "1"
+    PULL_CACHE: "1"
+    PUBLISH_CACHE: "1"
     _ORAS_CACHE_REGISTRY: "quay.io"
     _ORAS_CACHE_REPOSITORY: "gnome_infrastructure/gnome-nightly-cache"
     # Default for backwards compatibility
@@ -69,7 +70,7 @@ include:
     # to determine when and what to pull and push
     - oras_branch=main
     - |-
-      if [[ "$USE_CACHE" == "1" ]]; then
+      if [[ "$PULL_CACHE" == "1" ]]; then
         registry="${_ORAS_CACHE_REGISTRY}/${_ORAS_CACHE_REPOSITORY}:${ARCH}-${app_id_lc}-${oras_branch}"
         echo "Pulling cache from ${registry}"
         oras pull $registry || true
@@ -221,7 +222,7 @@ include:
       fi
 
     - >-
-      if [[ -n "$NIGHTLY_CACHE_ORAS_TOKEN_FILE" ]] && [[ "$USE_CACHE" == "1" ]] && [[ $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH ]]; then
+      if [[ -n "$NIGHTLY_CACHE_ORAS_TOKEN_FILE" ]] && [[ "$PUBLISH_CACHE" == "1" ]] && [[ $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH ]]; then
         echo "Uploading cache..."
         oras logout ${_ORAS_CACHE_REGISTRY} || true
         cat $NIGHTLY_CACHE_ORAS_TOKEN_FILE | oras login -u "${NIGHTLY_CACHE_ORAS_USER}" --password-stdin ${_ORAS_CACHE_REGISTRY} || true
