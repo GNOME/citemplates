@@ -67,12 +67,15 @@ include:
     # FIXME: Only hardcode cache for main atm
     # eventually we can also do stable branch caches but that needs more logic
     # to determine when and what to pull and push
-    - branch=main
-    - registry="${_ORAS_CACHE_REGISTRY}/${_ORAS_CACHE_REPOSITORY}:${ARCH}-${app_id_lc}-${branch}"
-    - echo "Pulling cache from ${registry}"
-    - oras pull $registry || true
-    - tar --extract --xattrs --zstd --file "builder.tar.zstd" || true
-    - du -hs "builder.tar.zstd" || true
+    - oras_branch=main
+    - |-
+      if [[ "$USE_CACHE" == "1" ]]; then
+        registry="${_ORAS_CACHE_REGISTRY}/${_ORAS_CACHE_REPOSITORY}:${ARCH}-${app_id_lc}-${oras_branch}"
+        echo "Pulling cache from ${registry}"
+        oras pull $registry || true
+        tar --extract --xattrs --zstd --file "builder.tar.zstd" || true
+        du -hs "builder.tar.zstd" || true
+      fi
 
     - |-
       if [[ -n "$BRANCH" ]]; then
