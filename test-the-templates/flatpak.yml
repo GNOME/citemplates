@@ -102,7 +102,6 @@ test-flatpak-bundle:
 
     - ls .
 
-    # Installing tries to update the runtime which doesn't work
     # FIXME: we need to first update to a flatpak build with the fix for this
     # https://github.com/flatpak/flatpak/pull/6663
     # - flatpak -vvv install -y --user --no-pull ${CI_PROJECT_NAME}*.flatpak
