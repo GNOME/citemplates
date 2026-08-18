@@ -194,8 +194,18 @@ include:
 
     - flatpak-builder ${CI_FB_ARGS} --default-branch="${default_branch}" --ccache --user --disable-rofiles-fuse --finish-only --subject="${subject}" --disable-download --disable-updates flatpak_app --repo=repo "${MANIFEST_PATH}"
 
+    - |-
+      if [[ -n "$BUNDLE" ]]; then
+          bundle="$BUNDLE"
+      elif [[ -n "$CI_MERGE_REQUEST_IID" ]]; then
+          bundle="${CI_PROJECT_NAME}-${ARCH}-mr-${CI_MERGE_REQUEST_IID}.flatpak"
+      else
+          bundle="${CI_PROJECT_NAME}-${ARCH}-${CI_COMMIT_SHORT_SHA}.flatpak"
+      fi
+      echo "Bundle filename: ${bundle}"
+
     # Generate a Flatpak bundle
-    - flatpak build-bundle repo "$CI_PROJECT_DIR/${BUNDLE}" ${EXPORT_RUNTIME} --repo-url="${REPO_URL:-$NIGHTLY_REPO_NONFILE}" --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" "${default_branch}"
+    - flatpak build-bundle repo "$CI_PROJECT_DIR/${bundle}" ${EXPORT_RUNTIME} --repo-url="${REPO_URL:-$NIGHTLY_REPO_NONFILE}" --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" "${APP_ID}" "${default_branch}"
     - tar cf "$CI_PROJECT_DIR/repo.tar" repo/
 
     # Export the documentation if it exist
@@ -235,14 +245,15 @@ include:
     # Print the link to the bundle
     - |-
       echo -e "Try this Flatpak build with:"
-      echo -e "  $ wcurl $CI_JOB_URL/artifacts/raw/$BUNDLE --output /tmp/$BUNDLE"
-      echo -e "  $ flatpak install --bundle /tmp/$BUNDLE"
+      echo -e "  $ wcurl $CI_JOB_URL/artifacts/raw/${bundle} --output /tmp/${bundle}"
+      echo -e "  $ flatpak install --bundle /tmp/${bundle}"
       echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
   artifacts:
     name: 'Flatpak artifacts'
     when: 'always'
     paths:
       - $BUNDLE
+      - "*.flatpak"
       - 'repo.tar'
       - "${CI_PROJECT_NAME}-docs.tar.gz"
       - '.flatpak-builder/build/**/_flatpak_build/meson-logs/'
