@@ -176,9 +176,9 @@ spec:
   # to avoid special characters
   - |-
     if [[ -n "$CI_MERGE_REQUEST_IID" ]]; then
-        extension_name="${CI_PROJECT_NAME}-mr-${CI_MERGE_REQUEST_IID}"
+        extension_name="zz-${CI_PROJECT_NAME}-mr-${CI_MERGE_REQUEST_IID}"
     else
-        extension_name="${CI_PROJECT_NAME}-${CI_COMMIT_SHORT_SHA}"
+        extension_name="zz-${CI_PROJECT_NAME}-${CI_COMMIT_SHORT_SHA}"
     fi
   - echo "${extension_name}"
   # Generate sysext and confext images from the destdir
