@@ -38,7 +38,6 @@ spec:
   extends: ".sdk_template:$[[ inputs.platform-version ]]"
   tags:
     - aarch64
-    - gnome-build-meta
   variables:
     ARCH: aarch64
 
