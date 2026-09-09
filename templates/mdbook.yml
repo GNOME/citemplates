@@ -53,6 +53,11 @@ spec:
         git clone --depth=1 "$theme_url" "$[[ inputs.mdbook-sourcedir]]/theme"
       fi
     - $CI_PROJECT_DIR/bin/mdbook build --dest-dir "$CI_PROJECT_DIR/mdbook/book" $[[ inputs.mdbook-sourcedir]]
+
+    - |-
+      echo -e "Inspect the book with the following link:"
+      echo -e "Book: $CI_JOB_URL/artifacts/external_file/mdbook/book/index.html"
+      echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
   rules:
     - "$[[ inputs.extra-rules ]]"
     - changes:
