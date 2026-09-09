@@ -52,7 +52,7 @@ spec:
       if [[ -n "$theme_url" ]]; then
         git clone --depth=1 "$theme_url" "$[[ inputs.mdbook-sourcedir]]/theme"
       fi
-    - $CI_PROJECT_DIR/bin/mdbook build --dest-dir "$CI_PROJECT_DIR/book" $[[ inputs.mdbook-sourcedir]]
+    - $CI_PROJECT_DIR/bin/mdbook build --dest-dir "$CI_PROJECT_DIR/mdbook/book" $[[ inputs.mdbook-sourcedir]]
   rules:
     - "$[[ inputs.extra-rules ]]"
     - changes:
@@ -63,4 +63,4 @@ spec:
     when: "always"
     expire_in: "2 days"
     paths:
-      - "book"
+      - "mdbook/book"
