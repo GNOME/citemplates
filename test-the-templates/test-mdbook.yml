@@ -1,0 +1,9 @@
+include:
+  # include the component located in the current project from the current SHA
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/mdbook@$CI_COMMIT_SHA
+    inputs:
+      job-name: "test-mdbook"
+      job-stage: "Mdbook tests"
+      mdbook-sourcedir: "gnome-build-meta"
+      theme-git-url: "https://gitlab.gnome.org/jimmac/gnome-mdbook-style.git"
+      before-script: ["bash test-the-templates/test-mdbook-before-script.sh"]
