@@ -48,6 +48,13 @@ include:
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/test-docs-generation.yml"
 
+  - local: "test-the-templates/test-mdbook.yml"
+    rules:
+      - changes:
+          paths:
+            - "templates/mdbook.yml"
+            - "test-the-templates/test-mdbook.yml"
+
   - local: "templates/default-rules.yml"
   - local: "test-the-templates/gnomeos-build-sysext.yml"
     rules:
@@ -69,6 +76,7 @@ stages:
   - "GNOMEOS Basic CI"
   - "Dist tarball tests"
   - "Docs generation tests"
+  - "Mdbook tests"
   - "GNOMEOS Build Sysext CI"
   - "Goblint"
   - "deploy"
