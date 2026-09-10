@@ -11,6 +11,11 @@ spec:
 ---
 ".common:$[[ inputs.platform-version ]]":
   image: "quay.io/buildah/stable:latest"
+  variables:
+    STORAGE_DRIVER: "vfs"
+    BUILDAH_FORMAT: "docker"
+    BUILDAH_ISOLATION: "chroot"
+    CI_REGISTRY_IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images"
   rules:
     - if: $CI_MERGE_REQUEST_ID && "$[[ inputs.platform-version ]]" == "master"
       when: "always"

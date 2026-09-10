@@ -1,10 +1,3 @@
-# Buildah can't use 'overlay' driver when running inside docker
-variables:
-  STORAGE_DRIVER: "vfs"
-  BUILDAH_FORMAT: "docker"
-  BUILDAH_ISOLATION: "chroot"
-  CI_REGISTRY_IMAGE: quay.io/gnome_infrastructure/gnome-runtime-images
-
 stages:
   - base
   - runtimes
