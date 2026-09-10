@@ -1,0 +1,27 @@
+stages:
+  - base
+  - runtimes
+  - manifests
+
+include:
+  - project: "gnome/citemplates"
+    file: "templates/default-rules.yml"
+  - local: ".gitlab-ci/build-base-image.yml"
+  - local: ".gitlab-ci/build-image.yml"
+    inputs:
+      platform-version: "master"
+      fdsdk-version: "26.08"
+      llvm-version-1: "22"
+      llvm-version-2: "22"
+  - local: ".gitlab-ci/build-image.yml"
+    inputs:
+      platform-version: "50"
+      fdsdk-version: "25.08"
+      llvm-version-1: "22"
+      llvm-version-2: "21"
+  - local: ".gitlab-ci/build-image.yml"
+    inputs:
+      platform-version: "49"
+      fdsdk-version: "25.08"
+      llvm-version-1: "20"
+      llvm-version-2: "21"

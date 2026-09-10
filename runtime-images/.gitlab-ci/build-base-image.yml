@@ -1,0 +1,43 @@
+.base_template:
+  image: "quay.io/buildah/stable:latest"
+  variables:
+    STORAGE_DRIVER: "vfs"
+    BUILDAH_FORMAT: "docker"
+    BUILDAH_ISOLATION: "chroot"
+    CI_REGISTRY_IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images"
+  rules:
+    - if: $CI_COMMIT_SHA
+      when: "manual"
+      allow_failure: true
+
+.base_image:
+  stage: "base"
+  extends: ".base_template"
+  before_script: []
+  after_script: []
+  needs: []
+  script:
+    - bash ./scripts/build-image.sh
+
+base:
+  extends: ".base_image"
+  variables:
+    ARCH: x86_64
+
+base:aarch64:
+  extends: ".base_image"
+  tags:
+    - aarch64
+  variables:
+    ARCH: aarch64
+
+base-manifest:
+  extends: ".base_template"
+  stage: "manifests"
+  script:
+    - bash ./scripts/make-manifest.sh "base"
+  needs:
+    - job: "base"
+      artifacts: false
+    - job: "base:aarch64"
+      artifacts: false
