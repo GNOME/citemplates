@@ -3,11 +3,11 @@
 set -eu
 
 default_reg="quay.io/gnome_infrastructure/gnome-runtime-images"
-actua_tag="-base"
+actual_tag="-base"
 
 img_reg="${CI_REGISTRY_IMAGE:-$default_reg}"
 img_arch="${ARCH:-$(arch)}"
-img_tag="${img_reg}:${img_arch}${actua_tag}"
+img_tag="${img_reg}:${img_arch}${actual_tag}"
 
 echo "Building ${img_tag}"
 buildah bud -t "${img_tag}" .
