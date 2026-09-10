@@ -10,7 +10,7 @@ RUN git clone --recursive https://github.com/flatpak/flatpak.git && \
     git checkout 1.14.8 && \
     ./autogen.sh && make -j$(nproc) && make install DESTDIR=/flatpak/destdir
 
-RUN git clone --recursive https://github.com/flatpak/flatpak-builder -b barthalion/run-without-fuse-rebased && \
+RUN git clone --recursive https://github.com/alatiera/flatpak-builder -b alatiera/run-without-fuse-rebased && \
     cd flatpak-builder && \
     ./autogen.sh --with-system-debugedit && make -j$(nproc)
 
