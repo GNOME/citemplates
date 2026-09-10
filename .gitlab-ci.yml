@@ -46,20 +46,19 @@ base-manifest:
 include:
   - project: "gnome/citemplates"
     file: "templates/default-rules.yml"
-  # include the component located in the current project from the current SHA
-  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+  - local: ".gitlab-ci/build-image.yml"
     inputs:
       platform-version: "master"
       fdsdk-version: "26.08"
       llvm-version-1: "22"
       llvm-version-2: "22"
-  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+  - local: ".gitlab-ci/build-image.yml"
     inputs:
       platform-version: "50"
       fdsdk-version: "25.08"
       llvm-version-1: "22"
       llvm-version-2: "21"
-  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/build-image@$CI_COMMIT_SHA
+  - local: ".gitlab-ci/build-image.yml"
     inputs:
       platform-version: "49"
       fdsdk-version: "25.08"
