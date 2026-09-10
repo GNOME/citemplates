@@ -1,134 +1,20 @@
-include:
-  # used in the pipeline
-  - local: "templates/basic-release.yml"
-  - local: "templates/markdown-lint.yml"
-    inputs:
-      extra-rules:
-        - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "lint"
-          when: "never"
-        - if: $RUN_THIS_STAGE_ONLY == "lint"
-        - if: $CI_PROJECT_NAME == "citemplates"
-          changes:
-            paths:
-              - "templates/markdown-lint.yml"
-  - local: "templates/ruff-lint.yml"
-    inputs:
-      extra-rules:
-        - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "lint"
-          when: "never"
-        - if: $RUN_THIS_STAGE_ONLY == "lint"
-        - if: $CI_PROJECT_NAME == "citemplates"
-          changes:
-            paths:
-              - "templates/ruff-lint.yml"
+foo:
+  script:
+    - echo Hello
+    - echo $CI_COMMIT_BRANCH
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
 
-  - local: "runtime-images/.gitlab-ci.yml"
-    rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "CI Runtime Images"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "CI Runtime Images"
-      - changes:
-          paths:
-            - "runtime-images/**/*"
+bar:
+  script:
+    - echo Hello
+    - echo $CI_COMMIT_BRANCH
+  rules:
+    - if: '$CI_COMMIT_TAG'
 
-  # Testing the local templates
-  - local: "test-the-templates/flatpak.yml"
-    rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Flatpak app"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
-      - changes:
-          paths:
-            - "flatpak/*"
-            - "templates/defeault-rules.yml"
-            - "test-the-templates/flatpak.yml"
-
-  - local: "test-the-templates/gnomeos-basic-ci.yml"
-    rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "GNOMEOS Basic CI"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "GNOMEOS Basic CI"
-      - changes:
-          paths:
-            - "templates/gnomeos-basic-ci.yml"
-            - "test-the-templates/gnomeos-basic-ci.yml"
-
-  - local: "test-the-templates/test-tarball-dist.yml"
-    rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Dist tarball tests"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "Dist tarball tests"
-      - changes:
-          paths:
-            - "flatpak/*"
-            - "templates/gnomeos-basic-ci.yml"
-            - "test-the-templates/test-tarball-dist.yml"
-
-  - local: "test-the-templates/test-docs-generation.yml"
-    rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Docs generation tests"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "Docs generation tests"
-      - changes:
-          paths:
-            - "flatpak/*"
-            - "templates/gnomeos-basic-ci.yml"
-            - "test-the-templates/test-docs-generation.yml"
-
-  - local: "test-the-templates/test-mdbook.yml"
-    rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Mdbook tests"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "Mdbook tests"
-      - changes:
-          paths:
-            - "templates/mdbook.yml"
-            - "test-the-templates/test-mdbook.yml"
-            - "test-the-templates/test-mdbook-before-script.sh"
-
-  - local: "templates/default-rules.yml"
-  - local: "test-the-templates/gnomeos-build-sysext.yml"
-    rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "GNOMEOS Build Sysext CI"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "GNOMEOS Build Sysext CI"
-      - changes:
-          paths:
-            - "templates/gnomeos-build-sysext.yml"
-            - "test-the-templates/gnomeos-build-sysext.yml"
-
-  - local: "test-the-templates/goblint.yml"
-    rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Goblint"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "Goblint"
-      - changes:
-          paths:
-            - "templates/goblint.yml"
-            - "test-the-templates/goblint.yml"
-
-.stages-options:
-  - "lint"
-  - "CI Runtime Images"
-  - "Flatpak app"
-  - "GNOMEOS Basic CI"
-  - "Dist tarball tests"
-  - "Docs generation tests"
-  - "Mdbook tests"
-  - "GNOMEOS Build Sysext CI"
-  - "Goblint"
-  - "deploy"
-  - "default"
-
-stages:
-  - !reference [".stages-options"]
-
-variables:
-  # Allow forcing a specific stage to run, useful for scheduled pipelines to save up runners.
-  # Set this to the stage you want to trigger in a scheduled pipeline
-  # Example: RUN_THIS_STAGE_ONLY="Goblint"
-  RUN_THIS_STAGE_ONLY:
-    value: "default"
-    description: "Run the specified CI stage"
-    options: !reference [".stages-options"]
-    expand: false
+baz:
+  script:
+    - echo Hello
+    - echo $CI_COMMIT_BRANCH
+  rules:
+    - if: '$NONE'
