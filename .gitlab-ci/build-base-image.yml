@@ -1,0 +1,32 @@
+.base_template:
+  image: "quay.io/buildah/stable:latest"
+  stage: base
+  needs: []
+  script:
+    - bash ./scripts/build-image.sh
+  rules:
+    - when: "manual"
+      allow_failure: true
+
+base:
+  extends: ".base_template"
+  variables:
+    ARCH: x86_64
+
+base:aarch64:
+  extends: ".base_template"
+  tags:
+    - aarch64
+  variables:
+    ARCH: aarch64
+
+base-manifest:
+  image: "quay.io/buildah/stable:latest"
+  stage: "manifests"
+  script:
+    - bash ./scripts/make-manifest.sh "base"
+  needs:
+    - job: "base"
+      artifacts: false
+    - job: "base:aarch64"
+      artifacts: false
