@@ -6,7 +6,8 @@
     BUILDAH_ISOLATION: "chroot"
     CI_REGISTRY_IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images"
   rules:
-    - when: "manual"
+    - if: $CI_COMMIT_SHA
+      when: "manual"
       allow_failure: true
 
 .base_image:

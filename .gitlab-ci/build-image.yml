@@ -23,7 +23,8 @@ spec:
       when: "always"
     - if: $CI_COMMIT_BRANCH == "master"
       when: "always"
-    - when: "manual"
+    - if: $CI_COMMIT_SHA
+      when: "manual"
       allow_failure: true
 
 ".sdk_template:$[[ inputs.platform-version ]]":
