@@ -16,6 +16,12 @@ include:
             paths:
               - "templates/ruff-lint.yml"
 
+  - local: "runtime-images/.gitlab-ci.yml"
+    rules:
+      - changes:
+          paths:
+            - "runtime-images/**/*"
+
   # Testing the local templates
   - local: "test-the-templates/flatpak.yml"
     rules:
@@ -73,6 +79,7 @@ include:
 
 stages:
   - "lint"
+  - "CI Runtime Images"
   - "Flatpak app"
   - "GNOMEOS Basic CI"
   - "Dist tarball tests"

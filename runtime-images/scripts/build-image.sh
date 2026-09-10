@@ -10,7 +10,7 @@ img_arch="${ARCH:-$(arch)}"
 img_tag="${img_reg}:${img_arch}${actual_tag}"
 
 echo "Building ${img_tag}"
-buildah bud -t "${img_tag}" .
+buildah bud -t "${img_tag}" runtime-images
 
 # push only on master branch
 if [ "${CI_COMMIT_REF_NAME:-}" == "master" ]; then
