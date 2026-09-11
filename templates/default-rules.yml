@@ -12,7 +12,7 @@ default:
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "api"
-    - if: $CI_PIPELINE_SOURCE == "schedules"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
       when: never
