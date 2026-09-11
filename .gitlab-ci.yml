@@ -37,25 +37,38 @@ include:
     rules:
       - if:
           $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
-          $RUN_THIS_STAGE_ONLY != "CI Runtime Images"
+          $RUN_THIS_STAGE_ONLY != "CI Runtime Images" &&
+          $RUN_THIS_STAGE_ONLY != "Flatpak app"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "CI Runtime Images"
+      # Downstream tests of the image builds
+      - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
       - if: *default_case
         changes:
           paths:
             - "runtime-images/**/*"
+            # In branches, they point to the image we push to the gitlab registry
+            - "flatpak/*"
+            - "templates/defeault-rules.yml"
+            - "test-the-templates/flatpak.yml"
 
   # Testing the local templates
   - local: "test-the-templates/flatpak.yml"
     rules:
       - if:
           $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+          $RUN_THIS_STAGE_ONLY != "CI Runtime Images" &&
           $RUN_THIS_STAGE_ONLY != "Flatpak app"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
+      # Downstream tests of the image builds
+      - if: $RUN_THIS_STAGE_ONLY == "CI Runtime Images"
       - if: *default_case
         changes:
           paths:
+            # We rebuild the image as well
+            - "runtime-images/**/*"
+            # The usual template
             - "flatpak/*"
             - "templates/defeault-rules.yml"
             - "test-the-templates/flatpak.yml"

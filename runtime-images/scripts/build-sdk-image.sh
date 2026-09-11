@@ -1,20 +1,41 @@
 #! /bin/bash
 
-set -eu
+set -eu -o pipefail
 
 BRANCH="$1"
 FD_BRANCH="$2"
 LLVM_VERSION="$3"
 LLVM_VERSION_2="$4"
 
-img_arch="${ARCH:-$(arch)}"
-default_reg="quay.io/gnome_infrastructure/gnome-runtime-images"
-img_reg="${img_reg:-$default_reg}"
+readonly architecture="${ARCH:-$(arch)}"
+readonly base_manifest_tag="base"
+readonly tag="-gnome-${BRANCH}"
 
-CONTAINER=$(buildah from "${img_reg}:base")
+registry="${CI_REGISTRY_IMAGE:-localhost}"
+tag_suffix="-${CI_COMMIT_REF_SLUG:-local}"
+should_push=false
 
-TAG="${img_reg}:${img_arch}-gnome-${BRANCH}"
-echo "Building $TAG"
+if [ "${CI_COMMIT_REF_NAME:-}" == "${CI_DEFAULT_BRANCH:-}" ] && [ "${CI_PROJECT_NAMESPACE:-}" == "GNOME" ]; then
+    : "${OCI_REGISTRY_USER:?OCI_REGISTRY_USER is required}"
+    : "${OCI_REGISTRY_PASSWORD:?OCI_REGISTRY_PASSWORD is required}"
+
+    registry="quay.io/gnome_infrastructure/gnome-runtime-images"
+    tag_suffix=""
+    should_push=true
+
+    echo "$CI_JOB_TOKEN" | buildah login quay.io -u "${OCI_REGISTRY_USER}" --password-stdin
+elif [ -n "${CI_JOB_TOKEN:-}" ]; then
+    : "${CI_REGISTRY:?CI_REGISTRY is required}"
+    : "${CI_REGISTRY_USER:?CI_REGISTRY_USER is required}"
+
+    should_push=true
+
+    echo "$CI_JOB_TOKEN" | buildah login "$CI_REGISTRY" -u "$CI_REGISTRY_USER" --password-stdin
+fi
+
+readonly image_tag="${registry}:${architecture}${tag}${tag_suffix}"
+echo "Building $image_tag"
+CONTAINER=$(buildah from "${registry}:${base_manifest_tag}${tag_suffix}")
 
 if [[ "$FD_BRANCH" == *beta ]]; then
     buildah run "$CONTAINER" flatpak install flathub-beta --user --noninteractive \
@@ -58,12 +79,12 @@ buildah run "$CONTAINER" flatpak install --user --noninteractive \
 buildah run "$CONTAINER" flatpak info --user "org.gnome.Platform//${BRANCH}"
 buildah run "$CONTAINER" flatpak info --user "org.gnome.Sdk//${BRANCH}"
 
-echo "Committing $TAG"
-buildah commit --squash "$CONTAINER" "$TAG"
+echo "Committing $image_tag"
+buildah commit --squash "$CONTAINER" "$image_tag"
 
-# push only on master branch
-if [ "${CI_COMMIT_REF_NAME:-}" == "${CI_DEFAULT_BRANCH}" ]; then
-    echo "Pushing $TAG"
-    buildah login -u "${OCI_REGISTRY_USER}" -p "${OCI_REGISTRY_PASSWORD}" quay.io
-    buildah push "$TAG"
+if [[ "$should_push" == true ]]; then
+    echo "Pushing ${image_tag}"
+    buildah push "${image_tag}"
+else
+    echo "No credentials configured. Skipping push of ${image_tag}"
 fi

@@ -15,7 +15,7 @@ spec:
     STORAGE_DRIVER: "vfs"
     BUILDAH_FORMAT: "docker"
     BUILDAH_ISOLATION: "chroot"
-    CI_REGISTRY_IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images"
+  needs: ["base-manifest"]
   # Scheduled pipelines:
   # - Daily for nightly
   # - Monthly for stable
@@ -28,7 +28,6 @@ spec:
   stage: "CI Runtime Images"
   extends: ".common:$[[ inputs.platform-version ]]"
   after_script: []
-  needs: []
   script:
     - bash ./runtime-images/scripts/build-sdk-image.sh "$[[ inputs.platform-version ]]" "$[[ inputs.fdsdk-version ]]" "$[[ inputs.llvm-version-1 ]]" "$[[ inputs.llvm-version-2 ]]"
 

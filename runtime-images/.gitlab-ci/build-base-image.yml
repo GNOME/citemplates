@@ -4,8 +4,17 @@
     STORAGE_DRIVER: "vfs"
     BUILDAH_FORMAT: "docker"
     BUILDAH_ISOLATION: "chroot"
-    CI_REGISTRY_IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images"
   rules:
+    - if:
+      changes:
+        paths:
+          - runtime-images/.gitlab-ci/build-image.yml
+          - runtime-images/Dockerfile
+          - runtime-images/rewrite-flatpak-manifest
+          - runtime-images/scripts/build-image.sh
+          - runtime-images/scripts/install-oras.sh
+          - runtime-images/scripts/make-manifest.sh
+    # Otherwise manual
     - if: $CI_COMMIT_SHA
       when: "manual"
       allow_failure: true

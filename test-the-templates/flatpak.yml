@@ -2,6 +2,19 @@ include:
   # Testing the local templates
   - local: "flatpak/flatpak_ci_initiative.yml"
 
+.custom image policy:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PROJECT_NAMESPACE == "GNOME"
+      variables:
+        _IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master"
+    - if: $CI_COMMIT_SHA
+      variables:
+        _IMAGE: "$CI_REGISTRY_IMAGE:gnome-master-$CI_COMMIT_REF_SLUG"
+      needs:
+        - job: "gnome-manifest:master"
+  image: $_IMAGE
+  stage: "Flatpak app"
+
 # FIXME: font-viewer compiles very fast, however:
 #   - We are missing tests for manifests with modules
 #     - Since we treat the last module differently, we need to
@@ -10,7 +23,7 @@ include:
 # FIXME 2: It's also possible to build runtime extensions using the
 # template, see vala-nightly
 .flatpak-test-setup:
-  stage: "Flatpak app"
+  extends: ".custom image policy"
   variables:
     # This is different than the Upstream yaml, as it has the gnome-font-viewer subdir added in the path
     MANIFEST_PATH: "gnome-font-viewer/build-aux/flatpak/org.gnome.font-viewerDevel.json"
@@ -70,7 +83,7 @@ flatpak-no-dist-no-tests:
 
 flatpak-nautilus:
   stage: "Flatpak app"
-  extends: [ ".flatpak@x86_64" ]
+  extends: [".flatpak@x86_64", ".custom image policy"]
   variables:
     MANIFEST_PATH: "build-aux/flatpak/org.gnome.Nautilus.json"
     FLATPAK_MODULE: "nautilus"
@@ -92,8 +105,8 @@ test-flatpak-bundle:
   tags:
     - flatpak
   needs:
-  - "flatpak-no-dist-no-tests"
-  - "flatpak-nautilus"
+    - "flatpak-no-dist-no-tests"
+    - "flatpak-nautilus"
   script:
     # Handcoded BUNDLE var
     - ls -lh nautilus-dev.flatpak
