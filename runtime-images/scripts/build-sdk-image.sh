@@ -62,7 +62,7 @@ echo "Committing $TAG"
 buildah commit --squash "$CONTAINER" "$TAG"
 
 # push only on master branch
-if [ "${CI_COMMIT_REF_NAME:-}" == "master" ]; then
+if [ "${CI_COMMIT_REF_NAME:-}" == "${CI_DEFAULT_BRANCH}" ]; then
     echo "Pushing $TAG"
     buildah login -u "${OCI_REGISTRY_USER}" -p "${OCI_REGISTRY_PASSWORD}" quay.io
     buildah push "$TAG"

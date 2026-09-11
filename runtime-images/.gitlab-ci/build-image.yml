@@ -21,7 +21,7 @@ spec:
       when: "always"
     - if: $REBUILD_STABLE && "$[[ inputs.platform-version ]]" != "master"
       when: "always"
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: "always"
     - if: $CI_COMMIT_SHA
       when: "manual"

@@ -13,7 +13,7 @@ echo "Building ${img_tag}"
 buildah bud -t "${img_tag}" runtime-images
 
 # push only on master branch
-if [ "${CI_COMMIT_REF_NAME:-}" == "master" ]; then
+if [ "${CI_COMMIT_REF_NAME:-}" == "${CI_DEFAULT_BRANCH}" ]; then
     echo "Pushing ${img_tag}"
     buildah login -u "${OCI_REGISTRY_USER}" -p "${OCI_REGISTRY_PASSWORD}" quay.io
     buildah push "${img_tag}"
