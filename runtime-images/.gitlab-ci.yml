@@ -1,6 +1,4 @@
 include:
-  - project: "gnome/citemplates"
-    file: "templates/default-rules.yml"
   - local: "runtime-images/.gitlab-ci/build-base-image.yml"
   - local: "runtime-images/.gitlab-ci/build-image.yml"
     inputs:

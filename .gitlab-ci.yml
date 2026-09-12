@@ -94,7 +94,6 @@ include:
             - "test-the-templates/test-mdbook.yml"
             - "test-the-templates/test-mdbook-before-script.sh"
 
-  - local: "templates/default-rules.yml"
   - local: "test-the-templates/gnomeos-build-sysext.yml"
     rules:
       - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "GNOMEOS Build Sysext CI"
