@@ -1,16 +1,32 @@
-FROM quay.io/fedora/fedora:39
+FROM quay.io/fedora/fedora:45
 
-RUN dnf upgrade -y --best --allowerasing && dnf install -y git 'dnf-command(builddep)' libtool \
-        automake gettext-devel autoconf which meson bzip2 && \
-    dnf builddep -y flatpak && \
-    dnf groupinstall -y "Development Tools"
+RUN dnf upgrade -y --best --allowerasing && \
+    dnf install -y git 'dnf-command(builddep)' which meson && \
+    dnf builddep -y flatpak
 
-RUN git clone --recursive https://github.com/flatpak/flatpak.git && \
+# Flatpak 1.15.6 has started using bwrap --disable-userns which is failing in the CI jobs
+# as we can't write to /proc/sys/user/max_user_namespaces from the unprivilledged (and non-root)
+# container that podman from gitlab-runner executes.
+#
+# Build our own pinned flatpak with said commit reverted, until we can come up with something better.
+# https://github.com/flatpak/flatpak/commit/23ec4eda2f52e1570e2296061f9fd4763d7e3721
+#
+# Flathub has a patch that similar ot the revert one:
+# https://github.com/flathub-infra/flatpak/commit/a750ddc815ed8cc1725ef7b8be16a1a734bd4fec
+#
+# Starting build of org.gnome.font-viewerDevel
+# ========================================================================
+# Building module gnome-font-viewer in /builds/alatiera/citemplates/.flatpak-builder/build/gnome-font-viewer-1
+# ========================================================================
+# bwrap: cannot open /proc/sys/user/max_user_namespaces: Permission denied
+# Error: module gnome-font-viewer: Child process exited with code 1
+RUN git clone --recursive --depth=1 -b alatiera/gnome-ci-bwrap https://github.com/alatiera/flatpak.git && \
     cd flatpak && \
-    git checkout 1.14.8 && \
-    ./autogen.sh && make -j$(nproc) && make install DESTDIR=/flatpak/destdir
+    git checkout 947b8134c04001a9f05db7ff2d7db8e4375e4dee && \
+    meson setup --prefix=/usr/local -Dtests=false -Ddocbook_docs=disabled -Dgtkdoc=disabled _build && \
+    meson install -C _build --destdir=/flatpak/destdir
 
-FROM quay.io/fedora/fedora:39
+FROM quay.io/fedora/fedora:45
 COPY --from=0 /flatpak/destdir/usr/local /usr/local/
 
 RUN useradd --home-dir /build --create-home --shell /bin/bash build
