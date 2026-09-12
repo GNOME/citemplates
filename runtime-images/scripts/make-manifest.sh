@@ -14,7 +14,7 @@ if [ "${CI_COMMIT_REF_NAME:-}" == "${CI_DEFAULT_BRANCH:-}" ] && [ "${CI_PROJECT_
     REGISTRY_TAG="$1"
     should_push=true
 
-    echo "$CI_JOB_TOKEN" | buildah login quay.io -u "${OCI_REGISTRY_USER}" --password-stdin
+    echo "$OCI_REGISTRY_PASSWORD" | buildah login quay.io -u "${OCI_REGISTRY_USER}" --password-stdin
 elif [ -n "${CI_JOB_TOKEN:-}" ]; then
     : "${CI_REGISTRY:?CI_REGISTRY is required}"
     : "${CI_REGISTRY_USER:?CI_REGISTRY_USER is required}"
