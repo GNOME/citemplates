@@ -6,30 +6,30 @@ include:
   - local: "templates/markdown-lint.yml"
     inputs:
       extra-rules:
-        - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "lint"
+        - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "lint"
           when: "never"
         - if: $RUN_THIS_STAGE_ONLY == "lint"
-        - if: $CI_PROJECT_NAME == "citemplates" && $RUN_THIS_STAGE_ONLY == "default"
+        - if: $CI_PROJECT_NAME == "citemplates" && $RUN_THIS_STAGE_ONLY == "_default"
           changes:
             paths:
               - "templates/markdown-lint.yml"
   - local: "templates/ruff-lint.yml"
     inputs:
       extra-rules:
-        - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "lint"
+        - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "lint"
           when: "never"
         - if: $RUN_THIS_STAGE_ONLY == "lint"
-        - if: $CI_PROJECT_NAME == "citemplates" && $RUN_THIS_STAGE_ONLY == "default"
+        - if: $CI_PROJECT_NAME == "citemplates" && $RUN_THIS_STAGE_ONLY == "_default"
           changes:
             paths:
               - "templates/ruff-lint.yml"
 
   - local: "runtime-images/.gitlab-ci.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "CI Runtime Images"
+      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "CI Runtime Images"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "CI Runtime Images"
-      - if: $RUN_THIS_STAGE_ONLY == "default"
+      - if: $RUN_THIS_STAGE_ONLY == "_default"
         changes:
           paths:
             - "runtime-images/**/*"
@@ -37,10 +37,10 @@ include:
   # Testing the local templates
   - local: "test-the-templates/flatpak.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Flatpak app"
+      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Flatpak app"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
-      - if: $RUN_THIS_STAGE_ONLY == "default"
+      - if: $RUN_THIS_STAGE_ONLY == "_default"
         changes:
           paths:
             - "flatpak/*"
@@ -49,10 +49,10 @@ include:
 
   - local: "test-the-templates/gnomeos-basic-ci.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "GNOMEOS Basic CI"
+      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "GNOMEOS Basic CI"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "GNOMEOS Basic CI"
-      - if: $RUN_THIS_STAGE_ONLY == "default"
+      - if: $RUN_THIS_STAGE_ONLY == "_default"
         changes:
           paths:
             - "templates/gnomeos-basic-ci.yml"
@@ -60,10 +60,10 @@ include:
 
   - local: "test-the-templates/test-tarball-dist.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Dist tarball tests"
+      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Dist tarball tests"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Dist tarball tests"
-      - if: $RUN_THIS_STAGE_ONLY == "default"
+      - if: $RUN_THIS_STAGE_ONLY == "_default"
         changes:
           paths:
             - "flatpak/*"
@@ -72,10 +72,10 @@ include:
 
   - local: "test-the-templates/test-docs-generation.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Docs generation tests"
+      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Docs generation tests"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Docs generation tests"
-      - if: $RUN_THIS_STAGE_ONLY == "default"
+      - if: $RUN_THIS_STAGE_ONLY == "_default"
         changes:
           paths:
             - "flatpak/*"
@@ -84,10 +84,10 @@ include:
 
   - local: "test-the-templates/test-mdbook.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Mdbook tests"
+      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Mdbook tests"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Mdbook tests"
-      - if: $RUN_THIS_STAGE_ONLY == "default"
+      - if: $RUN_THIS_STAGE_ONLY == "_default"
         changes:
           paths:
             - "templates/mdbook.yml"
@@ -96,10 +96,10 @@ include:
 
   - local: "test-the-templates/gnomeos-build-sysext.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "GNOMEOS Build Sysext CI"
+      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "GNOMEOS Build Sysext CI"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "GNOMEOS Build Sysext CI"
-      - if: $RUN_THIS_STAGE_ONLY == "default"
+      - if: $RUN_THIS_STAGE_ONLY == "_default"
         changes:
           paths:
             - "templates/gnomeos-build-sysext.yml"
@@ -107,10 +107,10 @@ include:
 
   - local: "test-the-templates/goblint.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "default" && $RUN_THIS_STAGE_ONLY != "Goblint"
+      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Goblint"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Goblint"
-      - if: $RUN_THIS_STAGE_ONLY == "default"
+      - if: $RUN_THIS_STAGE_ONLY == "_default"
         changes:
           paths:
             - "templates/goblint.yml"
@@ -127,7 +127,7 @@ include:
   - "GNOMEOS Build Sysext CI"
   - "Goblint"
   - "deploy"
-  - "default"
+  - "_default"
 
 stages:
   - !reference [".stages-options"]
@@ -137,7 +137,7 @@ variables:
   # Set this to the stage you want to trigger in a scheduled pipeline
   # Example: RUN_THIS_STAGE_ONLY="Goblint"
   RUN_THIS_STAGE_ONLY:
-    value: "default"
+    value: "_default"
     description: "Run the specified CI stage"
     options: !reference [".stages-options"]
     expand: false
