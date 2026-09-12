@@ -1,3 +1,6 @@
+# The anchor needs to be defined before the include, so it will be evaluated
+.default_pipeline: &default_case $RUN_THIS_STAGE_ONLY == null || $RUN_THIS_STAGE_ONLY == "_default"
+
 include:
   - local: "templates/default-rules.yml"
 
@@ -6,30 +9,38 @@ include:
   - local: "templates/markdown-lint.yml"
     inputs:
       extra-rules:
-        - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "lint"
+        - if:
+            $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+            $RUN_THIS_STAGE_ONLY != "lint"
           when: "never"
         - if: $RUN_THIS_STAGE_ONLY == "lint"
-        - if: $CI_PROJECT_NAME == "citemplates" && $RUN_THIS_STAGE_ONLY == "_default"
+        - if: $CI_PROJECT_NAME == "citemplates" &&
+            ($RUN_THIS_STAGE_ONLY == "_default" || $RUN_THIS_STAGE_ONLY == null)
           changes:
             paths:
               - "templates/markdown-lint.yml"
   - local: "templates/ruff-lint.yml"
     inputs:
       extra-rules:
-        - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "lint"
+        - if:
+            $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+            $RUN_THIS_STAGE_ONLY != "lint"
           when: "never"
         - if: $RUN_THIS_STAGE_ONLY == "lint"
-        - if: $CI_PROJECT_NAME == "citemplates" && $RUN_THIS_STAGE_ONLY == "_default"
+        - if: $CI_PROJECT_NAME == "citemplates" &&
+            ($RUN_THIS_STAGE_ONLY == "_default" || $RUN_THIS_STAGE_ONLY == null)
           changes:
             paths:
               - "templates/ruff-lint.yml"
 
   - local: "runtime-images/.gitlab-ci.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "CI Runtime Images"
+      - if:
+          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+          $RUN_THIS_STAGE_ONLY != "CI Runtime Images"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "CI Runtime Images"
-      - if: $RUN_THIS_STAGE_ONLY == "_default"
+      - if: *default_case
         changes:
           paths:
             - "runtime-images/**/*"
@@ -37,10 +48,12 @@ include:
   # Testing the local templates
   - local: "test-the-templates/flatpak.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Flatpak app"
+      - if:
+          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+          $RUN_THIS_STAGE_ONLY != "Flatpak app"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
-      - if: $RUN_THIS_STAGE_ONLY == "_default"
+      - if: *default_case
         changes:
           paths:
             - "flatpak/*"
@@ -49,10 +62,12 @@ include:
 
   - local: "test-the-templates/gnomeos-basic-ci.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "GNOMEOS Basic CI"
+      - if:
+          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+          $RUN_THIS_STAGE_ONLY != "GNOMEOS Basic CI"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "GNOMEOS Basic CI"
-      - if: $RUN_THIS_STAGE_ONLY == "_default"
+      - if: *default_case
         changes:
           paths:
             - "templates/gnomeos-basic-ci.yml"
@@ -60,10 +75,12 @@ include:
 
   - local: "test-the-templates/test-tarball-dist.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Dist tarball tests"
+      - if:
+          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+          $RUN_THIS_STAGE_ONLY != "Dist tarball tests"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Dist tarball tests"
-      - if: $RUN_THIS_STAGE_ONLY == "_default"
+      - if: *default_case
         changes:
           paths:
             - "flatpak/*"
@@ -72,10 +89,12 @@ include:
 
   - local: "test-the-templates/test-docs-generation.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Docs generation tests"
+      - if:
+          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+          $RUN_THIS_STAGE_ONLY != "Docs generation tests"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Docs generation tests"
-      - if: $RUN_THIS_STAGE_ONLY == "_default"
+      - if: *default_case
         changes:
           paths:
             - "flatpak/*"
@@ -84,10 +103,12 @@ include:
 
   - local: "test-the-templates/test-mdbook.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Mdbook tests"
+      - if:
+          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+          $RUN_THIS_STAGE_ONLY != "Mdbook tests"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Mdbook tests"
-      - if: $RUN_THIS_STAGE_ONLY == "_default"
+      - if: *default_case
         changes:
           paths:
             - "templates/mdbook.yml"
@@ -96,10 +117,12 @@ include:
 
   - local: "test-the-templates/gnomeos-build-sysext.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "GNOMEOS Build Sysext CI"
+      - if:
+          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+          $RUN_THIS_STAGE_ONLY != "GNOMEOS Build Sysext CI"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "GNOMEOS Build Sysext CI"
-      - if: $RUN_THIS_STAGE_ONLY == "_default"
+      - if: *default_case
         changes:
           paths:
             - "templates/gnomeos-build-sysext.yml"
@@ -107,10 +130,12 @@ include:
 
   - local: "test-the-templates/goblint.yml"
     rules:
-      - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != "Goblint"
+      - if:
+          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
+          $RUN_THIS_STAGE_ONLY != "Goblint"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Goblint"
-      - if: $RUN_THIS_STAGE_ONLY == "_default"
+      - if: *default_case
         changes:
           paths:
             - "templates/goblint.yml"
@@ -136,8 +161,47 @@ variables:
   # Allow forcing a specific stage to run, useful for scheduled pipelines to save up runners.
   # Set this to the stage you want to trigger in a scheduled pipeline
   # Example: RUN_THIS_STAGE_ONLY="Goblint"
+  #
+  # As of gitlab 19.3
+  #
+  # Unlike rules:if, include:rules:if does not work with global/job variables, as they are evaluated
+  # after the include rules. As such this is is always == null for pipelines unless:
+  # It's a Manual Pipeline variable, Project/Group Variable, etc
+  #
+  # > You cannot use variables defined in jobs, or in a global variables section which defines the default
+  # > variables for all jobs. Includes are evaluated before jobs, so these variables cannot be used with include.
+  # https://docs.gitlab.com/19.3/ci/yaml/includes/#use-variables-with-include
+  #
+  # How does this work:
+  #
+  # - if: $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null && $RUN_THIS_STAGE_ONLY != "desired-stage"
+  #   when: "never"
+  # - if: $RUN_THIS_STAGE_ONLY == "desired-stage"
+  # - if: $RUN_THIS_STAGE_ONLY == null || $RUN_THIS_STAGE_ONLY == "_default"
+  #   (rest of default rules)
+  #
+  # If the variable is not null (thus a project variable, manual, etc), not set to default, or not set to a desired-stage. Never trigger
+  # If the varialbe is the desired one, always trigger
+  # If the variable is in the default state, aka either null (cause its not set) or project/manual var set to _default. Then have default rules
+  # In our case its only one, for changes:, but if we had more we'd need to repeat this section
+  # - if: $RUN_THIS_STAGE_ONLY == null || $RUN_THIS_STAGE_ONLY == "_default"
+  #   changes:
+  # - if: $RUN_THIS_STAGE_ONLY == null || $RUN_THIS_STAGE_ONLY == "_default"
+  #   exists:
+  # - if: ($RUN_THIS_STAGE_ONLY == null || $RUN_THIS_STAGE_ONLY == "_default") && $extra_condition
+  # And so on.
   RUN_THIS_STAGE_ONLY:
+    # _default is needed, so we have a value to check that will act as "Give me everything"
+    # If we don't define default, then when setting the variable, we will have to use one of the values
+    # and thus we can only run the pipeline with that stage. That would be fine, but then we can't add
+    # the options: and let gitlab give us a nice gui to select the variable, as the manual pipeline would
+    # be forced into a single stage.
+    #
+    # Even though this has a value, the variable will still evaluate to null at certain stages in the pipeline.
+    # See comment above.
     value: "_default"
+    # Add a description and options, so the variable shows up in the Web GUI when we go and try to
+    # trigger a manual pipeline
     description: "Run the specified CI stage"
     options: !reference [".stages-options"]
 
