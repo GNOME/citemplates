@@ -16,16 +16,13 @@ spec:
     BUILDAH_FORMAT: "docker"
     BUILDAH_ISOLATION: "chroot"
     CI_REGISTRY_IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images"
+  # Scheduled pipelines:
+  # - Daily for nightly
+  # - Monthly for stable
+  # TODO: make it a pipeline trigger from gnome-build-meta
   rules:
-    - if: $CI_MERGE_REQUEST_ID && "$[[ inputs.platform-version ]]" == "master"
-      when: "always"
-    - if: $REBUILD_STABLE && "$[[ inputs.platform-version ]]" != "master"
-      when: "always"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: "always"
-    - if: $CI_COMMIT_SHA
-      when: "manual"
-      allow_failure: true
+    - if: '"$[[ inputs.platform-version ]]" == "master"'
+    - if: $REBUILD_STABLE == "true" && "$[[ inputs.platform-version ]]" != "master"
 
 ".sdk_template:$[[ inputs.platform-version ]]":
   stage: "CI Runtime Images"

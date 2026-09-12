@@ -142,3 +142,10 @@ variables:
     description: "Run the specified CI stage"
     options: !reference [".stages-options"]
     expand: false
+
+  REBUILD_STABLE:
+    value: "false"
+    description: "Whether to trigger rebuild of the Stable Runtime Images"
+    options:
+      - "true"
+      - "false"
