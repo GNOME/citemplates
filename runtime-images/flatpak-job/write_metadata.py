@@ -3,6 +3,9 @@ Extract Gitlab metadata from the Environment Variables and write them into the
 flatpak repository metadata file.
 """
 
+# The latest version of this script can be found at
+# https://gitlab.gnome.org/GNOME/citemplates
+
 import argparse
 import os
 

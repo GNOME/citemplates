@@ -31,15 +31,20 @@ RUN dnf upgrade -y --best --allowerasing && \
 RUN which bwrap && which flatpak && which flatpak-builder
 RUN flatpak --version && flatpak-builder --version && bwrap --version
 
-COPY scripts/install-oras.sh /usr/local/bin/scripts/install-oras.sh
-RUN bash /usr/local/bin/scripts/install-oras.sh && rm /usr/local/bin/scripts/install-oras.sh
+# Private binaries/scripts go into /usr/lib
+# We also don't need to mess with /usr/local since we control the image
+COPY flatpak-job/* /usr/lib/citemplates/
+COPY scripts/install-oras.sh /usr/lib/citemplates/
+# /local/bin for backwards compatibility
+# Drop this later
+COPY flatpak-job/rewrite-flatpak-manifest.py /usr/local/bin/rewrite-flatpak-manifest
+
+RUN bash /usr/lib/citemplates/install-oras.sh && rm /usr/lib/citemplates/install-oras.sh
 
 # generate machine-id as specified in the freedesktop spec:
 # https://www.freedesktop.org/software/systemd/man/machine-id.html
 # for exmaple, gnome-builder test suite depends on this
 RUN dbus-uuidgen > /etc/machine-id
-
-COPY rewrite-flatpak-manifest /usr/local/bin/rewrite-flatpak-manifest
 
 USER build
 

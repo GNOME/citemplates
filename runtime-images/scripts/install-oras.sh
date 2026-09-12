@@ -1,4 +1,7 @@
 #! /bin/bash
+#
+# The latest version of this script can be found at
+# https://gitlab.gnome.org/GNOME/citemplates
 
 set -eux
 
