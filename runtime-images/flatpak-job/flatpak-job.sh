@@ -8,7 +8,7 @@
 # However, we should invest in integrating the functionality (when possible) in our build
 # tooling instead of making another, and horrible, build tool, that both special to CI and bash.
 
-set -eu -o pipefail
+set -e -o pipefail
 
 # Create a subject to add to the OSTree commit subject
 # Mirrored from flathub
