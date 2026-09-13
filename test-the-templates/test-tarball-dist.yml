@@ -21,7 +21,11 @@ include:
       dist-job-name: "test-flatpak-dist"
       service-url: "https://gnome-release-route-sandbox-gnome-release-service.apps.openshift.gnome.org"
 
+  # flatpak test image setup
+  - local: "test-the-templates/flatpak-local-image.yml"
+
 .flatpak-test-dist-setup:
+  extends: ".custom image policy"
   stage: "Dist tarball tests"
   variables:
     # This is different than the Upstream yaml, as it has the gnome-font-viewer subdir added in the path

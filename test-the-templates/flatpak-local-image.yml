@@ -1,0 +1,11 @@
+.custom image policy:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PROJECT_NAMESPACE == "GNOME"
+      variables:
+        _IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master"
+    - if: $CI_COMMIT_SHA
+      variables:
+        _IMAGE: "$CI_REGISTRY_IMAGE:gnome-master-$CI_COMMIT_REF_SLUG"
+      needs:
+        - job: "gnome-manifest:master"
+  image: $_IMAGE

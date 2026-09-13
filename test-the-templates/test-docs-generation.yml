@@ -22,7 +22,11 @@ include:
       clang: "disabled"
       scan-build: "disabled"
 
+  # flatpak test image setup
+  - local: "test-the-templates/flatpak-local-image.yml"
+
 .flatpak-test-docs-setup:
+  extends: ".custom image policy"
   stage: "Docs generation tests"
   variables:
     # This is different than the Upstream yaml, as it has the libpanel subdir added in the path
