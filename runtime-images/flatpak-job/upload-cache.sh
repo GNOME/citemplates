@@ -3,7 +3,7 @@
 # The latest version of this script can be found at
 # https://gitlab.gnome.org/GNOME/citemplates
 
-set -eu -o pipefail
+set -e -o pipefail
 set +x
 
 # FIXME: this relies on the registry in the other script
