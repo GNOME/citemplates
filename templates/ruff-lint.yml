@@ -25,8 +25,10 @@ spec:
   before_script: []
   script:
     - ruff --version
-    - ruff check --output-format=gitlab > "$CI_PROJECT_DIR/ruff-code-quality.json"
-    - cat "$CI_PROJECT_DIR/ruff-code-quality.json"
+    - ruff check --exit-zero --output-format=gitlab > "$CI_PROJECT_DIR/ruff-code-quality.json"
+    # The first does not exit and populates the json file. Run it again so once its red
+    # and fails, people will see the human readable output in the log
+    - ruff check
   after_script:
     - ruff format --diff
     - |-
