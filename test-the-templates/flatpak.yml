@@ -18,9 +18,8 @@ include:
     # This is different than the Upstream yaml, as it has the gnome-font-viewer subdir added in the path
     MANIFEST_PATH: "gnome-font-viewer/build-aux/flatpak/org.gnome.font-viewerDevel.json"
     FLATPAK_MODULE: "gnome-font-viewer"
-    APP_ID: "org.gnome.font-viewerDevel"
   before_script:
-    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer/
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
 
 # Copy from the font-viewer ci yaml
 .flatpak-common:
@@ -80,6 +79,7 @@ flatpak-nautilus:
     # Only keep one runtime_repo override and otherwise
     # leave the rest of the tests to the default
     RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
+    # Same for the app_id
     APP_ID: "org.gnome.Nautilus.Devel"
     # Used in the test-flatpak-bundle job
     BUNDLE: "nautilus-dev.flatpak"

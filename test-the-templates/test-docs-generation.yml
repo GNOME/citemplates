@@ -35,20 +35,16 @@ include:
     # This hits https://gitlab.gnome.org/GNOME/citemplates/-/issues/32
     MESON_DIST: "0"
   before_script:
-    - git clone --depth=1 https://gitlab.gnome.org/gnome/libpanel/
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/libpanel.git
   script:
     - cd libpanel
     - !reference [".flatpak", "script"]
 
-# Copy from the libpanel ci yaml
 flatpak-generate-docs:
   needs: []
   extends: [".flatpak", ".flatpak-test-docs-setup"]
   variables:
     FLATPAK_MODULE: "libpanel"
-    RUNTIME_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
-    APP_ID: "org.gnome.libpanel.demo"
-    BUNDLE: "libpanel-dev.flatpak"
 
 .test-docs:
   stage: "Docs generation tests"

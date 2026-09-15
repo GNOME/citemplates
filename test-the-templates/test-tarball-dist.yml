@@ -31,15 +31,13 @@ include:
     # This is different than the Upstream yaml, as it has the gnome-font-viewer subdir added in the path
     MANIFEST_PATH: "gnome-font-viewer/build-aux/flatpak/org.gnome.font-viewerDevel.json"
   before_script:
-    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer/
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git
 
 # Copy from the font-viewer ci yaml
 .flatpak-dist-test-common:
   extends: [".flatpak", ".flatpak-test-dist-setup"]
   variables:
     FLATPAK_MODULE: "gnome-font-viewer"
-    APP_ID: "org.gnome.font-viewerDevel"
-    BUNDLE: "org.gnome.font-viewerDevel.flatpak"
 
 flatpak-generate-dist:
   extends: [".flatpak-dist-test-common"]
