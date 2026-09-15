@@ -12,7 +12,6 @@ set -e -o pipefail
 
 : "${MANIFEST_PATH:?MANIFEST_PATH is required}"
 : "${FLATPAK_MODULE:?FLATPAK_MODULE is required}"
-: "${APP_ID:?APP_ID is required}"
 
 if [[ -n "${CI_PROJECT_DIR:-}" ]]; then
     git config --global --add safe.directory "${CI_PROJECT_DIR}"
@@ -29,6 +28,30 @@ nightly_repo_url="https://nightly.gnome.org/gnome-nightly.flatpakrepo"
 nightly_runtime_repo="https://nightly.gnome.org/repo/"
 flatpak_repo_url="${REPO_URL:-${nightly_repo_url}}"
 flatpak_runtime_repo="${RUNTIME_REPO:-${nightly_runtime_repo:-}}"
+
+app_id="${APP_ID:-}"
+if [[ "${MANIFEST_PATH}" == *.json ]]; then
+    app_id="$(jq -r '.["app-id"]' "${MANIFEST_PATH}")"
+    if [[ $app_id == "null" ]]; then
+        old_id="$(jq -r '.["id"]' "${MANIFEST_PATH}")"
+        if  [[ -z $old_id ]] || [[ $old_id == "null" ]]; then
+            echo "Failed to discover app-id from the manifest"
+            exit 1
+        fi
+
+        app_id=$old_id
+    fi
+
+    if [[ -n ${APP_ID:-} ]]; then
+        if [[ $APP_ID != "$app_id" ]]; then
+            echo "Missmatch between app-id provided in the manifest: $app_id"
+            echo "And the app-id passed with APP_ID CI Variables: $APP_ID"
+            exit 1
+        fi
+    fi
+fi
+# For yaml the APP_ID variable is still required
+: "${app_id:?APP_ID is required}"
 
 # Create a subject to add to the OSTree commit subject
 # Mirrored from flathub
@@ -98,7 +121,7 @@ determine_cache_image () {
     local nightly_cache_registry="quay.io"
     local nightly_cache_repository="gnome_infrastructure/gnome-nightly-cache"
 
-    local app_id_lc=${APP_ID,,}
+    local app_id_lc=${app_id,,}
     # FIXME: Only hardcode cache for main atm
     # eventually we can also do stable branch caches but that needs more logic
     # to determine when and what to pull and push
@@ -173,7 +196,7 @@ flatpak build-bundle \
     ${EXPORT_RUNTIME:-} \
     --repo-url="${flatpak_repo_url}" \
     --runtime-repo="${flatpak_runtime_repo}" \
-    "${APP_ID}" \
+    "$app_id" \
     "${default_branch}"
 
 # Tar the repo for export in the artifacts, this gets consumed by the publish_nightly jobs
