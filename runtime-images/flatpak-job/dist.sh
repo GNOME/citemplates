@@ -14,7 +14,7 @@
 
 set -eu -o pipefail
 
-if [[ "${MESON_DIST}" == "1" ]]; then
+if [[ "${MESON_DIST:-1}" == "1" ]]; then
     echo "Running meson dist!"
     flatpak-builder ${CI_FB_ARGS:-} \
         --default-branch="${default_branch}" \
@@ -35,7 +35,7 @@ END
     # https://gitlab.gnome.org/GNOME/citemplates/-/issues/32
     dist_path=".flatpak-builder/build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/"
     if [[ -d "$dist_path" ]]; then
-        cp --recursive --preserve=all "$dist_path" "$CI_PROJECT_DIR/public-dist/"
+        cp --recursive --preserve=all "$dist_path" "$project_dir/public-dist/"
     fi
 fi
 

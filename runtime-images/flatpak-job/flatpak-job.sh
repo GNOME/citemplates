@@ -10,16 +10,34 @@
 
 set -e -o pipefail
 
+: "${MANIFEST_PATH:?MANIFEST_PATH is required}"
+: "${FLATPAK_MODULE:?FLATPAK_MODULE is required}"
+: "${APP_ID:?APP_ID is required}"
+
+if [[ -n "${CI_PROJECT_DIR:-}" ]]; then
+    git config --global --add safe.directory "${CI_PROJECT_DIR}"
+fi
+
+export project_dir="${CI_PROJECT_DIR:-$(pwd)}"
+project_name="${CI_PROJECT_NAME:-${FLATPAK_MODULE}}"
+commit_hash=$(git rev-parse --short=12 HEAD)
+
+export ARCH="${ARCH:-$(arch)}"
+
+# build-bundle
+nightly_repo_url="https://nightly.gnome.org/gnome-nightly.flatpakrepo"
+nightly_runtime_repo="https://nightly.gnome.org/repo/"
+flatpak_repo_url="${REPO_URL:-${nightly_repo_url}}"
+flatpak_runtime_repo="${RUNTIME_REPO:-${nightly_runtime_repo:-}}"
+
 # Create a subject to add to the OSTree commit subject
 # Mirrored from flathub
 # https://github.com/flathub-infra/vorarbeiter/blob/0a3534f4aacc3962f46f85706872beb53eee261e/justfile#L18-L25
 get_ostree_subject () {
     local subject
     local commit_msg
-    local commit_hash
 
     commit_msg=$(git log -1 --pretty=%s)
-    commit_hash=$(git rev-parse --short=12 HEAD)
     subject="$commit_msg ($commit_hash)"
     subject="${subject//[^[:ascii:]]/}"
     echo "${subject}"
@@ -32,7 +50,7 @@ get_default_branch () {
         default_branch="$BRANCH"
     elif [[ -n "${CI_MERGE_REQUEST_IID:-}" ]]; then
         default_branch="mr-$CI_MERGE_REQUEST_IID"
-    elif [[ -n "${CI_DEFAULT_BRANCH:-}" ]] && [[ "${CI_DEFAULT_BRANCH}" == "$CI_COMMIT_BRANCH" ]]; then
+    elif [[ -n "${CI_DEFAULT_BRANCH:-}" ]] && [[ "${CI_DEFAULT_BRANCH:-}" == "${CI_COMMIT_BRANCH:-}" ]]; then
         default_branch="master"
     else
         default_branch="test"
@@ -45,17 +63,17 @@ get_bundle_name () {
     if [[ -n "${BUNDLE:-}" ]]; then
         bundle="$BUNDLE"
     elif [[ -n "${CI_MERGE_REQUEST_IID:-}" ]]; then
-        bundle="${CI_PROJECT_NAME}-${ARCH}-mr-${CI_MERGE_REQUEST_IID}.flatpak"
+        bundle="${project_name}-${ARCH}-mr-${CI_MERGE_REQUEST_IID}.flatpak"
     else
-        bundle="${CI_PROJECT_NAME}-${ARCH}-${CI_COMMIT_SHORT_SHA}.flatpak"
+        bundle="${project_name}-${ARCH}-${commit_hash}.flatpak"
     fi
     echo "${bundle}"
 }
 
 rewrite_manifest () {
-    export REWRITE_RUN_TESTS="--run-tests"
-    if [[ "${RUN_TESTS:-0}" != "1" ]]; then
-        export REWRITE_RUN_TESTS="--no-run-tests"
+    local REWRITE_RUN_TESTS="--run-tests"
+    if [[ "${RUN_TESTS:-1}" != "1" ]]; then
+        REWRITE_RUN_TESTS="--no-run-tests"
     fi
     echo "RUN_TESTS: ${REWRITE_RUN_TESTS}"
 
@@ -63,15 +81,35 @@ rewrite_manifest () {
 }
 
 print_bundle_url () {
-    echo -e "Try this Flatpak build with:"
-    echo -e "  $ wcurl $CI_JOB_URL/artifacts/raw/${bundle} --output /tmp/${bundle}"
-    echo -e "  $ flatpak install --bundle /tmp/${bundle}"
-    echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
+    if [[ -n "${CI_JOB_URL:-}" ]]; then
+        echo -e "Try this Flatpak build with:"
+        echo -e "  $ wcurl $CI_JOB_URL/artifacts/raw/${bundle} --output /tmp/${bundle}"
+        echo -e "  $ flatpak install --bundle /tmp/${bundle}"
+        echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
+    # else
+    #     # FIXME: this prints the container path
+    #     $ flatpak install --bundle /build/gnome-font-viewer/gnome-font-viewer-x86_64-1c88eed2b01a.flatpak
+    #     echo -e "Try this Flatpak build with:"
+    #     echo -e "  $ flatpak install --bundle $project_dir/${bundle}"
+    fi
 }
 
-if [[ -n "${CI_PROJECT_DIR:-}" ]]; then
-    git config --global --add safe.directory "${CI_PROJECT_DIR}"
-fi
+determine_cache_image () {
+    local nightly_cache_registry="quay.io"
+    local nightly_cache_repository="gnome_infrastructure/gnome-nightly-cache"
+
+    local app_id_lc=${APP_ID,,}
+    # FIXME: Only hardcode cache for main atm
+    # eventually we can also do stable branch caches but that needs more logic
+    # to determine when and what to pull and push
+    local oras_branch=main
+    local registry="${_ORAS_CACHE_REGISTRY:-$nightly_cache_registry}"
+    local namespace="${_ORAS_CACHE_REPOSITORY:-$nightly_cache_repository}"
+    echo "$registry/$namespace:${ARCH}-${app_id_lc}-${oras_branch}"
+}
+
+# Make sure there is no leftover for whatever reason
+rm -rf ./flatpak_app ./.flatpak-builder/build
 
 bundle="$(get_bundle_name)"
 readonly bundle
@@ -81,12 +119,12 @@ default_branch="$(get_default_branch)"
 export default_branch
 echo "Default Branch: ${default_branch}"
 
-export ARCH="${ARCH:-$(arch)}"
+ORAS_CACHE_IMAGE="$(determine_cache_image)"
+export ORAS_CACHE_IMAGE
 
 bash /usr/lib/citemplates/print-info.sh
 
-# source for the $registry
-source /usr/lib/citemplates/pull-cache.sh
+bash /usr/lib/citemplates/pull-cache.sh
 
 rewrite_manifest
 
@@ -128,22 +166,21 @@ flatpak-builder ${CI_FB_ARGS:-} \
 echo "Generating Bundle!"
 flatpak build-bundle \
     repo \
-    "$CI_PROJECT_DIR/${bundle}" \
+    "$project_dir/${bundle}" \
     ${EXPORT_RUNTIME:-} \
-    --repo-url="${REPO_URL:-$NIGHTLY_REPO_NONFILE}" \
-    --runtime-repo="${RUNTIME_REPO:-$NIGHTLY_REPO}" \
+    --repo-url="${flatpak_repo_url}" \
+    --runtime-repo="${flatpak_runtime_repo}" \
     "${APP_ID}" \
     "${default_branch}"
 
 # Tar the repo for export in the artifacts, this gets consumed by the publish_nightly jobs
-tar cf "$CI_PROJECT_DIR/repo.tar" repo/
+tar cf "$project_dir/repo.tar" repo/
 
 # Export the documentation if it exist
 docs_path="flatpak_app/files/share/doc/"
 if [[ -d "$docs_path" ]]; then
-    # --file fallback should be pwd/flatpak-module-docs.tar.gz
     echo "Exporting documentation for artifacts"
-    tar --create --auto-compress --file "${CI_PROJECT_DIR}/${CI_PROJECT_NAME}-docs.tar.gz" --directory $docs_path .
+    tar --create --auto-compress --file "${project_dir}/${project_name}-docs.tar.gz" --directory $docs_path .
 fi
 
 bash /usr/lib/citemplates/upload-cache.sh
