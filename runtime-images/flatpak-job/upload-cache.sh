@@ -8,6 +8,9 @@ set +x
 
 # FIXME: this relies on the registry in the other script
 if [[ -n "${NIGHTLY_CACHE_ORAS_TOKEN_FILE:-}" ]] && [[ "${PUBLISH_CACHE:-0}" == "1" ]] && [[ "${CI_COMMIT_BRANCH}" == "${CI_DEFAULT_BRANCH}" ]]; then
+    echo "Pruning ccache objects older than 90d..."
+    ccache --show-stats --dir .flatpak-builder/ccache/ --evict-older-than 90d
+
     echo "Uploading cache..."
     oras logout ${_ORAS_CACHE_REGISTRY} || true
     cat $NIGHTLY_CACHE_ORAS_TOKEN_FILE | oras login -u "${NIGHTLY_CACHE_ORAS_USER}" --password-stdin ${_ORAS_CACHE_REGISTRY} || true
