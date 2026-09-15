@@ -15,19 +15,31 @@ spec:
     STORAGE_DRIVER: "vfs"
     BUILDAH_FORMAT: "docker"
     BUILDAH_ISOLATION: "chroot"
-  needs: ["base-manifest"]
+  needs: []
+
+".sdk_template:$[[ inputs.platform-version ]]":
+  stage: "CI Runtime Images"
+  extends: ".common:$[[ inputs.platform-version ]]"
+  after_script: []
   # Scheduled pipelines:
   # - Daily for nightly
   # - Monthly for stable
   # TODO: make it a pipeline trigger from gnome-build-meta
   rules:
     - if: '"$[[ inputs.platform-version ]]" == "master"'
+      # We trigger sdk image builds when there are changes
+      # but we also trigger it on schedules to rebuild only the image
+      # withotu rebuilding the base, as there isn't a need.
+      needs: ["base-manifest"]
+      changes:
+        paths:
+          - runtime-images/**/*
+    # Otherwise allow the image to rebuild without the base,
+    # as we are only interested in fetching the flatpak runtime update
+    - if: $REBUILD_STABLE != "true" && "$[[ inputs.platform-version ]]" == "master"
+      needs: []
     - if: $REBUILD_STABLE == "true" && "$[[ inputs.platform-version ]]" != "master"
-
-".sdk_template:$[[ inputs.platform-version ]]":
-  stage: "CI Runtime Images"
-  extends: ".common:$[[ inputs.platform-version ]]"
-  after_script: []
+      needs: []
   script:
     - bash ./runtime-images/scripts/build-sdk-image.sh "$[[ inputs.platform-version ]]" "$[[ inputs.fdsdk-version ]]" "$[[ inputs.llvm-version-1 ]]" "$[[ inputs.llvm-version-2 ]]"
 
@@ -47,6 +59,9 @@ spec:
   stage: "CI Runtime Images"
   extends: ".common:$[[ inputs.platform-version ]]"
   after_script: []
+  rules:
+    - if: $REBUILD_STABLE != "true" && "$[[ inputs.platform-version ]]" == "master"
+    - if: $REBUILD_STABLE == "true" && "$[[ inputs.platform-version ]]" != "master"
   needs:
     - job: "gnome:$[[ inputs.platform-version ]]"
       artifacts: false

@@ -42,15 +42,15 @@ include:
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "CI Runtime Images"
       # Downstream tests of the image builds
+      # But if we don't modify the image, the test use the upstream one
       - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
+        changes:
+          paths:
+            - "runtime-images/**/*"
       - if: *default_case
         changes:
           paths:
             - "runtime-images/**/*"
-            # In branches, they point to the image we push to the gitlab registry
-            - "flatpak/*"
-            - "templates/defeault-rules.yml"
-            - "test-the-templates/flatpak.yml"
 
   # Testing the local templates
   - local: "test-the-templates/flatpak.yml"
@@ -62,16 +62,18 @@ include:
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
       # Downstream tests of the image builds
+      # If we triggered a pipeline with RUN_THIS_STAGE_ONLY, we always want to test the image
       - if: $RUN_THIS_STAGE_ONLY == "CI Runtime Images"
+
+      # Default, trigger only on changed files
       - if: *default_case
         changes:
           paths:
-            # We rebuild the image as well
-            - "runtime-images/**/*"
             # The usual template
             - "flatpak/*"
             - "templates/defeault-rules.yml"
             - "test-the-templates/flatpak.yml"
+            - "test-the-templates/flatpak-local-image.yml"
 
   - local: "test-the-templates/gnomeos-basic-ci.yml"
     rules:
@@ -99,6 +101,7 @@ include:
             - "flatpak/*"
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/test-tarball-dist.yml"
+            - "test-the-templates/flatpak-local-image.yml"
 
   - local: "test-the-templates/test-docs-generation.yml"
     rules:
@@ -113,6 +116,7 @@ include:
             - "flatpak/*"
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/test-docs-generation.yml"
+            - "test-the-templates/flatpak-local-image.yml"
 
   - local: "test-the-templates/test-mdbook.yml"
     rules:

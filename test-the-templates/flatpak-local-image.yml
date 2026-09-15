@@ -1,11 +1,31 @@
+.upstream-image: &upstream
+  needs: []
+  variables:
+    _IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master"
+
+.forked-image-rebuild: &fork
+  variables:
+    _IMAGE: "$CI_REGISTRY_IMAGE:gnome-master-$CI_COMMIT_REF_SLUG"
+  needs:
+    - job: "gnome-manifest:master"
+      artifacts: false
+
+# This rules triggers for changes in both runtime-images and flatpak as we want to
+# run the tests in either case, but only in one of them we need to rebuild the image
+# to test it, as the other one only changes the template.
 .custom image policy:
   rules:
+    # These rules are in order, cause we always want quay on default branch upstream
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PROJECT_NAMESPACE == "GNOME"
-      variables:
-        _IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master"
+      <<: *upstream
+    # If there are changes in the image, use that, as it should have been also triggered
+    # to build.
+    - if:
+      changes:
+        paths:
+          - runtime-images/**/*
+      <<: *fork
+    # Otherwise, catchall rule, use the upstream image again
     - if: $CI_COMMIT_SHA
-      variables:
-        _IMAGE: "$CI_REGISTRY_IMAGE:gnome-master-$CI_COMMIT_REF_SLUG"
-      needs:
-        - job: "gnome-manifest:master"
+      <<: *upstream
   image: $_IMAGE
