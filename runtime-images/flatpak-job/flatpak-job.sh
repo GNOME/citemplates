@@ -134,9 +134,6 @@ determine_cache_image () {
 # Make sure there is no leftover for whatever reason
 rm -rf ./flatpak_app ./.flatpak-builder/build
 
-# Make sure there is no leftover for whatever reason
-rm -rf ./flatpak_app ./.flatpak-builder/build
-
 bundle="$(get_bundle_name)"
 readonly bundle
 echo "Bundle filename: ${bundle}"
