@@ -163,3 +163,23 @@ Gitlab CI template for building Flatpak bundles. Visit the
 [wiki](https://gitlab.gnome.org/GNOME/Initiatives/-/wikis/DevOps-with-Flatpak)
 for more details. The template uses
 [legacy YAML format](https://docs.gitlab.com/ee/development/cicd/templates.html).
+
+#### Building flatpaks locally
+
+To build flaptaks locally, you should use
+[GNOME Builder](https://flathub.org/en/apps/org.gnome.Builder) or
+[Foundry](https://gitlab.gnome.org/GNOME/foundry) (for cli).
+
+```bash
+foundry init
+foundry build
+foundry run
+foundry test run [testsuite]
+foundry shell
+```
+
+If you are unable to replicate a CI-only issue, you could should try the following:
+
+```bash
+foundry ci run [flatpak-job-name]
+```
