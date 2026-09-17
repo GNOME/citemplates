@@ -32,6 +32,7 @@ export XDG_RUNTIME_DIR
 # we had a whole session running!
 export XDG_CURRENT_DESKTOP="GNOME"
 export XDG_SESSION_DESKTOP="GNOME"
+export XDG_SESSION_TYPE="wayland"
 
 # Disable gvfs as we don't have a complete session and barerly a dbus session
 export GIO_USE_VFS=local
@@ -181,16 +182,10 @@ rewrite_manifest
 # Build. It will also run tests if we specified them in the manifest
 echo "Running the build!"
 
-if [[ "${DEBUG_STRACE:-}" = "true" ]]; then
-    export _strace="strace"
-else
-    export _strace=""
-fi
-xvfb-run -a -s "-screen 0 1024x768x24" -- \
-    dbus-run-session -- \
+dbus-run-session -- \
     bash -exu -c '
-    gdbus introspect --session --dest org.freedesktop.portal.Desktop --object-path /org/freedesktop/portal/desktop && \
-    ${_strace:-} flatpak-builder ${CI_FB_ARGS:-} \
+    mutter --headless --wayland --no-x11 --virtual-monitor 1024x768 -- \
+    flatpak-builder ${CI_FB_ARGS:-} \
         --default-branch="${default_branch}" \
         --ccache \
         --state-dir="${state_dir}" \
