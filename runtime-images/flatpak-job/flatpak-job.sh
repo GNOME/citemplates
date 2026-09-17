@@ -24,9 +24,10 @@ commit_hash=$(git rev-parse --short=12 HEAD)
 export ARCH="${ARCH:-$(arch)}"
 
 # build-bundle
-nightly_repo_url="https://nightly.gnome.org/gnome-nightly.flatpakrepo"
-nightly_runtime_repo="https://nightly.gnome.org/repo/"
+nightly_repo_url="https://nightly.gnome.org/repo"
 flatpak_repo_url="${REPO_URL:-${nightly_repo_url}}"
+
+nightly_runtime_repo="https://nightly.gnome.org/gnome-nightly.flatpakrepo"
 flatpak_runtime_repo="${RUNTIME_REPO:-${nightly_runtime_repo:-}}"
 
 app_id="${APP_ID:-}"

@@ -19,10 +19,6 @@ include:
     MESON_DIST: "1"
     # Pass "--runtime" in order to build a runtime or extension
     EXPORT_RUNTIME: ""
-    # This has a misleading name cause it was used before adding
-    # the non-runtime --repo-url arg
-    NIGHTLY_REPO: "https://nightly.gnome.org/gnome-nightly.flatpakrepo"
-    NIGHTLY_REPO_NONFILE: "https://nightly.gnome.org/repo"
     PULL_CACHE: "1"
     PUBLISH_CACHE: "1"
     _ORAS_CACHE_REGISTRY: "quay.io"
