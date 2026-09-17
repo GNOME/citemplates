@@ -69,6 +69,7 @@ include:
       - if: *default_case
         changes:
           paths:
+            - "runtime-images/**/*"
             # The usual template
             - "flatpak/*"
             - "templates/defeault-rules.yml"
