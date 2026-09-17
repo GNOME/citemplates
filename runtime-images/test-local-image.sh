@@ -14,8 +14,8 @@ seccomp_rules="$cache_dir/flatpak.seccomp.json"
 global_setup () {
     mkdir -p "${cache_dir}"
     if [[ ! -f "${seccomp_rules}" ]]; then
-        # wcurl https://github.com/gnome-infra/ansible/blob/master/roles/gitlab-runner/files/flatpak.seccomp.json
-        wcurl --output "${seccomp_rules}" /flatpak.seccomp.json https://raw.githubusercontent.com/gnome-infra/ansible/refs/heads/master/roles/gitlab-runner/files/flatpak.seccomp.json
+        # https://github.com/gnome-infra/ansible/blob/master/roles/gitlab-runner/files/flatpak.seccomp.json
+        wcurl --output "${seccomp_rules}" https://raw.githubusercontent.com/gnome-infra/ansible/refs/heads/master/roles/gitlab-runner/files/flatpak.seccomp.json
     fi
 }
 
@@ -68,6 +68,7 @@ podman_run () {
         --workdir="/build/${project}" \
         --privileged=false \
         --cap-drop=all \
+        --security-opt="seccomp:${seccomp_rules}" \
         --security-opt="label=level:s0:c100,c100" \
         --volume /proc:/host/proc \
         --tmpfs "/tmp=rw,nosuid,nodev,exec,mode=1777" \
@@ -98,5 +99,6 @@ test_nautilus () {
     podman_run $project $manifest_path
 }
 
+global_setup
 test_font_viewer
 test_nautilus
