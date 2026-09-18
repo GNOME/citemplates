@@ -102,7 +102,7 @@ flatpak-nautilus:
     - cd nautilus
     - !reference [".flatpak", "script"]
 
-test-flatpak-bundle:
+test-flatpak-bundle-and-repo:
   image: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master"
   stage: "Flatpak app"
   tags:
@@ -111,6 +111,12 @@ test-flatpak-bundle:
     - "flatpak-no-dist-no-tests"
     - "flatpak-nautilus"
   script:
+    # Make sure the repo can be extracted and its
+    # of the expected structure
+    - tar --extract --file repo.tar
+    - ls -lh repo/
+    - cat repo/config
+
     # Handcoded BUNDLE var
     - ls -lh nautilus-dev.flatpak
     - ls -lh nautilus-dev.flatpak.sha256sum
