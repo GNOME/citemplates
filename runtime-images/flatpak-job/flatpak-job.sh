@@ -23,6 +23,7 @@ commit_hash=$(git rev-parse --short=12 HEAD)
 
 export ARCH="${ARCH:-$(arch)}"
 export application_directory="$project_dir/application_directory"
+export application_repo="$project_dir/repo/"
 
 # build-bundle
 nightly_repo_url="https://nightly.gnome.org/repo"
@@ -163,8 +164,9 @@ xvfb-run -a -s "-screen 0 1024x768x24" -- dbus-run-session \
     --user \
     --disable-rofiles-fuse \
     --build-only \
+    --repo="${application_repo}" \
     "${application_directory}" \
-    --repo=repo "${MANIFEST_PATH}"
+    "${MANIFEST_PATH}"
 
 # Run dist, if specified, and copy the tarball to export it
 bash /usr/lib/citemplates/dist.sh
@@ -186,13 +188,14 @@ flatpak-builder ${CI_FB_ARGS:-} \
     --subject="${subject}" \
     --disable-download \
     --disable-updates \
+    --repo="${application_repo}" \
     "${application_directory}" \
-    --repo=repo "${MANIFEST_PATH}"
+    "${MANIFEST_PATH}"
 
 # Generate a Flatpak bundle
 echo "Generating Bundle!"
 flatpak build-bundle \
-    repo \
+    "${application_repo}" \
     "$project_dir/${bundle}" \
     ${EXPORT_RUNTIME:-} \
     --repo-url="${flatpak_repo_url}" \
@@ -201,7 +204,7 @@ flatpak build-bundle \
     "${default_branch}"
 
 # Tar the repo for export in the artifacts, this gets consumed by the publish_nightly jobs
-tar cf "$project_dir/repo.tar" repo/
+tar cf "$project_dir/repo.tar" "${application_repo}"
 
 # Export the documentation if it exist
 docs_path="${application_directory}/files/share/doc/"

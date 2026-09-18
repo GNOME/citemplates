@@ -19,6 +19,7 @@ if [[ "${MESON_DIST:-1}" == "1" ]]; then
     flatpak-builder ${CI_FB_ARGS:-} \
         --default-branch="${default_branch}" \
         --ccache \
+        --repo="${application_repo}" \
         --keep-build-dirs \
         --user \
         --disable-rofiles-fuse \
