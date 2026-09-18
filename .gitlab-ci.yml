@@ -93,12 +93,17 @@ include:
     rules:
       - if:
           $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
-          $RUN_THIS_STAGE_ONLY != "Dist tarball tests"
+          $RUN_THIS_STAGE_ONLY != "Dist tarball tests" &&
+          $RUN_THIS_STAGE_ONLY != "GNOMEOS Basic CI" &&
+          $RUN_THIS_STAGE_ONLY != "Flatpak app"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Dist tarball tests"
+      - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
       - if: *default_case
         changes:
           paths:
+            # Changes in script now affect the flatpak dist
+            - "runtime-images/**/*"
             - "flatpak/*"
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/test-tarball-dist.yml"
@@ -108,12 +113,17 @@ include:
     rules:
       - if:
           $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
-          $RUN_THIS_STAGE_ONLY != "Docs generation tests"
+          $RUN_THIS_STAGE_ONLY != "Docs generation tests" &&
+          $RUN_THIS_STAGE_ONLY != "GNOMEOS Basic CI" &&
+          $RUN_THIS_STAGE_ONLY != "Flatpak app"
         when: "never"
       - if: $RUN_THIS_STAGE_ONLY == "Docs generation tests"
+      - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
       - if: *default_case
         changes:
           paths:
+            # Changes in script now affect the flatpak dist
+            - "runtime-images/**/*"
             - "flatpak/*"
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/test-docs-generation.yml"

@@ -63,7 +63,7 @@ flatpak-generate-docs:
 
 test-flatpak-docs-generation:
   extends: [".test-docs"]
-  needs: ["basic-ci-generate-docs"]
+  needs: ["flatpak-generate-docs"]
 
 test-basic-ci-docs-generation:
   extends: [".test-docs"]
