@@ -25,7 +25,7 @@ if [[ "${MESON_DIST:-1}" == "1" ]]; then
         --build-shell="${FLATPAK_MODULE}" \
         --disable-download \
         --disable-updates \
-        flatpak_app  \
+        "${application_directory}" \
          "${MANIFEST_PATH}" <<'END'
 LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
 END

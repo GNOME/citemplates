@@ -22,6 +22,7 @@ project_name="${CI_PROJECT_NAME:-${FLATPAK_MODULE}}"
 commit_hash=$(git rev-parse --short=12 HEAD)
 
 export ARCH="${ARCH:-$(arch)}"
+export application_directory="$project_dir/application_directory"
 
 # build-bundle
 nightly_repo_url="https://nightly.gnome.org/repo"
@@ -133,7 +134,7 @@ determine_cache_image () {
 }
 
 # Make sure there is no leftover for whatever reason
-rm -rf ./flatpak_app ./.flatpak-builder/build
+rm -rf "${application_directory}" ./.flatpak-builder/build
 
 bundle="$(get_bundle_name)"
 readonly bundle
@@ -161,7 +162,8 @@ xvfb-run -a -s "-screen 0 1024x768x24" -- dbus-run-session \
     --keep-build-dirs \
     --user \
     --disable-rofiles-fuse \
-    --build-only flatpak_app \
+    --build-only \
+    "${application_directory}" \
     --repo=repo "${MANIFEST_PATH}"
 
 # Run dist, if specified, and copy the tarball to export it
@@ -169,7 +171,7 @@ bash /usr/lib/citemplates/dist.sh
 
 # Add metadata we get from gitlab to the bundle metadata
 echo "Appending Gitlab Metadata to the ostree repo!"
-python3 /usr/lib/citemplates/write_metadata.py flatpak_app/metadata
+python3 /usr/lib/citemplates/write_metadata.py "${application_directory}/metadata"
 
 # Commit the build to the ostree repo
 subject="$(get_ostree_subject)"
@@ -183,7 +185,8 @@ flatpak-builder ${CI_FB_ARGS:-} \
     --finish-only \
     --subject="${subject}" \
     --disable-download \
-    --disable-updates flatpak_app \
+    --disable-updates \
+    "${application_directory}" \
     --repo=repo "${MANIFEST_PATH}"
 
 # Generate a Flatpak bundle
@@ -201,7 +204,7 @@ flatpak build-bundle \
 tar cf "$project_dir/repo.tar" repo/
 
 # Export the documentation if it exist
-docs_path="flatpak_app/files/share/doc/"
+docs_path="${application_directory}/files/share/doc/"
 if [[ -d "$docs_path" ]]; then
     echo "Exporting documentation for artifacts"
     tar --create --auto-compress --file "${project_dir}/${project_name}-docs.tar.gz" --directory $docs_path .
