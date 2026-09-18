@@ -70,6 +70,18 @@ flatpak-no-dist-no-tests:
     MESON_DIST: "0"
     RUN_TESTS: "0"
 
+flatpak-libadwaita-demo:
+  stage: "Flatpak app"
+  extends: [".flatpak@x86_64", ".custom image policy"]
+  variables:
+    MANIFEST_PATH: 'demo/org.gnome.Adwaita1.Demo.json'
+    FLATPAK_MODULE: 'libadwaita'
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/libadwaita.git
+  script:
+    - cd libadwaita
+    - !reference [".flatpak", "script"]
+
 flatpak-nautilus:
   stage: "Flatpak app"
   extends: [".flatpak@x86_64", ".custom image policy"]
