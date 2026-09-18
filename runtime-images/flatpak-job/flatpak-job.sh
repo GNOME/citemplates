@@ -25,7 +25,7 @@ export ARCH="${ARCH:-$(arch)}"
 export application_directory="$project_dir/application_directory"
 export application_repo="$project_dir/repo/"
 
-default_state_dir="${project_dir}/.flaptak-builder"
+default_state_dir="${project_dir}/.flatpak-builder"
 export state_dir="${FB_STATE_DIR:-${default_state_dir}}"
 
 # build-bundle
