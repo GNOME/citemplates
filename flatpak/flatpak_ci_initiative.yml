@@ -40,8 +40,8 @@ include:
     name: 'Flatpak artifacts'
     when: 'always'
     paths:
-      - $BUNDLE
       - "*.flatpak"
+      - "*.flatpak.sha256sum"
       - 'repo.tar'
       - "${CI_PROJECT_NAME}-docs.tar.gz"
       - '.flatpak-builder/build/**/_flatpak_build/meson-logs/'

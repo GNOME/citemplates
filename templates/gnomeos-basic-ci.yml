@@ -224,7 +224,9 @@ spec:
       - "public-dist"
       - "${CI_PROJECT_NAME}-docs.tar.gz"
       - "*.sysext.raw"
+      - "*.sysext.raw.sha256sum"
       - "*.confext.raw"
+      - "*.confext.raw.sha256sum"
     reports:
       junit: "${_BUILDDIR_FOR_ARTIFACTS}/meson-logs/testlog.junit.xml"
 

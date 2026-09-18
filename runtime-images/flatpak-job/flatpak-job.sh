@@ -208,6 +208,8 @@ flatpak build-bundle \
     "$app_id" \
     "${default_branch}"
 
+sha256sum "${project_dir}/${bundle}" > "${project_dir}/${bundle}.sha256sum"
+
 # Tar the repo for export in the artifacts, this gets consumed by the publish_nightly jobs
 tar cf "$project_dir/repo.tar" "${application_repo}"
 
