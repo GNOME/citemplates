@@ -20,6 +20,7 @@ if [[ "${MESON_DIST:-1}" == "1" ]]; then
         --default-branch="${default_branch}" \
         --ccache \
         --repo="${application_repo}" \
+        --state-dir="${state_dir}" \
         --keep-build-dirs \
         --user \
         --disable-rofiles-fuse \
@@ -31,13 +32,8 @@ if [[ "${MESON_DIST:-1}" == "1" ]]; then
 LANG=C.UTF-8 meson dist --no-tests --include-subprojects --allow-dirty
 END
 
-    # The path doesn't always exit, and won't work in some cases
-    # This is a partial workaround for:
-    # https://gitlab.gnome.org/GNOME/citemplates/-/issues/32
-    dist_path=".flatpak-builder/build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/"
-    if [[ -d "$dist_path" ]]; then
-        cp --recursive --preserve=all "$dist_path" "$project_dir/public-dist/"
-    fi
+    dist_path="${state_dir}/build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/"
+    cp --recursive --preserve=all "$dist_path" "$project_dir/public-dist/"
 fi
 
 # Fix dist-path for artifacts
@@ -47,10 +43,10 @@ fi
 # TARBALL_ARTIFACT_PATH: ".flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.xz"
 # in the old handbook documentation.
 # Manually unlink and move the meson-dist so things keep working.
-dist_path=".flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/"
-dist_path_real=".flatpak-builder/build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/"
+dist_path="${state_dir}/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/"
+dist_path_real="${state_dir}/build/${FLATPAK_MODULE}-2/_flatpak_build/meson-dist/"
 if [[ -d "$dist_path" ]]; then
-    unlink .flatpak-builder/build/${FLATPAK_MODULE}
-    mkdir -p .flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/
-    mv "$dist_path_real" ".flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/"
+    unlink ${state_dir}/build/${FLATPAK_MODULE}
+    mkdir -p ${state_dir}/build/${FLATPAK_MODULE}/_flatpak_build/
+    mv "$dist_path_real" "${state_dir}/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/"
 fi

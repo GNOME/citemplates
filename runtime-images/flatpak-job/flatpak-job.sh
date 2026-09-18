@@ -25,6 +25,9 @@ export ARCH="${ARCH:-$(arch)}"
 export application_directory="$project_dir/application_directory"
 export application_repo="$project_dir/repo/"
 
+default_state_dir="${project_dir}/.flaptak-builder"
+export state_dir="${FB_STATE_DIR:-${default_state_dir}}"
+
 # build-bundle
 nightly_repo_url="https://nightly.gnome.org/repo"
 flatpak_repo_url="${REPO_URL:-${nightly_repo_url}}"
@@ -135,7 +138,7 @@ determine_cache_image () {
 }
 
 # Make sure there is no leftover for whatever reason
-rm -rf "${application_directory}" ./.flatpak-builder/build
+rm -rf "${application_directory}" "${state_dir}/build"
 
 bundle="$(get_bundle_name)"
 readonly bundle
@@ -160,6 +163,7 @@ xvfb-run -a -s "-screen 0 1024x768x24" -- dbus-run-session \
     flatpak-builder ${CI_FB_ARGS:-} \
     --default-branch="${default_branch}" \
     --ccache \
+    --state-dir="${state_dir}" \
     --keep-build-dirs \
     --user \
     --disable-rofiles-fuse \
@@ -182,6 +186,7 @@ echo "Finalizing the build"
 flatpak-builder ${CI_FB_ARGS:-} \
     --default-branch="${default_branch}" \
     --ccache \
+    --state-dir="${state_dir}" \
     --user \
     --disable-rofiles-fuse \
     --finish-only \
