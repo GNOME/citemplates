@@ -25,21 +25,17 @@ spec:
   # - Daily for nightly
   # - Monthly for stable
   # TODO: make it a pipeline trigger from gnome-build-meta
+  needs: []
   rules:
-    - if: '"$[[ inputs.platform-version ]]" == "master"'
-      # We trigger sdk image builds when there are changes
-      # but we also trigger it on schedules to rebuild only the image
-      # withotu rebuilding the base, as there isn't a need.
-      needs: ["base-manifest"]
+    # We trigger sdk image builds when there are changes
+    # but we also trigger it on schedules to rebuild only the image
+    # without rebuilding the base, as there isn't a need.
+    - if:
       changes:
         paths:
           - runtime-images/**/*
-    # Otherwise allow the image to rebuild without the base,
-    # as we are only interested in fetching the flatpak runtime update
-    - if: $REBUILD_STABLE != "true" && "$[[ inputs.platform-version ]]" == "master"
-      needs: []
-    - if: $REBUILD_STABLE == "true" && "$[[ inputs.platform-version ]]" != "master"
-      needs: []
+      needs: ["base-manifest"]
+    - if: $CI_COMMIT_SHA
   script:
     - bash ./runtime-images/scripts/build-sdk-image.sh "$[[ inputs.platform-version ]]" "$[[ inputs.fdsdk-version ]]" "$[[ inputs.llvm-version-1 ]]" "$[[ inputs.llvm-version-2 ]]"
 
@@ -60,15 +56,14 @@ spec:
   extends: ".common:$[[ inputs.platform-version ]]"
   after_script: []
   rules:
-    - if: '"$[[ inputs.platform-version ]]" == "master"'
+    - if:
       # We trigger sdk image builds when there are changes
       # but we also trigger it on schedules to rebuild only the image
       # without rebuilding the base, as there isn't a need.
       changes:
         paths:
           - runtime-images/**/*
-    - if: $REBUILD_STABLE != "true" && "$[[ inputs.platform-version ]]" == "master"
-    - if: $REBUILD_STABLE == "true" && "$[[ inputs.platform-version ]]" != "master"
+    - if: $CI_COMMIT_SHA
   needs:
     - job: "gnome:$[[ inputs.platform-version ]]"
       artifacts: false

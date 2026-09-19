@@ -7,18 +7,24 @@ include:
       llvm-version-1: "22"
       llvm-version-2: "22"
   - local: "runtime-images/.gitlab-ci/build-image.yml"
+    rules:
+      - if: $REBUILD_STABLE == "true"
     inputs:
       platform-version: "51"
       fdsdk-version: "26.08"
       llvm-version-1: "22"
       llvm-version-2: "22"
   - local: "runtime-images/.gitlab-ci/build-image.yml"
+    rules:
+      - if: $REBUILD_STABLE == "true"
     inputs:
       platform-version: "50"
       fdsdk-version: "25.08"
       llvm-version-1: "22"
       llvm-version-2: "21"
   - local: "runtime-images/.gitlab-ci/build-image.yml"
+    rules:
+      - if: $REBUILD_STABLE == "true"
     inputs:
       platform-version: "49"
       fdsdk-version: "25.08"
