@@ -60,6 +60,13 @@ spec:
   extends: ".common:$[[ inputs.platform-version ]]"
   after_script: []
   rules:
+    - if: '"$[[ inputs.platform-version ]]" == "master"'
+      # We trigger sdk image builds when there are changes
+      # but we also trigger it on schedules to rebuild only the image
+      # without rebuilding the base, as there isn't a need.
+      changes:
+        paths:
+          - runtime-images/**/*
     - if: $REBUILD_STABLE != "true" && "$[[ inputs.platform-version ]]" == "master"
     - if: $REBUILD_STABLE == "true" && "$[[ inputs.platform-version ]]" != "master"
   needs:
