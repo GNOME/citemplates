@@ -134,6 +134,20 @@ flatpak-libpanel:
     - cd libpanel
     - !reference [".flatpak", "script"]
 
+flatpak-contacts:
+  extends: [".flatpak@x86_64", ".custom image policy"]
+  variables:
+    FLATPAK_MODULE: "gnome-contacts"
+    MANIFEST_PATH: 'build-aux/flatpak/org.gnome.Contacts.Devel.json'
+    # Make it faster
+    MESON_DIST: "0"
+    RUN_TESTS: "0"
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-contacts.git
+  script:
+    - cd gnome-contacts
+    - !reference [".flatpak", "script"]
+
 flatpak-nautilus:
   extends: [".flatpak@x86_64", ".custom image policy"]
   variables:

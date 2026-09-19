@@ -36,27 +36,26 @@ nightly_runtime_repo="https://nightly.gnome.org/gnome-nightly.flatpakrepo"
 flatpak_runtime_repo="${RUNTIME_REPO:-${nightly_runtime_repo:-}}"
 
 app_id="${APP_ID:-}"
-if [[ "${MANIFEST_PATH}" == *.json ]]; then
-    app_id="$(jq -r '.["app-id"]' "${MANIFEST_PATH}")"
-    if [[ $app_id == "null" ]]; then
-        old_id="$(jq -r '.["id"]' "${MANIFEST_PATH}")"
-        if  [[ -z $old_id ]] || [[ $old_id == "null" ]]; then
-            echo "Failed to discover app-id from the manifest"
-            exit 1
-        fi
-
-        app_id=$old_id
+normalized_manifest=$(flatpak-builder --show-manifest "${MANIFEST_PATH}")
+app_id="$(jq -r '.["app-id"]' <<< "${normalized_manifest}")"
+if [[ $app_id == "null" ]]; then
+    old_id="$(jq -r '.["id"]' <<< "${normalized_manifest}")"
+    if  [[ -z $old_id ]] || [[ $old_id == "null" ]]; then
+        echo "Failed to discover app-id from the manifest"
+        exit 1
     fi
 
-    if [[ -n ${APP_ID:-} ]]; then
-        if [[ $APP_ID != "$app_id" ]]; then
-            echo "Missmatch between app-id provided in the manifest: $app_id"
-            echo "And the app-id passed with APP_ID CI Variables: $APP_ID"
-            exit 1
-        fi
+    app_id=$old_id
+fi
+
+if [[ -n ${APP_ID:-} ]]; then
+    if [[ $APP_ID != "$app_id" ]]; then
+        echo "Missmatch between app-id provided in the manifest: $app_id"
+        echo "And the app-id passed with APP_ID CI Variables: $APP_ID"
+        exit 1
     fi
 fi
-# For yaml the APP_ID variable is still required
+
 : "${app_id:?APP_ID is required}"
 
 # Create a subject to add to the OSTree commit subject
