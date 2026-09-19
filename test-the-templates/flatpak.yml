@@ -1,8 +1,46 @@
 include:
   # Testing the local templates
   - local: "flatpak/flatpak_ci_initiative.yml"
-  # flatpak test image setup
-  - local: "test-the-templates/flatpak-local-image.yml"
+
+  # For the tarball dist test
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/release-service@$CI_COMMIT_SHA
+    inputs:
+      job-name: "release-service-flatpak"
+      dist-job-name: "test-flatpak-dist"
+      service-url: "https://gnome-release-route-sandbox-gnome-release-service.apps.openshift.gnome.org"
+
+.upstream-image: &upstream
+  needs: []
+  variables:
+    _IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master"
+
+.forked-image-rebuild: &fork
+  variables:
+    _IMAGE: "$CI_REGISTRY_IMAGE:gnome-master-$CI_COMMIT_REF_SLUG"
+  needs:
+    - job: "gnome-manifest:master"
+      artifacts: false
+
+# This rules triggers for changes in both runtime-images and flatpak as we want to
+# run the tests in either case, but only in one of them we need to rebuild the image
+# to test it, as the other one only changes the template.
+.custom image policy:
+  stage: "Flatpak app"
+  rules:
+    # These rules are in order, cause we always want quay on default branch upstream
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PROJECT_NAMESPACE == "GNOME"
+      <<: *upstream
+    # If there are changes in the image, use that, as it should have been also triggered
+    # to build.
+    - if:
+      changes:
+        paths:
+          - "runtime-images/**/*"
+      <<: *fork
+    # Otherwise, catchall rule, use the upstream image again
+    - if: $CI_COMMIT_SHA
+      <<: *upstream
+  image: $_IMAGE
 
 # FIXME: font-viewer compiles very fast, however:
 #   - We are missing tests for manifests with modules
@@ -13,7 +51,6 @@ include:
 # template, see vala-nightly
 .flatpak-test-setup:
   extends: ".custom image policy"
-  stage: "Flatpak app"
   variables:
     # This is different than the Upstream yaml, as it has the gnome-font-viewer subdir added in the path
     MANIFEST_PATH: "gnome-font-viewer/build-aux/flatpak/org.gnome.font-viewerDevel.json"
@@ -71,7 +108,6 @@ flatpak-no-dist-no-tests:
     RUN_TESTS: "0"
 
 flatpak-libadwaita-demo:
-  stage: "Flatpak app"
   extends: [".flatpak@x86_64", ".custom image policy"]
   variables:
     MANIFEST_PATH: 'demo/org.gnome.Adwaita1.Demo.json'
@@ -82,8 +118,22 @@ flatpak-libadwaita-demo:
     - cd libadwaita
     - !reference [".flatpak", "script"]
 
+flatpak-libpanel:
+  extends: [".flatpak@x86_64", ".custom image policy"]
+  variables:
+    FLATPAK_MODULE: "libpanel"
+    MANIFEST_PATH: "org.gnome.libpanel.demo.json"
+    CONFIG_OPTS: "-Ddocs=enabled -Dinstall-examples=true"
+    # Make it faster
+    MESON_DIST: "0"
+    RUN_TESTS: "0"
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/libpanel.git
+  script:
+    - cd libpanel
+    - !reference [".flatpak", "script"]
+
 flatpak-nautilus:
-  stage: "Flatpak app"
   extends: [".flatpak@x86_64", ".custom image policy"]
   variables:
     MANIFEST_PATH: "build-aux/flatpak/org.gnome.Nautilus.json"
@@ -130,3 +180,53 @@ test-flatpak-bundle-and-repo:
     - export FLATPAK_SYSTEM_HELPER_ON_SESSION=foo
     - flatpak -vvv install -y --user --no-pull ${CI_PROJECT_NAME}*.flatpak
     - flatpak -vvv install -y --user --no-pull nautilus-dev.flatpak
+
+test-flatpak-dist:
+  image: "quay.io/gnome_infrastructure/gnome-build-meta:sdk-nightly"
+  tags:
+    - "x86_64_v3"
+  stage: "Flatpak app"
+  needs: ["flatpak-with-dist"]
+  variables:
+    FLATPAK_MODULE: "gnome-font-viewer"
+  script:
+    # Test that we extract logs and dist from the builddirs
+    - ls -l --human-readable --recursive .flatpak-builder/build/${FLATPAK_MODULE}*/_flatpak_build/meson-logs/
+    - ls -l --human-readable --recursive .flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/
+
+    # This is the default TARBALL_ARTIFACT_PATH we recommend in the old docs and has to keep working
+    # The docs mention ${CI_PROJECT_NAME}-${CI_COMMIT_TAG}.tar.xz but we will use a wildcards instead
+    - ls -lh .flatpak-builder/build/${FLATPAK_MODULE}/_flatpak_build/meson-dist/*.tar.xz
+    - ls -lh public-dist/*.tar.xz*
+    # Make sure we can decompress the archive
+    - tar --verbose --extract --file public-dist/*.tar.xz
+
+    # Rename the tarball for the release-service tests
+    #
+    # The idea is that on every commit we will possibly want to test the
+    # release service template and thus we need a version that will be
+    # incrementing on its own. To that end use the Pipeline Intenral ID.
+    # Additionally, the release service will only parse the gnome-like
+    # version schemes. To that end we will use .alpha.0 for the flatpak tarball
+    # and .alpha.1 for the basic-ci tarball
+    #
+    # https://gitlab.gnome.org/Infrastructure/openshift-images/gnome-release-service/-/blob/8744cfa644f6f19d718623a1892a775d99d18a03/gnome_release_service/gnome_release_system/modules/module_release.py#L63-98
+    - COMMITS_TOTAL=$(git rev-list HEAD --count)
+    - version="01.$CI_PIPELINE_IID.alpha.0"
+    - mv public-dist/gnome-font-viewer-*.tar.xz public-dist/gnome-font-viewer-$version.tar.xz
+    - mv public-dist/gnome-font-viewer-*.tar.xz.sha256sum public-dist/gnome-font-viewer-$version.tar.xz.sha256sum
+    - ls -al public-dist/
+  artifacts:
+    access: "developer"
+    expire_in: "2 days"
+    when: "always"
+    paths:
+      - "public-dist"
+
+test-flatpak-docs-generation:
+  needs: ["flatpak-libpanel"]
+  stage: "Flatpak app"
+  script:
+    - ls -lh "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz"
+    - tar --extract --file $CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz
+    - ls -alhR panel-1.0

@@ -104,6 +104,39 @@ include:
       scan-build: "disabled"
       goblint: "disabled"
 
+  # Test Docs generation for gidocgen and gtk-doc
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-libpanel"
+      job-stage: "GNOMEOS Basic CI"
+      meson-options: "-Ddocs=enabled -Dinstall-examples=true"
+      meson-sourcedir: "libpanel"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/libpanel.git"
+      run-tests: "no"
+      clang: "disabled"
+      scan-build: "disabled"
+      goblint: "disabled"
+      generate-extensions: "disabled"
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-gnome-desktop"
+      job-stage: "GNOMEOS Basic CI"
+      meson-options: "-Dgtk_doc=true"
+      meson-sourcedir: "gnome-desktop"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-desktop.git"
+      run-tests: "no"
+      clang: "disabled"
+      scan-build: "disabled"
+      goblint: "disabled"
+      generate-extensions: "disabled"
+    
+  # Test the release service sandbox
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/release-service@$CI_COMMIT_SHA
+    inputs:
+      job-name: "release-service-basic-ci"
+      dist-job-name: "test-basic-ci-dist"
+      service-url: "https://gnome-release-route-sandbox-gnome-release-service.apps.openshift.gnome.org"
+
 # Override the jobs, gitlab should "merge" them so we can add the allow_failure
 basic-ci-ubuntu:
   # We often get 403s in the CI runner while trying to install things
@@ -137,3 +170,44 @@ basic-ci-default-gobject-linter:
   # Also override the before-scipt as we had to disable it
   # See https://gitlab.gnome.org/GNOME/citemplates/-/merge_requests/172
   before_script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-font-viewer.git"
+
+test-basic-ci-docs-generation:
+  needs: ["basic-ci-libpanel"]
+  stage: "GNOMEOS Basic CI"
+  script:
+    - ls -lh "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz"
+    - tar --extract --file $CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz
+    - ls -alhR panel-1.0
+
+test-basic-ci-gtk-doc-generation:
+  stage: "GNOMEOS Basic CI"
+  needs: ["basic-ci-gnome-desktop"]
+  script:
+    - ls -lh "$CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz"
+    - tar --extract --file $CI_PROJECT_DIR/${CI_PROJECT_NAME}-docs.tar.gz
+    - ls -alh html/
+    - ls -alhR html/gnome-desktop3
+
+test-basic-ci-dist:
+  image: "quay.io/gnome_infrastructure/gnome-build-meta:sdk-nightly"
+  stage: "GNOMEOS Basic CI"
+  tags:
+    - "x86_64_v3"
+  needs: ["basic-ci-default"]
+  script:
+    - ls -lh public-dist/*.tar.xz*
+    # Make sure we can decompress the archive
+    - tar --verbose --extract --file public-dist/*.tar.xz
+
+    # Rename the tarball for the release-service tests
+    - COMMITS_TOTAL=$(git rev-list HEAD --count)
+    - version="01.$CI_PIPELINE_IID.alpha.1"
+    - mv public-dist/gnome-font-viewer-*.tar.xz public-dist/gnome-font-viewer-$version.tar.xz
+    - mv public-dist/gnome-font-viewer-*.tar.xz.sha256sum public-dist/gnome-font-viewer-$version.tar.xz.sha256sum
+    - ls -al public-dist/
+  artifacts:
+    access: "developer"
+    expire_in: "2 days"
+    when: "always"
+    paths:
+      - "public-dist"

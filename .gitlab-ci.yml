@@ -70,11 +70,9 @@ include:
         changes:
           paths:
             - "runtime-images/**/*"
-            # The usual template
             - "flatpak/*"
             - "templates/defeault-rules.yml"
             - "test-the-templates/flatpak.yml"
-            - "test-the-templates/flatpak-local-image.yml"
 
   - local: "test-the-templates/gnomeos-basic-ci.yml"
     rules:
@@ -88,46 +86,6 @@ include:
           paths:
             - "templates/gnomeos-basic-ci.yml"
             - "test-the-templates/gnomeos-basic-ci.yml"
-
-  - local: "test-the-templates/test-tarball-dist.yml"
-    rules:
-      - if:
-          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
-          $RUN_THIS_STAGE_ONLY != "Dist tarball tests" &&
-          $RUN_THIS_STAGE_ONLY != "GNOMEOS Basic CI" &&
-          $RUN_THIS_STAGE_ONLY != "Flatpak app"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "Dist tarball tests"
-      - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
-      - if: *default_case
-        changes:
-          paths:
-            # Changes in script now affect the flatpak dist
-            - "runtime-images/**/*"
-            - "flatpak/*"
-            - "templates/gnomeos-basic-ci.yml"
-            - "test-the-templates/test-tarball-dist.yml"
-            - "test-the-templates/flatpak-local-image.yml"
-
-  - local: "test-the-templates/test-docs-generation.yml"
-    rules:
-      - if:
-          $RUN_THIS_STAGE_ONLY != "_default" && $RUN_THIS_STAGE_ONLY != null &&
-          $RUN_THIS_STAGE_ONLY != "Docs generation tests" &&
-          $RUN_THIS_STAGE_ONLY != "GNOMEOS Basic CI" &&
-          $RUN_THIS_STAGE_ONLY != "Flatpak app"
-        when: "never"
-      - if: $RUN_THIS_STAGE_ONLY == "Docs generation tests"
-      - if: $RUN_THIS_STAGE_ONLY == "Flatpak app"
-      - if: *default_case
-        changes:
-          paths:
-            # Changes in script now affect the flatpak dist
-            - "runtime-images/**/*"
-            - "flatpak/*"
-            - "templates/gnomeos-basic-ci.yml"
-            - "test-the-templates/test-docs-generation.yml"
-            - "test-the-templates/flatpak-local-image.yml"
 
   - local: "test-the-templates/test-mdbook.yml"
     rules:
@@ -174,8 +132,6 @@ include:
   - "CI Runtime Images"
   - "Flatpak app"
   - "GNOMEOS Basic CI"
-  - "Dist tarball tests"
-  - "Docs generation tests"
   - "Mdbook tests"
   - "GNOMEOS Build Sysext CI"
   - "Goblint"
