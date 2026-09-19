@@ -14,6 +14,8 @@
 
 set -eu -o pipefail
 
+set -x
+
 if [[ "${MESON_DIST:-1}" == "1" ]]; then
     echo "Running meson dist!"
     flatpak-builder ${CI_FB_ARGS:-} \

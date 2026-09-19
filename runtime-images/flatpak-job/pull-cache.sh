@@ -5,6 +5,8 @@
 
 set -eu -o pipefail
 
+set -x
+
 if [[ "${PULL_CACHE:-0}" == "1" ]]; then
     # Make sure we don't end up with any leftover volume cache
     # as we are going to extract our own anyway

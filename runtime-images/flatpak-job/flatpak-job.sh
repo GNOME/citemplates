@@ -8,7 +8,9 @@
 # However, we should invest in integrating the functionality (when possible) in our build
 # tooling instead of making another, and horrible, build tool, that both special to CI and bash.
 
-set -e -o pipefail
+set -eu -o pipefail
+
+set -x
 
 : "${MANIFEST_PATH:?MANIFEST_PATH is required}"
 : "${FLATPAK_MODULE:?FLATPAK_MODULE is required}"
