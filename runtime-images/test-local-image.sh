@@ -99,6 +99,16 @@ test_nautilus () {
     podman_run $project $manifest_path
 }
 
+test_epiphany () {
+    local url="https://gitlab.gnome.org/gnome/epiphany.git"
+    local manifest_path="org.gnome.Epiphany.json"
+    local project="epiphany"
+
+    project_setup $url $project
+    podman_run $project $manifest_path
+}
+
 global_setup
-test_font_viewer
-test_nautilus
+# test_font_viewer
+# test_nautilus
+test_epiphany

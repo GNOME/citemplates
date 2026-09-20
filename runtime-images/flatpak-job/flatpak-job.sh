@@ -19,11 +19,6 @@ if [[ -n "${CI_PROJECT_DIR:-}" ]]; then
     git config --global --add safe.directory "${CI_PROJECT_DIR}"
 fi
 
-# We don't really need this, but might as well
-# if [[ ! -d "/tmp/.X11-unix" ]]; then
-#     mkdir -m 1777 /tmp/.X11-unix
-# fi
-
 XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
 chmod 700 "$XDG_RUNTIME_DIR"
 export XDG_RUNTIME_DIR
