@@ -118,8 +118,20 @@ spec:
 ".$[[ inputs.job-name ]]-script-build": &build
   - *info
 
-  - mkdir -m 1777 /tmp/.X11-unix
-  - export XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
+  # We don't really need this, but might as well
+  # - >-
+  #   if [[ ! -d "/tmp/.X11-unix" ]]; then
+  #       mkdir -m 1777 /tmp/.X11-unix
+  #   fi
+
+  - XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
+  - chmod 700 "$XDG_RUNTIME_DIR"
+  - export XDG_RUNTIME_DIR
+
+  # Hacky way to get things, including portals, to initialize as if
+  # we had a whole session running!
+  - export XDG_CURRENT_DESKTOP="GNOME"
+  - export XDG_SESSION_DESKTOP="GNOME"
 
   # GNOMEOS needs the libdir to be manually specified as otherwise meson will
   # resolve it to /lib64
