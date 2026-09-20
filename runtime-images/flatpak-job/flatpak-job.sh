@@ -111,6 +111,9 @@ rewrite_manifest () {
 }
 
 print_bundle_url () {
+    # Makes the echo look bad otherwise
+    set +x
+
     if [[ -n "${CI_JOB_URL:-}" ]]; then
         echo -e "Try this Flatpak build with:"
         echo -e "  $ wcurl $CI_JOB_URL/artifacts/raw/${bundle} --output /tmp/${bundle}"
