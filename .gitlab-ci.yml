@@ -195,3 +195,10 @@ variables:
     options:
       - "true"
       - "false"
+
+oras-cleanup:
+  needs: []
+  stage: _default
+  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
+  script:
+  - bash oras-cleanup.sh
