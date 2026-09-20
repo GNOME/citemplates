@@ -116,6 +116,7 @@ spec:
     - if: $CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED
       variables:
         RELEASE_GIT_REF: "$CI_COMMIT_TAG"
-    - if: '"$[[ inputs.service-url ]]" == "https://gnome-release-route-sandbox-gnome-release-service.apps.openshift.gnome.org"'
+    # Only trigger this in a GNOME namesapce, as we still need the tagged runner to be available
+    - if: '"$[[ inputs.service-url ]]" == "https://gnome-release-route-sandbox-gnome-release-service.apps.openshift.gnome.org" && $CI_PROJECT_NAMESPACE == "GNOME"'
       variables:
         RELEASE_GIT_REF: "$CI_COMMIT_SHA"
