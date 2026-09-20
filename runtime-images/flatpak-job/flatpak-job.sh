@@ -163,18 +163,24 @@ rewrite_manifest
 
 # Build. It will also run tests if we specified them in the manifest
 echo "Running the build!"
-xvfb-run -a -s "-screen 0 1024x768x24" -- dbus-run-session \
+
+
+xvfb-run -a -s "-screen 0 1024x768x24" -- \
+    dbus-run-session -- \
+    bash -exu -c '
+    gdbus introspect --session --dest org.freedesktop.portal.Desktop --object-path /org/freedesktop/portal/desktop && \
     flatpak-builder ${CI_FB_ARGS:-} \
-    --default-branch="${default_branch}" \
-    --ccache \
-    --state-dir="${state_dir}" \
-    --keep-build-dirs \
-    --user \
-    --disable-rofiles-fuse \
-    --build-only \
-    --repo="${application_repo}" \
-    "${application_directory}" \
-    "${MANIFEST_PATH}"
+        --default-branch="${default_branch}" \
+        --ccache \
+        --state-dir="${state_dir}" \
+        --keep-build-dirs \
+        --user \
+        --disable-rofiles-fuse \
+        --build-only \
+        --repo="${application_repo}" \
+        "${application_directory}" \
+        "${MANIFEST_PATH}"
+'
 
 # Run dist, if specified, and copy the tarball to export it
 bash /usr/lib/citemplates/dist.sh
