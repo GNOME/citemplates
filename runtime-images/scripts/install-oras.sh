@@ -5,7 +5,7 @@
 
 set -eux
 
-ORAS_VERSION="1.2.3"
+ORAS_VERSION="1.3.4"
 ARCH=$(uname -m)
 case "${ARCH}" in \
     x86_64) oras_arch='amd64';; \
