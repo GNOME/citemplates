@@ -167,6 +167,19 @@ flatpak-nautilus:
     - cd nautilus
     - !reference [".flatpak", "script"]
 
+flatpak-epiphany:
+  extends: [".flatpak@x86_64", ".custom image policy"]
+  variables:
+    FLATPAK_MODULE: "epiphany"
+    MANIFEST_PATH: 'org.gnome.Epiphany.json'
+    # Make it faster
+    MESON_DIST: "0"
+  before_script:
+    - git clone --depth=1 https://gitlab.gnome.org/gnome/epiphany.git
+  script:
+    - cd epiphany
+    - !reference [".flatpak", "script"]
+
 test-flatpak-bundle-and-repo:
   image: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master"
   stage: "Flatpak app"
