@@ -17,6 +17,11 @@ set -x
 
 if [[ -n "${CI_PROJECT_DIR:-}" ]]; then
     git config --global --add safe.directory "${CI_PROJECT_DIR}"
+    # Make sure the fsmonitor does not trigger the flatpak-builder bug
+    # https://github.com/flatpak/flatpak-builder/issues/615
+    git -C "${CI_PROJECT_DIR}" config core.fsmonitor false
+    rm --verbose --force "${CI_PROJECT_DIR}/.git/fsmonitor--daemon.ipc"
+    rm --verbose --force "${CI_PROJECT_DIR}/.git/fsmonitor--daemon.ipc="
 fi
 
 XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
