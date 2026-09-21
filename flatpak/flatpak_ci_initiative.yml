@@ -3,10 +3,12 @@ include:
     file: "templates/default-rules.yml"
 
 .flatpak:
-  image: 'quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master'
   stage: 'test'
   interruptible: true
   variables:
+    # Allow to override it more easily
+    _IMAGE: "quay.io/gnome_infrastructure/gnome-runtime-images:gnome-master"
+
     LANG: "C.UTF-8"
     # Force Software rendering for GL and Vulkan so the tests run locally
     LIBGL_ALWAYS_SOFTWARE: true
@@ -32,6 +34,7 @@ include:
   # compatibility.
   tags:
     - flatpak
+  image: $_IMAGE
   script:
     # By only using the script in the image, we can also tie any changes
     # to the scripts to the image versions, and avoid issues where we

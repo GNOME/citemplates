@@ -41,7 +41,6 @@ include:
     # Otherwise, catchall rule, use the upstream image again
     - if: $CI_COMMIT_SHA
       <<: *upstream
-  image: $_IMAGE
 
 # FIXME: font-viewer compiles very fast, however:
 #   - We are missing tests for manifests with modules
