@@ -33,12 +33,6 @@ include:
   tags:
     - flatpak
   script:
-    - >-
-      if [[ "$DEBUG_STRACE" = "true" ]]; then
-        export strace="strace"
-      else
-        export strace=""
-      fi
     # By only using the script in the image, we can also tie any changes
     # to the scripts to the image versions, and avoid issues where we
     # changed the template/scripts but the image was not yet published

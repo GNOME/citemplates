@@ -178,12 +178,16 @@ rewrite_manifest
 # Build. It will also run tests if we specified them in the manifest
 echo "Running the build!"
 
-
+if [[ "$DEBUG_STRACE" = "true" ]]; then
+    export _strace="strace"
+else
+    export _strace=""
+fi
 xvfb-run -a -s "-screen 0 1024x768x24" -- \
     dbus-run-session -- \
     bash -exu -c '
     gdbus introspect --session --dest org.freedesktop.portal.Desktop --object-path /org/freedesktop/portal/desktop && \
-    flatpak-builder ${CI_FB_ARGS:-} \
+    ${_strace:-} flatpak-builder ${CI_FB_ARGS:-} \
         --default-branch="${default_branch}" \
         --ccache \
         --state-dir="${state_dir}" \
