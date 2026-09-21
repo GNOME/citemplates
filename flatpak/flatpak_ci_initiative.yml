@@ -26,16 +26,23 @@ include:
     # Default for backwards compatibility
     ARCH: "x86_64"
     ADD_GITLAB_METADATA: "1"
+    DEBUG_STRACE: "false"
   # Till now this was the template job used for everything,
   # so assume its default tags are x86 to avoid breaking backwards
   # compatibility.
   tags:
     - flatpak
   script:
+    - >-
+      if [[ "$DEBUG_STRACE" = "true" ]]; then
+        export strace="strace"
+      else
+        export strace=""
+      fi
     # By only using the script in the image, we can also tie any changes
     # to the scripts to the image versions, and avoid issues where we
     # changed the template/scripts but the image was not yet published
-    - bash /usr/lib/citemplates/flatpak-job.sh
+    - ${strace:-} bash /usr/lib/citemplates/flatpak-job.sh
   artifacts:
     name: 'Flatpak artifacts'
     when: 'always'
