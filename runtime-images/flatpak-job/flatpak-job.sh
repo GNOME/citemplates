@@ -24,7 +24,7 @@ if [[ -n "${CI_PROJECT_DIR:-}" ]]; then
     rm --verbose --force "${CI_PROJECT_DIR}/.git/fsmonitor--daemon.ipc="
 fi
 
-XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
+XDG_RUNTIME_DIR="$(mktemp -p "/tmp" -d xdg-runtime-XXXXXX)"
 chmod 700 "$XDG_RUNTIME_DIR"
 export XDG_RUNTIME_DIR
 
@@ -178,7 +178,7 @@ rewrite_manifest
 # Build. It will also run tests if we specified them in the manifest
 echo "Running the build!"
 
-if [[ "$DEBUG_STRACE" = "true" ]]; then
+if [[ "${DEBUG_STRACE:-}" = "true" ]]; then
     export _strace="strace"
 else
     export _strace=""

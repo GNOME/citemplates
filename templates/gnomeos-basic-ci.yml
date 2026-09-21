@@ -118,7 +118,7 @@ spec:
 ".$[[ inputs.job-name ]]-script-build": &build
   - *info
 
-  - XDG_RUNTIME_DIR="$(mktemp -p "${CI_PROJECT_DIR:-/tmp}" -d xdg-runtime-XXXXXX)"
+  - XDG_RUNTIME_DIR="$(mktemp -p "/tmp" -d xdg-runtime-XXXXXX)"
   - chmod 700 "$XDG_RUNTIME_DIR"
   - export XDG_RUNTIME_DIR
 
