@@ -31,7 +31,7 @@ buildah manifest add "${REGISTRY_TAG}" "docker://${registry}:aarch64-${REGISTRY_
 
 if [[ "$should_push" == true ]]; then
     echo "Pushing ${registry}:${REGISTRY_TAG}"
-    buildah manifest push --compression-format zstd:chunked --add-compression zstd:chunked --all "${REGISTRY_TAG}" "docker://${registry}:${REGISTRY_TAG}"
+    buildah manifest push --all "${REGISTRY_TAG}" "docker://${registry}:${REGISTRY_TAG}"
 else
     echo "No credentials configured. Skipping push of ${REGISTRY_TAG}"
 fi

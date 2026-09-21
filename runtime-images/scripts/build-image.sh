@@ -34,7 +34,7 @@ buildah bud -t "${image_tag}" runtime-images
 
 if [[ "$should_push" == true ]]; then
     echo "Pushing ${image_tag}"
-    buildah push --compression-format zstd:chunked "${image_tag}"
+    buildah push "${image_tag}"
 else
     echo "No credentials configured. Skipping push of ${image_tag}"
 fi

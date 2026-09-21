@@ -82,7 +82,7 @@ buildah commit --squash "$CONTAINER" "$image_tag"
 
 if [[ "$should_push" == true ]]; then
     echo "Pushing ${image_tag}"
-    buildah push --compression-format zstd:chunked "${image_tag}"
+    buildah push "${image_tag}"
 else
     echo "No credentials configured. Skipping push of ${image_tag}"
 fi
