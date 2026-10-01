@@ -30,10 +30,14 @@ spec:
       default: []
       type: array
       description: "Extra rules to trigger the job"
+    needs:
+      default: []
+      type: array
+      description: "Other jobs that mdbook uses artifacts from"
 ---
 "$[[ inputs.job-name ]]":
   stage: "$[[ inputs.job-stage ]]"
-  needs: []
+  needs: "$[[ inputs.needs ]]"
   image: "debian:13"
   before_script: $[[ inputs.before-script ]]
   script:
