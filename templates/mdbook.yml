@@ -37,7 +37,7 @@ spec:
 ---
 "$[[ inputs.job-name ]]":
   stage: "$[[ inputs.job-stage ]]"
-  needs: "$[[ inputs.needs ]]"
+  needs: $[[ inputs.needs ]]
   image: "debian:13"
   before_script: $[[ inputs.before-script ]]
   script:
