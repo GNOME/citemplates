@@ -22,7 +22,7 @@ RUN dnf upgrade -y --best --allowerasing && \
 # Error: module gnome-font-viewer: Child process exited with code 1
 RUN git clone --recursive --depth=1 -b alatiera/gnome-ci-bwrap https://github.com/alatiera/flatpak.git && \
     cd flatpak && \
-    git checkout 947b8134c04001a9f05db7ff2d7db8e4375e4dee && \
+    git checkout e74ffed8d55ceee9d4d93bc8f2491db885bbeccd && \
     meson setup --prefix=/usr/local -Dtests=false -Ddocbook_docs=disabled -Dgtkdoc=disabled _build && \
     meson install -C _build --destdir=/flatpak/destdir
 
