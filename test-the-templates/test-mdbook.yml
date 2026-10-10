@@ -7,3 +7,6 @@ include:
       mdbook-sourcedir: "gnome-build-meta"
       theme-git-url: "https://gitlab.gnome.org/jimmac/gnome-mdbook-style.git"
       before-script: ["bash test-the-templates/test-mdbook-before-script.sh"]
+      # Always trigger it, as we gate the test in the .gitlab-ci.yml
+      extra-rules:
+        - if: $CI_PROJECT_ID
