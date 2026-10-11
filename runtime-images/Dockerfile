@@ -52,6 +52,10 @@ RUN bash /usr/lib/citemplates-install/install-oras.sh
 # We also don't need to mess with /usr/local since we control the image
 COPY flatpak-job/* /usr/lib/citemplates/
 
+# As a sideeffect it will initialize the empty /var/lib/flatpak/repo
+# if its missing, a couple codepaths fail cause this was never tested without a system repo
+RUN flatpak remotes --system
+
 # generate machine-id as specified in the freedesktop spec:
 # https://www.freedesktop.org/software/systemd/man/machine-id.html
 # for exmaple, gnome-builder test suite depends on this
