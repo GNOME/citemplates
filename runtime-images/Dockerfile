@@ -1,6 +1,7 @@
 FROM quay.io/fedora/fedora:45
 
-RUN dnf upgrade -y --best --allowerasing && \
+RUN dnf config-manager setopt '*openh264*.enabled=0' && \
+    dnf upgrade -y --best --allowerasing && \
     dnf install -y git 'dnf-command(builddep)' which meson && \
     dnf builddep -y flatpak
 
@@ -32,7 +33,8 @@ COPY --from=0 /flatpak/destdir/usr/local /usr/local/
 RUN useradd --home-dir /build --create-home --shell /bin/bash build
 WORKDIR /build
 
-RUN dnf upgrade -y --best --allowerasing && \
+RUN dnf config-manager setopt '*openh264*.enabled=0' && \
+    dnf upgrade -y --best --allowerasing && \
     dnf install -y flatpak flatpak-builder librsvg2 ostree fuse elfutils ccache debugedit \
     dconf dbus-daemon dbus-tools git bzr xorg-x11-server-Xvfb dbus-x11 python3-ruamel-yaml \
     python3-gobject python3-pip json-glib jq tracker tracker-miners strace \
