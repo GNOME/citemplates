@@ -51,9 +51,6 @@ RUN bash /usr/lib/citemplates-install/install-oras.sh
 # Private binaries/scripts go into /usr/lib
 # We also don't need to mess with /usr/local since we control the image
 COPY flatpak-job/* /usr/lib/citemplates/
-# /local/bin for backwards compatibility
-# Drop this later
-COPY flatpak-job/rewrite-flatpak-manifest.py /usr/local/bin/rewrite-flatpak-manifest
 
 # generate machine-id as specified in the freedesktop spec:
 # https://www.freedesktop.org/software/systemd/man/machine-id.html
