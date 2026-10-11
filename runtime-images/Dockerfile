@@ -24,11 +24,10 @@ RUN dnf config-manager setopt '*openh264*.enabled=0' && \
 RUN git clone --recursive --depth=1 -b alatiera/gnome-ci-bwrap https://github.com/alatiera/flatpak.git && \
     cd flatpak && \
     git checkout e74ffed8d55ceee9d4d93bc8f2491db885bbeccd && \
-    meson setup --prefix=/usr/local -Dtests=false -Ddocbook_docs=disabled -Dgtkdoc=disabled _build && \
+    meson setup --prefix=/usr -Dtests=false -Ddocbook_docs=disabled -Dgtkdoc=disabled _build && \
     meson install -C _build --destdir=/flatpak/destdir
 
 FROM quay.io/fedora/fedora:45
-COPY --from=0 /flatpak/destdir/usr/local /usr/local/
 
 RUN useradd --home-dir /build --create-home --shell /bin/bash build
 WORKDIR /build
@@ -40,6 +39,8 @@ RUN dnf config-manager setopt '*openh264*.enabled=0' && \
     python3-gobject python3-pip json-glib jq tracker tracker-miners strace \
     mesa-vulkan-drivers mesa-libEGL mesa-libGL mutter xdg-desktop-portal xdg-desktop-portal-gnome && \
     dnf clean all
+
+COPY --from=0 /flatpak/destdir/usr /usr/
 
 RUN which bwrap && which flatpak && which flatpak-builder
 RUN flatpak --version && flatpak-builder --version && bwrap --version
