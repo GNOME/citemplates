@@ -33,6 +33,9 @@ export XDG_RUNTIME_DIR
 export XDG_CURRENT_DESKTOP="GNOME"
 export XDG_SESSION_DESKTOP="GNOME"
 
+# Disable gvfs as we don't have a complete session and barerly a dbus session
+export GIO_USE_VFS=local
+
 export project_dir="${CI_PROJECT_DIR:-$(pwd)}"
 project_name="${CI_PROJECT_NAME:-${FLATPAK_MODULE}}"
 commit_hash=$(git rev-parse --short=12 HEAD)
