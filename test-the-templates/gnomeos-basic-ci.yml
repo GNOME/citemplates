@@ -44,6 +44,7 @@ include:
       # only need one of them to test
       tsan: "disabled"
       ubsan: "disabled"
+      gcov: "disabled"
       grcov-c: "disabled"
       scan-build: "disabled"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
@@ -93,6 +94,7 @@ include:
       generate-extensions: "enabled"
       run-tests: "no"
       clang: "disabled"
+      gcov: "disabled"
       grcov-c: "disabled"
       scan-build: "disabled"
       goblint: "disabled"
