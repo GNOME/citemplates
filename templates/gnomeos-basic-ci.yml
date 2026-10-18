@@ -363,6 +363,10 @@ spec:
     - mv ${_BUILDDIR}/meson-logs/coveragereport public-gcc-coverage
     - mv ${_BUILDDIR}/meson-logs/coverage.xml public-gcc-coverage/coverage.xml
     - mv ${_BUILDDIR}/meson-logs/coverage.txt public-gcc-coverage/coverage.txt
+
+    - |-
+      echo -e "View the generated report here: $CI_JOB_URL/artifacts/external_file/public-gcc-coverage/index.html"
+      echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
   coverage: '/Coverage - \d+(?:\.\d+)?/'
   artifacts:
     access: "developer"
@@ -397,6 +401,10 @@ spec:
 
     # Extract just the top-level coverage number from the XML report.
     - xmllint --xpath "concat('Coverage - ', 100 * string(//coverage/@line-rate), '%')" public_grcov/cobertura.xml
+
+    - |-
+      echo -e "View the generated report here: $CI_JOB_URL/artifacts/external_file/public_grcov/html/index.html"
+      echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
   coverage: '/Coverage - \d+(?:\.\d+)?/'
   artifacts:
     access: "developer"
@@ -436,6 +444,10 @@ spec:
     # If there are no bugs found, scanbuild removes the directory and then cp will complain
     # cp: cannot stat '/builds/GNOME/yelp-xsl/_builddir/meson-logs/scanbuild/*': No such file or directory
     - cp -r ${_BUILDDIR}/meson-logs/scanbuild/* public_scanbuild/ || true
+
+    - |-
+      echo -e "View the generated report here: $CI_JOB_URL/artifacts/external_file/public_scanbuild/index.html"
+      echo -e "(note that it might take a few minutes for artifacts to be available on the server)"
   artifacts:
     access: "developer"
     name: "${CI_PROJECT_NAME}-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
