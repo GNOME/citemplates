@@ -351,7 +351,7 @@ spec:
     - job: "$[[ inputs.job-name ]]"
       artifacts: false
   variables:
-    # https://gcovr.com/en/stable/guide/compiling.html#compiler-options 
+    # https://gcovr.com/en/stable/guide/compiling.html#compiler-options
     _INTERNAL_MESON_ARGS: "--buildtype=debug -Db_coverage=true"
     CFLAGS: "--coverage -fprofile-abs-path -fno-omit-frame-pointer -g"
     CC: "ccache gcc"
@@ -361,7 +361,7 @@ spec:
     - export PATH=$HOME/.local/bin:$PATH
 
     - *test
-    - ninja -C ${_BUILDDIR} coverage 
+    - ninja -C ${_BUILDDIR} coverage
 
     - mv ${_BUILDDIR}/meson-logs/coveragereport public-gcc-coverage
     - mv ${_BUILDDIR}/meson-logs/coverage.xml public-gcc-coverage/coverage.xml
@@ -465,8 +465,8 @@ spec:
     - if: '"$[[ inputs.scan-build ]]" == "enabled"'
 
 ".$[[ inputs.job-name ]]-goblint-changes": &goblint-changes
-  - "goblint.toml"
-  - "gobject-linter.toml"
+  - "**/goblint.toml"
+  - "**/gobject-linter.toml"
   - "meson.build"
   - "**/meson.build"
   - "**/*.c"

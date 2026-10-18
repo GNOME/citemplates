@@ -33,8 +33,8 @@ spec:
       description: "Extra rules to trigger the job"
 ---
 ".$[[ inputs.job-name ]]-goblint-changes": &goblint-changes
-  - "goblint.toml"
-  - "gobject-linter.toml"
+  - "**/goblint.toml"
+  - "**/gobject-linter.toml"
   - "meson.build"
   - "**/meson.build"
   - "**/*.c"
