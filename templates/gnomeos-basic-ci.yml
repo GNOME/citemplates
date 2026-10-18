@@ -388,7 +388,7 @@ spec:
       artifacts: false
   variables:
     _INTERNAL_MESON_ARGS: "--buildtype=debug"
-    CFLAGS: "-coverage -ftest-coverage -fprofile-arcs -fno-omit-frame-pointer -g"
+    CFLAGS: "--coverage -fprofile-abs-path -fno-omit-frame-pointer -g"
   script:
     - *test
 
