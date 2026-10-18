@@ -110,6 +110,9 @@ spec:
         - "enabled"
         - "disabled"
       description: "Enable or Disable the gobject-linter report"
+    gobject-linter-options:
+      description: "List of additional options passed to gobject-linter"
+      default: null
     generate-extensions:
       default: "enabled"
       options:
@@ -499,9 +502,9 @@ spec:
     #
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
     # - gobject-linter $[[ inputs.meson-sourcedir]] --format sarif > gobject-linter.sarif || true
-    - gobject-linter $[[ inputs.meson-sourcedir]] --format gitlab-codequality > gobject-linter-codequality.json || true
-    - gobject-linter $[[ inputs.meson-sourcedir]] --format text | tee gobject-linter.log || true
-    - gobject-linter $[[ inputs.meson-sourcedir]] --summary
+    - gobject-linter $[[ inputs.gobject-linter-options]] $[[ inputs.meson-sourcedir]] --format gitlab-codequality > gobject-linter-codequality.json || true
+    - gobject-linter $[[ inputs.gobject-linter-options]] $[[ inputs.meson-sourcedir]] --format text | tee gobject-linter.log || true
+    - gobject-linter $[[ inputs.gobject-linter-options]] $[[ inputs.meson-sourcedir]] --summary
   artifacts:
     expire_in: "1 week"
     when: "always"

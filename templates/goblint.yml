@@ -16,6 +16,9 @@ spec:
     source-directory:
       default: "."
       description: "The source directory to run against"
+    linter-options:
+      description: "List of additional options passed to gobject-linter"
+      default: null
     allow-failure:
       default: false
       type: boolean
@@ -58,9 +61,9 @@ spec:
     #
     # Sarif is only available in the Enterprise Edition of gitlab and its also behind a feature flag atm
     # - gobject-linter $[[ inputs.source-directory]] --format sarif > gobject-linter.sarif || true
-    - gobject-linter $[[ inputs.source-directory]] --format gitlab-codequality > gobject-linter-codequality.json || true
-    - gobject-linter $[[ inputs.source-directory]] --format text | tee gobject-linter.log || true
-    - gobject-linter $[[ inputs.source-directory]] --summary
+    - gobject-linter $[[ inputs.linter-options]] $[[ inputs.source-directory]] --format gitlab-codequality > gobject-linter-codequality.json || true
+    - gobject-linter $[[ inputs.linter-options]] $[[ inputs.source-directory]] --format text | tee gobject-linter.log || true
+    - gobject-linter $[[ inputs.linter-options]] $[[ inputs.source-directory]] --summary
   artifacts:
     expire_in: "1 week"
     when: "always"
