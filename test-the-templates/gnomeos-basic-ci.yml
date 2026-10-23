@@ -18,6 +18,8 @@ include:
       job-stage: "GNOMEOS Basic CI"
       meson-sourcedir: "gnome-calendar"
       before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/gnome-calendar.git"
+      # Disabled by default
+      gcov: "enabled"
       grcov-c-options: "--ignore tests/**/*"
       goblint: "enabled"
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA

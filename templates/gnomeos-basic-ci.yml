@@ -73,7 +73,7 @@ spec:
         - "disabled"
       description: "Enable or Disable the ubsan build"
     gcov:
-      default: "enabled"
+      default: "disabled"
       options:
         - "enabled"
         - "disabled"
