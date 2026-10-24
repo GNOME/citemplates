@@ -177,6 +177,7 @@ flatpak-epiphany:
     - git clone --depth=1 https://gitlab.gnome.org/gnome/epiphany.git
   script:
     - cd epiphany
+    - jq "(.modules[] | select(.name == \"${FLATPAK_MODULE}\") | .[\"build-options\"][\"test-args\"]) += [\"--env=WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS=1\"]" "${MANIFEST_PATH}" > "${MANIFEST_PATH}.tmp" && mv "${MANIFEST_PATH}.tmp" "${MANIFEST_PATH}"
     - !reference [".flatpak", "script"]
 
 test-flatpak-bundle-and-repo:
