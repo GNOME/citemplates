@@ -41,7 +41,7 @@ WORKDIR /build
 RUN dnf config-manager setopt '*openh264*.enabled=0' && \
     dnf upgrade -y --best --allowerasing && \
     dnf install -y flatpak flatpak-spawn flatpak-builder librsvg2 ostree fuse elfutils ccache debugedit \
-    dconf dbus-daemon dbus-tools git bzr python3-ruamel-yaml \
+    dconf dbus-daemon dbus-tools git bzr python3-ruamel-yaml gnome-session upower xwayland-run \
     python3-gobject python3-pip json-glib jq tracker tracker-miners strace \
     mesa-vulkan-drivers mesa-libEGL mesa-libGL mutter xdg-desktop-portal xdg-desktop-portal-gnome && \
     dnf clean all
