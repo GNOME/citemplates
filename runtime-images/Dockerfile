@@ -5,6 +5,12 @@ RUN dnf config-manager setopt '*openh264*.enabled=0' && \
     dnf install -y git 'dnf-command(builddep)' which meson && \
     dnf builddep -y flatpak
 
+RUN git clone --recursive https://github.com/containers/bubblewrap.git /tmp/bubblewrap && \
+    cd /tmp/bubblewrap  && \
+    git checkout v0.12.0 && \
+    meson setup --prefix=/usr -Dtests=false _build && \
+    meson install -C _build --destdir=/flatpak/destdir
+
 # Flatpak 1.15.6 has started using bwrap --disable-userns which is failing in the CI jobs
 # as we can't write to /proc/sys/user/max_user_namespaces from the unprivilledged (and non-root)
 # container that podman from gitlab-runner executes.
@@ -21,8 +27,8 @@ RUN dnf config-manager setopt '*openh264*.enabled=0' && \
 # ========================================================================
 # bwrap: cannot open /proc/sys/user/max_user_namespaces: Permission denied
 # Error: module gnome-font-viewer: Child process exited with code 1
-RUN git clone --recursive --depth=1 -b alatiera/gnome-ci-bwrap https://github.com/alatiera/flatpak.git && \
-    cd flatpak && \
+RUN git clone --recursive --depth=1 -b alatiera/gnome-ci-bwrap https://github.com/alatiera/flatpak.git /tmp/flatpak && \
+    cd /tmp/flatpak && \
     git checkout e74ffed8d55ceee9d4d93bc8f2491db885bbeccd && \
     meson setup --prefix=/usr -Dtests=false -Ddocbook_docs=disabled -Dgtkdoc=disabled _build && \
     meson install -C _build --destdir=/flatpak/destdir
