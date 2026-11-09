@@ -138,6 +138,7 @@ spec:
   # we had a whole session running!
   - export XDG_CURRENT_DESKTOP="GNOME"
   - export XDG_SESSION_DESKTOP="GNOME"
+  - export XDG_SESSION_TYPE="wayland"
 
   # Disable gvfs as we don't have a complete session and barerly a dbus session
   - export GIO_USE_VFS=local

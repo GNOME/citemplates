@@ -128,6 +128,24 @@ include:
       scan-build: "disabled"
       goblint: "disabled"
       generate-extensions: "disabled"
+
+  - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/gnomeos-basic-ci@$CI_COMMIT_SHA
+    inputs:
+      job-name: "basic-ci-nautilus"
+      job-stage: "GNOMEOS Basic CI"
+      meson-options: "-Dtests=all"
+      meson-sourcedir: "nautilus"
+      before-script: "git clone --depth=1 https://gitlab.gnome.org/gnome/nautilus.git"
+      clang: "disabled"
+      asan: "disabled"
+      lsan: "disabled"
+      tsan: "disabled"
+      ubsan: "disabled"
+      scan-build: "disabled"
+      goblint: "disabled"
+      gcov: "disabled"
+      grcov-c: "disabled"
+      generate-extensions: "disabled"
     
   # Test the release service sandbox
   - component: $CI_SERVER_FQDN/$CI_PROJECT_PATH/release-service@$CI_COMMIT_SHA
